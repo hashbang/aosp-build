@@ -1,7 +1,8 @@
 <?xml version="1.0" ?><manifest>  
 
     <remote fetch="https://android.googlesource.com" name="aosp" review="https://android-review.googlesource.com/"/>  
-    <default remote="aosp" revision="refs/tags/android-9.0.0_r35" sync-j="4"/>  
+    <remote fetch="https://github.com/" name="github"/>  
+  <default remote="aosp" revision="refs/tags/android-9.0.0_r35" sync-j="4"/>  
 
     <project groups="pdk" name="platform/build" path="build/make" revision="f90372d27b2795a5439c08dcd7dcbfaff1882d17" upstream="refs/tags/android-9.0.0_r35">    
         <copyfile dest="Makefile" src="core/root.mk"/>    
@@ -12,7 +13,7 @@
         <linkfile dest="build/target" src="target"/>    
         <linkfile dest="build/tools" src="tools"/>    
     </project>  
-    <project groups="pdk,tradefed" name="platform/build/blueprint" path="build/blueprint" revision="4242064ac09b09427ba0426e8ccdfffcbf88fa15" upstream="refs/tags/android-9.0.0_r35"/>  
+    <project groups="device" name="anestisb/android-prepare-vendor" path="vendor/android-prepare-vendor" remote="github" revision="24dc76021a4f8ee3c621dbb64c504a3f2958b2c4" upstream="refs/heads/master"/>  <project groups="pdk,tradefed" name="platform/build/blueprint" path="build/blueprint" revision="4242064ac09b09427ba0426e8ccdfffcbf88fa15" upstream="refs/tags/android-9.0.0_r35"/>  
     <project groups="pdk,tradefed" name="platform/build/kati" path="build/kati" revision="803e064de2ad64dde13831597d538411c88b604c" upstream="refs/tags/android-9.0.0_r35"/>  
     <project groups="pdk,tradefed" name="platform/build/soong" path="build/soong" revision="e2e7803acf8bfd8793827ee8562dfcb4810cdd85" upstream="refs/tags/android-9.0.0_r35">    
         <linkfile dest="Android.bp" src="root.bp"/>    

@@ -1,27 +1,26 @@
 device = ${DEVICE}
-config = ${CONFIG}
 userid = $(shell id -u)
 groupid = $(shell id -g)
+image = "hashbang/aosp-build:latest"
 
 .DEFAULT_GOAL := default
 
 contain := \
-	mkdir -p keys build/$(config)/base && \
-	mkdir -p keys build/$(config)/release && \
-	mkdir -p keys build/$(config)/external && \
+	mkdir -p keys build/base && \
+	mkdir -p keys build/release && \
+	mkdir -p keys build/external && \
 	docker run -it --rm -h "android" \
-		-v $(PWD)/build/$(config)/base:/home/build/base \
-		-v $(PWD)/build/$(config)/release:/home/build/release \
-		-v $(PWD)/build/$(config)/external:/home/build/external \
+		-v $(PWD)/build/base:/home/build/base \
+		-v $(PWD)/build/release:/home/build/release \
+		-v $(PWD)/build/external:/home/build/external \
 		-v $(PWD)/keys:/home/build/keys \
 		-v $(PWD)/scripts:/home/build/scripts \
-		-v $(PWD)/configs/$(config)/config.yml:/home/build/config.yml \
-		-v $(PWD)/configs/$(config)/manifests:/home/build/manifests \
-		-v $(PWD)/configs/$(config)/patches:/home/build/patches \
+		-v $(PWD)/config.yml:/home/build/config.yml \
+		-v $(PWD)/manifests:/home/build/manifests \
+		-v $(PWD)/patches:/home/build/patches \
 		-u $(userid):$(groupid) \
 		-e DEVICE=$(device) \
-		-e CONFIG=$(config) \
-		hashbang-os:latest
+		$(image)
 
 default: build
 
@@ -29,13 +28,10 @@ image:
 	@docker build \
 		--build-arg UID=$(userid) \
 		--build-arg GID=$(groupid) \
-		-t hashbang-os:latest .
+		-t $(image) .
 
 manifest: image
 	$(contain) manifest
-	cp \
-		build/configs/$(config)/manifests/*.xml \
-		configs/$(config)/manifests/ || :
 
 config: manifest
 	$(contain) config
@@ -81,7 +77,7 @@ clean: image
 	@$(contain) clean
 
 mrproper: clean
-	@docker image rm -f hashbang-os:latest
+	@docker image rm -f $(image)
 	rm -rf build
 
 install: tools

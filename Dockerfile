@@ -68,5 +68,8 @@ RUN \
 USER build
 WORKDIR /home/build
 ADD scripts/ /usr/local/bin/
+ADD ./ /home/build/
+ADD config.yml /home/build/config.yml
+ADD manifests /home/build/manifests
 
 CMD [ "/bin/bash", "/usr/local/bin/build.sh" ]
