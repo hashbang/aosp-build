@@ -64,9 +64,8 @@ RUN \
         wget \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
-    && echo "[color]\nui = auto\n[user]\nemail = aosp@example.org\nname = AOSP User" >> /etc/gitconfig
-
-RUN git clone https://github.com/boxboat/fixuid.git fixuid/src/fixuid \
+    && echo "[color]\nui = auto\n[user]\nemail = aosp@example.org\nname = AOSP User" >> /etc/gitconfig \
+    && git clone https://github.com/boxboat/fixuid.git fixuid/src/fixuid \
     && git -C "fixuid/src/fixuid" reset --hard \
     	0ec93d22e52bde5b7326e84cb62fd26a3d20cead \
     && git clone https://github.com/go-ozzo/ozzo-config \
