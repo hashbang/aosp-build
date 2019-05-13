@@ -87,6 +87,7 @@ RUN git clone https://github.com/boxboat/fixuid.git fixuid/src/fixuid \
     	7b8349ac747c6a24702b762d2c4fd9266cf4f1d6 \
     && env GOPATH="$PWD/fixuid" GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
     	go build -o "/usr/local/bin/fixuid" fixuid \
+    && rm -rf "fixuid" \
     && chown root:root /usr/local/bin/fixuid \
     && chmod 4755 /usr/local/bin/fixuid \
     && mkdir -p /etc/fixuid \
