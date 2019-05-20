@@ -32,9 +32,9 @@ class AndroidManifest:
         self._fetch()
         self._remove()
         self._extend()
+        self._set_default_revision()
         self._set_remotes()
         self._set_default_remote()
-        self._set_default_revision()
         self._lock()
 
     def _fetch(self):
@@ -54,12 +54,26 @@ class AndroidManifest:
             print("Adding Remote: \"%s\"" % (element.attrib['name']))
         for project in self.extra_projects:
             element = Element("project")
+            element.text = "\n"
+            if 'children' in project:
+                children = project.pop('children', None)
+                for child in children:
+                    if 'tag' in child:
+                        tag = child.pop('tag', None)
+                    subelement = Element(tag)
+                    subelement.attrib = child
+                    subelement.tail = "\n"
+                    element.append(subelement)
             element.attrib = project
+            element.tail = "\n"
             self.manifest.insert(4,element)
             print("Adding Project: \"%s\"" % (element.attrib['name']))
 
     def _remove(self):
         projects=self.manifest.findall(".//project")
+        remove_paths = self.remove_paths
+        for project in self.extra_projects:
+            remove_paths.append(project['path'])
         for project in projects:
             path=project.attrib['path']
             if 'groups' in project.attrib:
@@ -76,15 +90,23 @@ class AndroidManifest:
         self.remotes={}
         remote_nodes = self.manifest.findall(".//remote")
         for remote_node in remote_nodes:
+            self.remotes[remote_node.attrib["name"]] = {}
             if 'fetch' in remote_node.attrib:
                 if remote_node.attrib['fetch'] == '..':
                     remote_node.attrib['fetch'] = self.default_fetch
-            if 'review' in remote_node.attrib:
-                self.remotes[remote_node.attrib["name"]] = \
-                    remote_node.attrib["review"]
             else:
-                self.remotes[remote_node.attrib["name"]] = \
-                    remote_node.attrib["fetch"]
+                remote_node.attrib['fetch'] = self.default_fetch
+            self.remotes[remote_node.attrib["name"]]['fetch'] = \
+                remote_node.attrib['fetch']
+            if 'review' in remote_node.attrib:
+                self.remotes[remote_node.attrib["name"]]['review'] = \
+                    remote_node.attrib["review"]
+            if 'revision' in remote_node.attrib:
+                self.remotes[remote_node.attrib["name"]]["revision"] = \
+                    remote_node.attrib["revision"]
+            else:
+                self.remotes[remote_node.attrib["name"]]["revision"] = \
+                    self.default_revision
             print("Adding Remote: \"%s\"" % (remote_node.attrib['name']))
 
     def _set_default_revision(self):
@@ -95,8 +117,8 @@ class AndroidManifest:
     def _set_default_remote(self):
         default_remote_name = \
             self.manifest.findall(".//default")[0].attrib['remote']
-        self.default_remote = self.remotes[default_remote_name]
-        print("Setting Remote: \"%s\"" % (self.default_remote))
+        self.default_remote = default_remote_name
+        print("Setting Default Remote: \"%s\"" % default_remote_name)
 
     def _lock(self):
         projects=self.manifest.findall(".//project")
@@ -105,14 +127,17 @@ class AndroidManifest:
             if 'remote' in project.attrib:
                 remote = self.remotes[project.attrib['remote']]
             else:
-                remote = self.default_remote
+                remote = self.remotes[self.default_remote]
             if 'revision' in project.attrib:
                 revision = project.attrib['revision']
-            else:
-                revision = self.default_revision
+            elif 'revision' in remote:
+                revision = remote['revision']
             if 'refs' not in revision:
                 revision = "refs/heads/%s" % revision
-            project_repo_url="%s%s.git" % (remote, project.attrib['name'])
+            project_repo_url="%s/%s.git" % (
+                remote.get('fetch',self.remotes[self.default_remote]['fetch']),
+                project.attrib['name']
+            )
             remote_refs = self._lsremote(project_repo_url)
             project.attrib['upstream'] = revision
             project.attrib['revision'] = remote_refs[revision]

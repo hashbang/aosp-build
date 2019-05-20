@@ -6,10 +6,10 @@ datetime: 1555835843
 host: android
 user: build
 platform:
-  ref: android-9.0.0_r35
+  ref: android-9.0.0_r37
   extra_remotes:
   - name: github
-    fetch: https://github.com/
+    fetch: https://github.com
   extra_projects:
   - name: anestisb/android-prepare-vendor
     groups: device
