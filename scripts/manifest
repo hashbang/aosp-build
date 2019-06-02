@@ -29,6 +29,8 @@ class AndroidManifest:
         self.extra_projects = extra_projects
         self.remove_paths = remove_paths
         self.remove_groups = remove_groups
+        for project in self.extra_projects:
+            self.remove_paths.append(project['path'])
         self._fetch()
         self._remove()
         self._extend()
@@ -71,9 +73,6 @@ class AndroidManifest:
 
     def _remove(self):
         projects=self.manifest.findall(".//project")
-        remove_paths = self.remove_paths
-        for project in self.extra_projects:
-            remove_paths.append(project['path'])
         for project in projects:
             path=project.attrib['path']
             if 'groups' in project.attrib:
