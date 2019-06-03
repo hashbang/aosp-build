@@ -35,10 +35,12 @@ echo "$chromium_src_ref"
 cd "$chromium_dir/src"
 git reset --hard "$chromium_src_ref"
 
-for patch in "${config_dir}"/patches/chromium/*.patch; do
-	echo "Applying patch: ${patch}"
-	patch -p1 --no-backup-if-mismatch < "${patch}"
-done
+if ls "${config_dir}"/patches/chromium/*.patch &>/dev/null; then
+	for patch in "${config_dir}"/patches/chromium/*.patch; do
+		echo "Applying patch: ${patch}"
+		patch -p1 --no-backup-if-mismatch < "${patch}"
+	done
+fi
 
 mkdir -p "$chromium_dir/src/out/Default"
 cat <<-EOF > out/Default/args.gn
