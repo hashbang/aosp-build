@@ -1,0 +1,27 @@
+[submodule "vendor/github.com/boxboat/fixuid"]
+	path = vendor/github.com/boxboat/fixuid
+	url = https://github.com/boxboat/fixuid
+[submodule "vendor/github.com/go-ozzo/ozzo-config"]
+	path = vendor/github.com/go-ozzo/ozzo-config
+	url = https://github.com/go-ozzo/ozzo-config
+[submodule "vendor/github.com/hnakamur/jsonpreprocess"]
+	path = vendor/github.com/hnakamur/jsonpreprocess
+	url = https://github.com/hnakamur/jsonpreprocess
+[submodule "vendor/github.com/BurntSushi/toml"]
+	path = vendor/github.com/BurntSushi/toml
+	url = https://github.com/BurntSushi/toml
+[submodule "vendor/gopkg.in/yaml.v2"]
+	path = vendor/gopkg.in/yaml.v2
+	url = https://github.com/go-yaml/yaml
+[submodule "vendor/github.com/hashicorp/terraform"]
+	path = vendor/github.com/hashicorp/terraform
+	url = https://github.com/hashicorp/terraform
+[submodule "vendor/k8s.io/helm"]
+	path = vendor/k8s.io/helm
+	url = https://github.com/helm/helm
+[submodule "vendor/github.com/Masterminds/glide"]
+	path = vendor/github.com/Masterminds/glide
+	url = https://github.com/Masterminds/glide
+[submodule "vendor/k8s.io/kubernetes"]
+	path = vendor/k8s.io/kubernetes
+	url = https://github.com/kubernetes/kubernetes

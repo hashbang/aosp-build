@@ -1,3 +1,18 @@
+FROM golang:latest as golang
+
+ADD vendor /go/src
+
+RUN go build -o /usr/local/bin/fixuid github.com/boxboat/fixuid
+RUN go build -o /usr/local/bin/terraform github.com/hashicorp/terraform
+RUN go build -o /usr/local/bin/glide github.com/Masterminds/glide
+RUN go build -o /usr/local/bin/kubectl k8s.io/kubernetes/cmd/kubectl
+RUN cd /go/src/k8s.io/helm \
+    && make bootstrap build \
+    && cp bin/helm /usr/local/bin/ \
+    && cp bin/tiller /usr/local/bin/
+
+RUN ls /usr/local/bin
+
 FROM ubuntu:cosmic
 
 MAINTAINER Hashbang Team <team@hashbang.sh>
@@ -7,7 +22,6 @@ ENV PATH=/home/build/scripts:/home/build/out/host/linux-x86/bin:/usr/local/sbin:
 
 ARG UID=1000
 ARG GID=1000
-
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN \
@@ -34,7 +48,6 @@ RUN \
         gcc-multilib\
         gnupg \
         gperf\
-        golang \
         imagemagick \
         libncurses5 \
         lib32ncurses5-dev \
@@ -65,31 +78,17 @@ RUN \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && echo "[color]\nui = auto\n[user]\nemail = aosp@example.org\nname = AOSP User" >> /etc/gitconfig \
-    && git clone https://github.com/boxboat/fixuid.git fixuid/src/fixuid \
-    && git -C "fixuid/src/fixuid" reset --hard \
-    	0ec93d22e52bde5b7326e84cb62fd26a3d20cead \
-    && git clone https://github.com/go-ozzo/ozzo-config \
-    	"fixuid/src/github.com/go-ozzo/ozzo-config" \
-    && git -C "fixuid/src/github.com/go-ozzo/ozzo-config" reset --hard \
-    	0ff174cf5aa6480026e0b40c14fd9cfb61c4abf6 \
-    && git clone https://github.com/hnakamur/jsonpreprocess \
-    	"fixuid/src/github.com/hnakamur/jsonpreprocess" \
-    && git -C "fixuid/src/github.com/hnakamur/jsonpreprocess" reset --hard \
-    	a4e954386171be645f1eb7c41865d2624b69259d \
-    && git clone https://github.com/BurntSushi/toml \
-    	"fixuid/src/github.com/BurntSushi/toml" \
-    && git -C "fixuid/src/github.com/BurntSushi/toml" reset --hard \
-    	3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005 \
-    && git clone https://github.com/go-yaml/yaml \
-    	"fixuid/src/gopkg.in/yaml.v2" \
-    && git -C "fixuid/src/gopkg.in/yaml.v2" reset --hard \
-    	7b8349ac747c6a24702b762d2c4fd9266cf4f1d6 \
-    && env GOPATH="$PWD/fixuid" GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
-    	go build -o "/usr/local/bin/fixuid" fixuid \
-    && rm -rf "fixuid" \
+    && chown -R build:build /home/build
+
+COPY --from=golang /usr/local/bin/terraform /usr/local/bin/
+COPY --from=golang /usr/local/bin/kubectl /usr/local/bin/
+COPY --from=golang /usr/local/bin/helm /usr/local/bin/
+COPY --from=golang /usr/local/bin/tiller /usr/local/bin/
+COPY --from=golang /usr/local/bin/fixuid /usr/local/bin/
+
+RUN mkdir -p /etc/fixuid \
     && chown root:root /usr/local/bin/fixuid \
     && chmod 4755 /usr/local/bin/fixuid \
-    && mkdir -p /etc/fixuid \
     && printf "user: build\ngroup: build\n" > /etc/fixuid/config.yml
 
 ENTRYPOINT ["/usr/local/bin/fixuid", "-q"]

@@ -9,7 +9,9 @@ contain := \
 	mkdir -p keys build/base && \
 	mkdir -p keys build/release && \
 	mkdir -p keys build/external && \
+	mkdir -p keys build/.kube && \
 	docker run -it --rm -h "android" \
+		-v $(PWD)/build/.kube:/home/build/.kube \
 		-v $(PWD)/build/base:/home/build/base \
 		-v $(PWD)/build/release:/home/build/release \
 		-v $(PWD)/build/external:/home/build/external \
@@ -18,6 +20,8 @@ contain := \
 		-v $(PWD)/config.yml:/home/build/config.yml \
 		-v $(PWD)/manifests:/home/build/manifests \
 		-v $(PWD)/patches:/home/build/patches \
+		-v $(PWD)/terraform:/home/build/terraform \
+		--env-file=$(PWD)/.terraform.env \
 		-u $(userid):$(groupid) \
 		-e DEVICE=$(device) \
 		$(image)
@@ -66,6 +70,16 @@ test-repro:
 	@$(contain) test-repro
 
 test: test-repro
+
+infra:
+	@$(contain) bash -c ' \
+		helm init --client-only;  \
+		cd /home/build/terraform ; \
+		terraform init \
+			-backend-config=bucket="$$TF_BUCKET"  \
+			-backend-config=key="$$TF_KEY" ; \
+		terraform apply \
+	'
 
 shell:
 	@$(contain) shell
