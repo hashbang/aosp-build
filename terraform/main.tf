@@ -19,15 +19,30 @@ resource "digitalocean_kubernetes_cluster" "aosp-build" {
     }
 }
 
+variable "HOME" {}
+variable "GITHUB_CLIENT_ID" {}
+variable "GITHUB_CLIENT_SECRET" {}
+variable "DRONE_GITHUB_SERVER" {}
+variable "DRONE_RPC_SECRET" {}
+variable "DRONE_TLS_AUTOCERT" {}
+variable "DRONE_SERVER_HOST" {}
+variable "DRONE_SERVER_PROTO" {}
+
 locals {
+	home = "${var.HOME}"
+	github_client_id = "${var.GITHUB_CLIENT_ID}"
+	github_client_secret = "${var.GITHUB_CLIENT_SECRET}"
+	drone_github_server = "${var.DRONE_GITHUB_SERVER}"
+	drone_rpc_secret = "${var.DRONE_RPC_SECRET}"
+	drone_tls_autocert = "${var.DRONE_TLS_AUTOCERT}"
+	drone_server_host = "${var.DRONE_SERVER_HOST}"
+	drone_server_proto = "${var.DRONE_SERVER_PROTO}"
     k8s_config = "${digitalocean_kubernetes_cluster.aosp-build.kube_config[0]}"
     k8s_host = "${local.k8s_config["host"]}"
     k8s_client_key = "${base64decode(local.k8s_config["client_key"])}"
     k8s_client_cert = "${base64decode(local.k8s_config["client_certificate"])}"
     k8s_ca_cert = "${base64decode(local.k8s_config["cluster_ca_certificate"])}"
 }
-
-variable "home" {}
 
 provider "kubernetes" {
     host = "${local.k8s_host}"
@@ -38,63 +53,86 @@ provider "kubernetes" {
 
 resource "local_file" "kubernetes_config" {
     content = "${digitalocean_kubernetes_cluster.aosp-build.kube_config.0.raw_config}"
-    filename = "${var.home}/.kube/config"
+    filename = "${local.home}/.kube/config"
 }
 
-resource "kubernetes_service_account" "tiller" {
+resource "kubernetes_pod" "drone" {
   metadata {
-    name = "tiller"
-    namespace = "kube-system"
+    name = "drone"
+    labels = {
+      app = "drone"
+    }
   }
-  automount_service_account_token = true
+  spec {
+    container {
+      image = "drone/drone:1.2.0"
+      name  = "drone"
+	  port {
+		container_port = 80
+		host_port = 80
+      }
+      env {
+    	name = "DRONE_KUBERNETES_ENABLED"
+    	value = false
+      }
+      env {
+    	name = "DRONE_KUBERNETES_NAMESPACE"
+    	value = "default"
+      }
+      env {
+    	name = "DRONE_TLS_AUTOCERT"
+    	value = "${local.drone_tls_autocert}"
+      }
+      env {
+    	name = "DRONE_GITHUB_SERVER"
+    	value = "${local.drone_github_server}"
+      }
+      env {
+    	name = "DRONE_GITHUB_CLIENT_ID"
+    	value = "${local.github_client_id}"
+      }
+      env {
+    	name = "DRONE_GITHUB_CLIENT_SECRET"
+    	value = "${local.github_client_secret}"
+      }
+      env {
+    	name = "DRONE_RPC_SECRET"
+    	value = "${local.drone_rpc_secret}"
+      }
+      env {
+    	name = "DRONE_SERVER_HOST"
+    	value = "${local.drone_server_host}"
+      }
+      env {
+    	name = "DRONE_SERVER_PROTO"
+    	value = "${local.drone_server_proto}"
+      }
+    }
+  }
 }
 
-resource "kubernetes_cluster_role_binding" "tiller" {
-    metadata {
-        name = "tiller"
+resource "kubernetes_service" "drone" {
+  metadata {
+    name = "drone"
+  }
+  spec {
+    selector = {
+      app = "${kubernetes_pod.drone.metadata.0.labels.app}"
     }
-    role_ref {
-        kind = "ClusterRole"
-        name = "cluster-admin"
-        api_group = "rbac.authorization.k8s.io"
+    port {
+	  name = "https"
+      port = 443
+      target_port = 80
     }
-    subject {
-        kind = "ServiceAccount"
-        name = "tiller"
-        api_group = ""
-        namespace = "kube-system"
+    port {
+	  name = "http"
+      port = 80
+      target_port = 80
     }
+    type = "LoadBalancer"
+  }
 }
 
-provider "helm" {
-    enable_tls = true
-    tiller_image = "gcr.io/kubernetes-helm/tiller:v2.14.1"
-    service_account = "${kubernetes_service_account.tiller.metadata.0.name}"
-    namespace = "${kubernetes_service_account.tiller.metadata.0.namespace}"
-    kubernetes {
-        host = "${local.k8s_host}"
-        client_certificate = "${local.k8s_client_cert}"
-        client_key = "${local.k8s_client_key}"
-        cluster_ca_certificate = "${local.k8s_ca_cert}"
-    }
+output "lb_ip" {
+  value = "${kubernetes_service.drone.load_balancer_ingress.0.ip}"
 }
-
-data "helm_repository" "stable" {
-    name = "stable"
-    url  = "https://kubernetes-charts.storage.googleapis.com"
-}
-
-#resource "helm_release" "drone" {
-#    name = "drone"
-#    chart = "stable/drone"
-#    set {
-#        name  = "some_key"
-#        value = "foo"
-#    }
-#    depends_on = [
-#        "data.helm_repository.stable",
-#        "kubernetes_service_account.tiller",
-#        "kubernetes_cluster_role_binding.tiller",
-#    ]
-#}
-#
