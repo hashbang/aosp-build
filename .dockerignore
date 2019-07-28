@@ -1,2 +1,4 @@
-keys
-build
+*
+!manifests
+!scripts
+!config.yml

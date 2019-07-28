@@ -97,7 +97,6 @@ ENTRYPOINT ["/usr/local/bin/fixuid", "-q"]
 USER build
 WORKDIR /home/build
 ADD scripts/ /usr/local/bin/
-ADD ./ /home/build/
 ADD config.yml /home/build/config.yml
 ADD manifests /home/build/manifests
 
