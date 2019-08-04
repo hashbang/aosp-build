@@ -51,7 +51,7 @@ function apply_patches(){
 		echo "Applying patch: $patch_dir/${patch}"
 		patch -p1 --no-backup-if-mismatch < "${patch_dir}/${patch}"
 	done
-	if [ -f "${patch_dir}/${fdroid_whitelist}" ]; then
+	if [ -f "${base_dir}/${fdroid_whitelist}" ]; then
 		echo "patching file ${fdroid_whitelist}"
 		sed -i \
 			"s/[a-f0-9]\\{64\\}/${platform_key_hash}/g" \
