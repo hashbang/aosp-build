@@ -44,7 +44,6 @@ Please join us on IRC: ircs://irc.hashbang.sh/#!os
 
 ### Requirements ###
 
- * OSX/Linux host system
  * [Android Developer Tools][4]
 
 [4]: https://developer.android.com/studio/releases/platform-tools
@@ -57,36 +56,21 @@ cd crosshatch-PQ1A.181205.006/
 
 ### Flash
 
-Unlock the bootloader.
+ 1. Unlock "Developer Settings" by tapping "About -> Build" several times
+ 2. Ensure "Enable OEM Unlocking" is enabled under "Developer Settings".
+ 3. Unlock the bootloader.
+   ```
+   adb reboot bootloader
+   fastboot flashing unlock
+   ```
 
-NOTE: You'll have to be in developer mode and enable OEM unlocking
+ 4. Repeat steps #1 and #2
+ 5. Flash new factory images
+   ```
+   ./flash-all.sh
+   ```
 
-```
-adb reboot bootloader
-fastboot flashing unlock
-```
-
-Once the bootloader is unlocked it will wipe the phone and you'll have to do
-basic setup to be able to drop into fastboot. You can skip everything since
-you'll be starting from scratch again after flashing #!OS
-
-Reboot phone in fastboot and flash
-
-#### Pixel
-
-```
-adb reboot bootloader
-./flash-all.sh
-```
-
-#### Pixel 2+
-
-```
-adb reboot fastboot
-./flash-all.sh
-```
-
-## Building ##
+## Build ##
 
 ### Requirements ###
 
@@ -94,7 +78,7 @@ adb reboot fastboot
  * Docker
  * x86_64 CPU
  * 10GB+ available memory
- * 60GB+ disk
+ * 350GB+ available disk
 
 ### Generate Signing Keys ###
 
@@ -112,18 +96,7 @@ make DEVICE=crosshatch clean build release
 
 ## Develop ##
 
-## Configure ##
-
-In addition to the AOSP (default) configuration, configurations exist to
-build using default sources from other compatible android projects:
-
-  | Config     | Tested | Verifiable | Sources                        |
-  |------------|:------:|:----------:|:------------------------------:|
-  | Hashbang   | TRUE   | FALSE      | https://github.com/hashbang/os |
-  | CalyxOS    | FALSE  | FALSE      | https://github.com/grapheneos  |
-  | GrapheneOS | FALSE  | FALSE      | https://gitlab.com/calyxos     |
-
-### clean ###
+### Clean ###
 
 Do basic cleaning without deleting cached artifacts/sources:
 ```
@@ -135,11 +108,13 @@ Clean everything but keys
 make mrproper
 ```
 
-### Compare ###
+### Test ###
 
-Build a given device twice from scratch and compare with diffoscope:
+* Build a given device twice from scratch and compare with diffoscope
+* Future: Run Android Compatibility Test Suite
+
 ```
-make shell
+make test
 ```
 
 ### Edit ###
@@ -158,13 +133,8 @@ make diff > patches/my-feature.patch
 
 ### Flash ###
 ```
-adb reboot fastboot
 make install
 ```
-
-## Release ##
-
-WIP
 
 ### Update ###
 
