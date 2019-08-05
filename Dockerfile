@@ -87,6 +87,7 @@ RUN \
     && env GOPATH="$PWD/fixuid" GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
     	go build -o "/usr/local/bin/fixuid" fixuid \
     && rm -rf "fixuid" \
+    && rm -rf "/home/build/.cache" \
     && chown root:root /usr/local/bin/fixuid \
     && chmod 4755 /usr/local/bin/fixuid \
     && mkdir -p /etc/fixuid \
