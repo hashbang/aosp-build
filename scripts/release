@@ -88,6 +88,7 @@ EOF
 if [ "$avb_mode" != "verity_only" ]; then
 	cp "${key_dir}/avb_pkmd.bin" "${factory_dir}/${device}-avb_pkmd.bin"
 	cat <<-EOF >> "${factory_dir}/flash-all.sh"
+	fastboot erase avb_custom_key
 	fastboot flash avb_custom_key ${device}-avb_pkmd.bin
 EOF
 fi
