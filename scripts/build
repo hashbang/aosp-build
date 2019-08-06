@@ -25,7 +25,6 @@ function build_external(){
 	cp -R "${vendor_dist}." "${vendor_dest}"
 
 	if [ "$build_chromium" == "true"  ]; then
-		set -x
 		local chromium_dist="${external_dir}/chromium/src/out/Default/apks/"
 		local chromium_dest="${base_dir}/external/chromium/prebuilt/arm64/"
 		[ -d "${chromium_dist}" ] || build-chromium
