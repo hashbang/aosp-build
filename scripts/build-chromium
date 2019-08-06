@@ -65,7 +65,7 @@ gn gen "$chromium_dir/src/out/Default"
 # As a result the first build often breaks and only on the second build
 # will it complete.
 retry 2 autoninja -C "$chromium_dir/src/out/Default/" monochrome_public_apk
-mkdir -p "$base_dir/platform/external/chromium" ||:
+mkdir -p "$base_dir/external/chromium" ||:
 cp -R \
 	"$overlay_dir/external/chromium" \
 	"$base_dir/external/chromium"
