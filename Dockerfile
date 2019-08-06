@@ -100,5 +100,6 @@ WORKDIR /home/build
 ADD scripts/ /usr/local/bin/
 ADD config.yml /home/build/config.yml
 ADD manifests /home/build/manifests
+ADD overlay /home/build/overlay
 
 CMD [ "/bin/bash", "/usr/local/bin/build.sh" ]

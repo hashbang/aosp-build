@@ -1,4 +1,5 @@
 *
 !manifests
 !scripts
+!overlay
 !config.yml

@@ -4,7 +4,9 @@ set -e; eval "$(environment)"
 
 [ "${BUILD_CHROMIUM?}" == "true" ] || exit 0
 
+base_dir="${BASE_DIR:-$PWD/base}"
 external_dir="${EXTERNAL_DIR:-$PWD/external}"
+overlay_dir="${OVERLAY_DIR:-$PWD/overlay}"
 config_dir="${CONFIG_DIR?}"
 chromium_src_ref=${CHROMIUM_SRC_REF?}
 chromium_depot_tools_ref=${CHROMIUM_DEPOT_TOOLS_REF?}
@@ -63,3 +65,7 @@ gn gen "$chromium_dir/src/out/Default"
 # As a result the first build often breaks and only on the second build
 # will it complete.
 retry 2 autoninja -C "$chromium_dir/src/out/Default/" monochrome_public_apk
+mkdir -p "$base_dir/platform/external/chromium" ||:
+cp -R \
+	"$overlay_dir/external/chromium" \
+	"$base_dir/external/chromium"
