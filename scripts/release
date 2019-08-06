@@ -94,13 +94,15 @@ EOF
 fi
 
 cat <<-EOF >> "${factory_dir}/flash-all.sh"
+	fastboot flashing unlock
 	fastboot flash bootloader bootloader-${device}-${bootloader}.img
 	fastboot reboot-bootloader
 	sleep 5
 	fastboot flash radio radio-${device}-${radio}.img
 	fastboot reboot-bootloader
 	sleep 5
-	fastboot -w update image-${device}-${build_id}.zip
+	fastboot -w --skip-reboot update image-${device}-${build_id}.zip
+	fastboot flashing lock
 EOF
 chmod +x "${factory_dir}/flash-all.sh"
 timestamp=$(date -d "@$build_datetime" "+%y%m%d%H%M.%S")
