@@ -71,7 +71,7 @@ shell:
 	@$(contain) shell
 
 diff:
-	@$(contain) bash -c "cd base; repo diff -u"
+	@$(contain) bash -c "cd base; repo diff --absolute"
 
 clean: image
 	@$(contain) clean
