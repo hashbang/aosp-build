@@ -3,32 +3,65 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)"
 
+device="${DEVICE?}"
+base_dir="${BASE_DIR?}"
 external_dir="${EXTERNAL_DIR?}"
 manifest_dir="${MANIFEST_DIR?}"
+key_dir="${KEY_DIR:-${PWD}/keys/${device}}"
 kernel_name="${KERNEL_NAME?}"
+kernel_repo="${KERNEL_REPO?}"
+kernel_ref="${KERNEL_REF?}"
 kernel_dir="${external_dir}/kernel/${kernel_name}"
 cores=$(nproc)
 
-mkdir -p "${kernel_dir}"
-cd "${kernel_dir}"
-cat /etc/gitconfig > "$HOME/.gitconfig"
-rm -f "${kernel_dir}/.repo"
-repo init \
-	--manifest-url "${manifest_dir}" \
-	--manifest-name "kernel-${kernel_name}.xml"
-repo sync -c --no-tags --no-clone-bundle --jobs "${cores}"
-repo forall -c 'git reset --hard ; git clean -fdx'
+if [[ $kernel_repo == *"manifest"* ]]; then
+	mkdir -p "${kernel_dir}"
+	cd "${kernel_dir}"
+	cat /etc/gitconfig > "$HOME/.gitconfig"
+	rm -f "${kernel_dir}/.repo"
+	repo init \
+		--manifest-url "${manifest_dir}" \
+		--manifest-name "kernel-${kernel_name}.xml"
 
-# This seems like it -should- work but the AOSP kernel build system
-# seems to ignore it and generate new keys anyway
-# It is better for determinism and security to disable loadable module support
-# anyway, which some patchsets choose to do.
-#ln -vs \
-#	"${key_dir}/kernel.pem" \
-#	"${kernel_dir}/private/msm-google/certs/signing_key.pem"
+	repo sync \
+		--current-branch \
+		--no-tags \
+		--no-clone-bundle \
+		--force-sync \
+		--jobs "${cores}"
 
-cat <<-EOF | bash
-	export OUT_DIR="${kernel_dir}/out"
-	export DIST_DIR="${kernel_dir}/dist"
-	bash "${kernel_dir}/build/build.sh" -j$(cores)
-EOF
+	repo forall -c 'git reset --hard ; git clean --force -dx'
+
+	# This seems like it -should- work but the AOSP kernel build system
+	# seems to ignore it and generate new keys anyway
+	# It is better for determinism and security to disable loadable module support
+	# anyway, which some patchsets choose to do.
+	#ln -vs \
+	#	"${key_dir}/kernel.pem" \
+	#	"${kernel_dir}/private/msm-google/certs/signing_key.pem"
+
+	cat <<-EOF | bash
+		export OUT_DIR="${kernel_dir}/out"
+		export DIST_DIR="${kernel_dir}/dist"
+		bash "${kernel_dir}/build/build.sh" -j$(cores)
+	EOF
+
+else
+	cd "$base_dir"
+	kernel_url="https://android.googlesource.com/${kernel_repo}"
+	kernel_dist="${kernel_dir}/out/android-msm-${kernel_name}-4.9/dist/"
+	[ ! -d "$kernel_dir" ] && git clone "$kernel_url" "$kernel_dir"
+	cd "$kernel_dir"
+	git checkout "$kernel_ref"
+
+	[ ! -f "${kernel_dir}/verity_user.der.x509" ] && \
+		ln -vs \
+			"${key_dir}/verity_user.der.x509" \
+			"${kernel_dir}/verity_user.der.x509"
+
+	make "${kernel_name}_defconfig"
+	make
+	mkdir -p "${kernel_dist}"
+	cp -R arch/arm64/boot/. "${kernel_dist}"
+
+fi
