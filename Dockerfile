@@ -97,9 +97,7 @@ ENTRYPOINT ["/usr/local/bin/fixuid", "-q"]
 
 USER build
 WORKDIR /home/build
-ADD scripts/ /usr/local/bin/
-ADD config.yml /home/build/config.yml
-ADD manifests /home/build/manifests
-ADD overlay /home/build/overlay
+RUN mkdir config && chown -R build: config
+ADD scripts /usr/local/bin
 
-CMD [ "/bin/bash", "/usr/local/bin/build.sh" ]
+CMD [ "/bin/bash", "/usr/local/bin/build" ]

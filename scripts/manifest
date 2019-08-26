@@ -160,7 +160,7 @@ if __name__ == "__main__":
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
 
-    path="%s/manifests" % getcwd()
+    path="%s/config/manifests" % getcwd()
     makedirs(path, exist_ok=True)
 
     kernel_names=[]

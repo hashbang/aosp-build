@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+backend="${BACKEND:-virtualbox}"
+
+function docker_machine (){
+	docker-machine --storage-path "${PWD}/build/machine" "$@"
+}
+
+case $backend in
+	virtualbox)
+		export VIRTUALBOX_SHARE_FOLDER="$HOME:$HOME"
+		docker_machine create aosp-build > /dev/null 2>&1 || :
+		docker_machine start aosp-build > /dev/null 2>&1 || :
+		eval "$(docker_machine env aosp-build)"
+		docker_machine ssh aosp-build "$@"
+    ;;
+	local)
+		"$@"
+    ;;
+esac
