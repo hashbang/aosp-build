@@ -59,6 +59,9 @@ if config.get("apps", {}).get("chromium"):
     environment["CHROMIUM_DEPOT_TOOLS_REF"] = \
         config['apps']['chromium']['depot_tools_ref']
 
+if 'OTA_CHANNEL' in environ and len(environ['OTA_CHANNEL']) > 0:
+    environment['OTA_CHANNEL']=environ['OTA_CHANNEL']
+
 if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     device=environment['DEVICE']=environ['DEVICE']
     variant=environment['BUILD_VARIANT']
@@ -71,8 +74,7 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     else:
         key_dir = "%s/build/target/product/security/" % base_dir
     environment["KEY_DIR"] = key_dir
-    environment["RELEASE_DIR"] = \
-            "%s/release/%s/%s" % (cwd, device, build_number)
+    environment["RELEASE_DIR"] = "{cwd}/release/".format(cwd=cwd)
     environment['BUILD_ID'] = device_config['factory_build']
 
 environment['ARCH'] = "arm64"
