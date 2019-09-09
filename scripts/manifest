@@ -167,14 +167,12 @@ if __name__ == "__main__":
     manifest_kernels=[]
     for device in config['devices'].keys():
         kernel_name = config['devices'][device]['global']['kernel_name']
-        repo = config['devices'][device]['global']['kernel_repo']
+        repo = "kernel/manifest"
         ref = config['devices'][device]['global']['kernel_ref']
-        if kernel_name not in kernel_names and 'manifest' in repo:
+        filename = '%s/kernel-%s.xml' % (path, kernel_name)
+        if kernel_name not in kernel_names:
             kernel_manifest = AndroidManifest(ref, repo).pretty_print()
-            open(
-                '%s/kernel-%s.xml' % (path, kernel_name),
-                'w'
-            ).write(kernel_manifest)
+            open(filename,'w').write(kernel_manifest)
         kernel_names.append(kernel_name)
 
     manifest = AndroidManifest(
