@@ -2,7 +2,7 @@
     <remote fetch="https://android.googlesource.com" name="aosp" review="https://android-review.googlesource.com/"/>  
     <default remote="aosp" revision="android-msm-wahoo-4.4-pie-qpr2" sync-j="4"/>  
 
-    <project name="kernel/build" path="build" revision="673c1f86948a4edc056aaa0c0ce7fef52a70bf70" upstream="refs/heads/master"/>  
+    <project name="kernel/build" path="build" revision="1553becdd1c2971764711789bf97b195030a83bf" upstream="refs/heads/master"/>  
     <project name="kernel/msm" path="private/msm-google" revision="9db9532ae32d13333d5f394e5775fb99fafaad45" upstream="refs/heads/android-msm-wahoo-4.4-pie-qpr2">    
         <linkfile dest="build.config" src="build.config"/>    
     </project>  

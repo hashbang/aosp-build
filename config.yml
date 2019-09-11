@@ -1,4 +1,4 @@
-version: '9'
+version: '10'
 name: Android Open Source Project
 type: release
 variant: user
@@ -45,75 +45,49 @@ platform:
   remove_groups:
   - darwin
 devices:
+  bonito:
+    kernel_name: bluecross
+    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    factory_build: QP1A.190711.020
+    factory_hash: 1f47c677bcb3ce427103a6388e3f07fb8a03789353cfd3baceb6c24e13b62f9a
+  sargo:
+    kernel_name: bluecross
+    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    factory_build: QP1A.190711.020
+    factory_hash: afb4dbc1df968aace547691a063a6bb6b2cc8cb6cc448b199a8b5b78803beb43
   crosshatch:
-    global:
-      kernel_name: bluecross
-      kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
-      avb_mode: vbmeta_chained
-      factory_build: PQ3A.190801.002
-      factory_hash: 15db810de7d3aa3ad660ffe6bcd572178c8d7c3fa363fef308cde29e0225b6c1
-    verizon:
-      factory_hash: 0933f2080c5bba78f2858c892ec899cda67c6c01373a25bbcae013fb906a7fc6
-      factory_build: PQ3A.190605.004.A1
-    docomo:
-      factory_build: PQ1A.181205.006.A1
-      factory_hash: 99bead334525f4d26ef5777ebc910648674597e1322a2a95e9e2d4f9df5d69cf
+    kernel_name: bluecross
+    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    avb_mode: vbmeta_chained
+    factory_build: QP1A.190711.020
+    factory_hash: 2eae0727565dc516a60e05f8502671d24e6d4b25770618d83d8a763147e259d3
   blueline:
-    global:
-      kernel_name: bluecross
-      kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
-      avb_mode: vbmeta_chained
-      factory_build: PQ3A.190801.002
-      factory_hash: f3d66c498994c7ca8c63a97f74bbd2634db7f91e1e114e7924cb721a149ddd2b
-    verizon:
-      factory_build: PQ3A.190605.004.A1
-      factory_hash: da940910bf3ac99af6ae53be3971698737ba7cb86f42b4d19e67078fd19d7a58
-    docomo:
-      factory_build: PQ1A.181205.006.A1
-      factory_hash: e0442d3b0a9e5636f4979b5780b6173635fe73917e88ffe1b9d36c2bc45aa7bc
+    kernel_name: bluecross
+    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    avb_mode: vbmeta_chained
+    factory_build: QP1A.190711.020
+    factory_hash: b5633fdfa34df0fccc4b6dc86799b1a2ee6a2fc1de1cd9c8a08da7703ad81ec2
   taimen:
-    global:
-      kernel_name: wahoo
-      kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
-      avb_mode: vbmeta_simple
-      factory_build: PQ3A.190801.002
-      factory_hash: b26aa2d7f03fd3ebb3d5de4840efe2614043bffac46b918f24ed8791d94f90a2
-    telstra:
-      factory_build: PPR1.180610.011
-      factory_hash: 9f0cb004c3b42789c150293aa6a6eecb0f289324ce1403befde93b106da59829
+    kernel_name: wahoo
+    kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
+    avb_mode: vbmeta_simple
+    factory_build: QP1A.190711.020
+    factory_hash: 6f0233dd1c8faf8dad2324245e08ed18d8757eec99d724095941ea14e3eddeb2
   walleye:
-    global:
-      kernel_name: wahoo
-      kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
-      avb_mode: vbmeta_simple
-      factory_build: PQ3A.190801.002
-      factory_hash: f9a5e2307ff6d36afc94899f88d094e4468e9211e5181cfc5d0db5ff4ab417f2
-    telstra:
-      factory_build: PPR1.180610.011
-      factory_hash: 0fbd304845b6a1e8c5960deedb70aab0f804a4b1bb93242b3bbcdad586982769
+    kernel_name: wahoo
+    kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
+    avb_mode: vbmeta_simple
+    factory_build: QP1A.190711.020
+    factory_hash: fa9552eaef3531e2abae09b5e3aae510b7a052f6938a145dc1caed8b98a146c4
   marlin:
-    global:
-      kernel_name: marlin
-      kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
-      avb_mode: verity_only
-      factory_build: PQ3A.190801.002
-      factory_hash: 13dbb265fb7ab74473905705d2e34d019ffc0bae601d1193e71661133aba9653
-    telus:
-      factory_build: PPR1.181005.003.A1
-      factory_hash: 960a173f0f84e2c3c0c5d96643e6ca3f99d5a898a932c6e3a62c52282d6fb3f4
-    verizon:
-      factory_build: PPR2.180905.006.A1
-      factory_hash: a78fe26434e04f8d5015bab79f717fc7b03b13286370b079b7e96d1f7562512a
+    kernel_name: marlin
+    kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
+    avb_mode: verity_only
+    factory_build: QP1A.190711.020
+    factory_hash: 2db5273a273a491fee3e175f3018830fc58015bdbacfedb589d67acf123156f8
   sailfish:
-    global:
-      kernel_name: marlin
-      kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
-      avb_mode: verity_only
-      factory_build: PQ3A.190801.002
-      factory_hash: 029a3376237220354c6bddc98a38a893976fb280a42b8c091200d5527ccbcd45
-    telus:
-      factory_build: PPR1.181005.003.A1
-      factory_hash: 6a2c3b69a43f93e576f953d7c8368648bd26f7d23667556a65af40282a72f7af
-    verizon:
-      factory_build: PPR2.180905.006.A1
-      factory_hash: b063909b211beea28e6879a12db1dade1eb4c007900082c10ea160f15c6feae7
+    kernel_name: marlin
+    kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
+    avb_mode: verity_only
+    factory_build: QP1A.190711.020
+    factory_hash: 0bb952229c861826b799084be63d834b63d227f22fb3d26a470d5d9b52b6d662
