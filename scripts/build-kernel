@@ -19,5 +19,5 @@ cd "${kernel_dir}"
 cat <<-EOF | bash
 	export OUT_DIR="${kernel_dir}/out"
 	export DIST_DIR="${kernel_dir}/dist"
-	bash "${kernel_dir}/build/build.sh" -j "$cores"
+	bash "${kernel_dir}/build/build.sh" -j "${cores}"
 EOF

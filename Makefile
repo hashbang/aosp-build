@@ -51,7 +51,7 @@ tools:
 
 .PHONY: random
 random:
-	test -f $(PWD)/build/.rnd || head -c 1G </dev/urandom > $(PWD)/build/.rnd
+	test -f $(PWD)/build/.rnd || head -c 1G < /dev/urandom > $(PWD)/build/.rnd
 
 .PHONY: keys
 keys: tools
