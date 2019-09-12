@@ -11,11 +11,11 @@ platform:
   - name: github
     fetch: https://github.com
   extra_projects:
-  - name: RattlesnakeOS/android-prepare-vendor
+  - name: chirayudesai/android-prepare-vendor
     groups: device
     path: vendor/android-prepare-vendor
     remote: github
-    revision: refs/heads/10.0
+    revision: refs/heads/q
   remove_paths:
   - platform/prebuilts/qemu-kernel
   - platform/developers/samples/android
