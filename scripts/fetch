@@ -29,34 +29,35 @@ git add .
 git commit --all --message "automated cache commit" || :
 unset GIT_DIR GIT_WORK_TREE
 
+echo "Cloning platform..."
 cd "${base_dir}"
 [ -d "${base_dir}/.repo" ] || \
 	repo init \
 		--no-clone-bundle \
 		--manifest-url "${manifest_dir}" \
 		--manifest-name base.xml
-
 retry 3 repo sync \
 	--current-branch \
 	--no-tags \
+	--force-sync \
 	--no-clone-bundle \
 	--jobs "${cores}"
-
 repo forall -c 'git reset --hard ; git clean --force -dx'
 
 # Kernel
+echo "Cloning kernel..."
 mkdir -p "${kernel_dir}"
 cd "${kernel_dir}"
 rm -rf "${kernel_dir}/.repo"
 repo init \
 	--manifest-url "${manifest_dir}" \
 	--manifest-name "kernel-${kernel_name}.xml"
-repo sync -c --no-tags --no-clone-bundle --jobs "${cores}"
-
+repo sync -c --no-tags --force-sync --no-clone-bundle --jobs "${cores}"
 repo forall -c 'git reset --hard ; git clean -fdx'
 
 # Chromium
 if [ "${build_chromium}" == "true"  ]; then
+echo "Cloning chromium..."
 	[ ! -d "${chromium_dir}/depot_tools" ] && \
 		git clone "${chromium_build_tools_url}" "${chromium_dir}/depot_tools"
 	cd "${chromium_dir}/depot_tools"
