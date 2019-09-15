@@ -1,36 +1,85 @@
-CPUS := "2"
-device = ${DEVICE}
-machine = ${MACHINE}
-userid = $(shell id -u)
-groupid = $(shell id -g)
-image = "hashbang/aosp-build:latest"
-contain := \
-	mkdir -p keys build/base && \
-	mkdir -p keys build/release && \
-	mkdir -p keys build/external && \
-	scripts/machine docker run -t --rm -h "android" \
-		-v $(PWD)/build/base:/home/build/base \
-		-v $(PWD)/build/release:/home/build/release \
-		-v $(PWD)/build/external:/home/build/external \
-		-v $(PWD)/keys:/home/build/keys \
-		-v $(PWD)/scripts:/home/build/scripts \
-		-v $(PWD)/config:/home/build/config \
-		-v $(PWD)/patches:/home/build/patches \
-		-u $(userid):$(groupid) \
-		-e DEVICE=$(device) \
-		--cpus $(CPUS) \
-		$(image)
+## Argument Variables ##
+
+CPUS := "$(shell nproc)"
+MEMORY := "10000"
+DEVICE := "crosshatch"
+BACKEND := "local"
+CHANNEL := "beta"
+BUILD := "user"
+FLAVOR := "aosp"
+
+## Default Target ##
 
 .DEFAULT_GOAL := default
 .PHONY: default
-default: build
+default: fetch keys build release
+
+## Primary Targets ##
+
+.PHONY: fetch
+fetch: submodule-update
+	mkdir -p keys build/base build/release build/external
+	@$(contain) fetch
+
+.PHONY: keys
+keys: tools entropy
+	@$(contain) keys
+
+.PHONY: build
+build: machine image tools
+	@$(contain) build
+
+.PHONY: release
+release: tools
+	@$(contain) release
+
+.PHONY: publish
+release:
+	@$(contain) publish
+
+.PHONY: clean
+clean: image
+	@$(contain) clean
+
+.PHONY: mrproper
+mrproper:
+	rm -rf build
+
+
+## Secondary Targets ##
 
 .PHONY: image
 image:
-	@scripts/machine docker build \
+	$(docker) build \
 		--build-arg UID=$(userid) \
 		--build-arg GID=$(groupid) \
 		-t $(image) $(PWD)
+
+.PHONY: entropy
+entropy:
+	$(contain) entropy
+
+.PHONY: tools
+tools:
+	$(contain) tools
+
+.PHONY: vendor
+vendor: tools
+	$(contain) build-vendor
+
+.PHONY: chromium
+chromium: tools
+	$(contain) build-chromium
+
+.PHONY: kernel
+kernel: tools
+	$(contain) build-kernel
+
+
+## Development ##
+
+.PHONY: latest
+latest: config submodule-latest fetch
 
 .PHONY: manifest
 manifest:
@@ -40,72 +89,96 @@ manifest:
 config: manifest
 	$(contain) config
 
-.PHONY: fetch
-fetch:
-	mkdir -p build
-	@$(contain) fetch
-
-.PHONY: tools
-tools:
-	@$(contain) tools
-
-.PHONY: random
-random:
-	mkdir -p $(PWD)/build
-	test -f $(PWD)/build/.rnd || head -c 1G < /dev/urandom > $(PWD)/build/.rnd
-
-.PHONY: keys
-keys: tools
-	@$(contain) keys
-
-.PHONY: build
-build: image tools
-	@$(contain) build
-
-.PHONY: kernel
-kernel: tools
-	@$(contain) build-kernel
-
-.PHONY: vendor
-vendor: tools
-	@$(contain) build-vendor
-
-.PHONY: chromium
-chromium: tools
-	@$(contain) build-chromium
-
-.PHONY: release
-release: tools
-	mkdir -p build/release
-	@$(contain) release
-
 .PHONY: test-repro
 test-repro:
-	@$(contain) test-repro
+	$(contain) test-repro
 
 .PHONY: test
 test: test-repro
 
-.PHONY: machine-shell
-machine-shell:
-	@scripts/machine
+.PHONY: patches
+patches:
+	@$(contain) bash -c "cd base; repo diff -u"
 
 .PHONY: shell
 shell:
-	@$(contain) shell
-
-.PHONY: diff
-diff:
-	@$(contain) bash -c "cd base; repo diff -u"
-
-.PHONY: clean
-clean: image
-	@$(contain) clean
-
-mrproper:
-	docker-machine rm -f aosp-build
-	rm -rf build
+	$(contain) shell
 
 .PHONY: install
 install: tools
 	@scripts/flash
+
+
+## Source Mangement ##
+
+.PHONY: submodule-update
+submodule-update:
+	git submodule update --init --recursive
+
+.PHONY: submodule-latest
+submodule-latest:
+	git submodule foreach 'git checkout master && git pull'
+
+
+## VM Management ##
+
+.PHONY: machine-start
+machine-start: machine-install machine-create
+	$(docker_machine) start $(FLAVOR)-$(BACKEND)
+
+.PHONY: machine-stop
+machine-stop:
+	$(docker_machine) stop
+
+.PHONY: machine-install
+machine-install:
+	# wget docker-machine & hash check here
+
+.PHONY: machine-create
+machine-create: machine-install
+	$(docker_machine) create --driver $(BACKEND) $(FLAVOR)-$(BACKEND)
+
+.PHONY: machine-shell
+machine-shell:
+	$(docker_machine) shell
+
+## VM Bootstrapping ##
+
+userid = $(shell id -u)
+groupid = $(shell id -g)
+image = "hashbang/aosp-build:latest"
+docker_run := \
+	run -t --rm -h "android" \
+		-v $(PWD)/build/base:/home/build/base \
+		-v $(PWD)/build/release:/home/build/release \
+		-v $(PWD)/build/external:/home/build/external \
+		-v $(PWD)/keys:/home/build/keys \
+		-v $(PWD)/scripts:/home/build/scripts \
+		-v $(PWD)/config:/home/build/config \
+		-v $(PWD)/patches:/home/build/patches \
+		-u $(userid):$(groupid) \
+		-e DEVICE=$(DEVICE) \
+		--cpus $(CPUS) \
+		$(image)
+docker_
+docker_machine := \
+	docker-machine \
+		--storage-path "${PWD}/build/machine"
+
+ifeq ($(strip $(BACKEND)),local)
+
+executables = docker
+contain := docker $(docker_run)
+machine:
+
+else ifeq ($(strip $(BACKEND)),virtualbox)
+
+export VIRTUALBOX_SHARE_FOLDER="$(HOME):$(HOME)"
+executables = docker-machine ssh
+contain := $(docker_machine) ssh $(FLAVOR)-$(BACKEND) docker $(docker_run)
+machine: machine-start
+
+endif
+
+check_executables := $(foreach exec,$(executables),\$(if \
+	$(shell which $(exec)),some string,$(error "No $(exec) in PATH)))
