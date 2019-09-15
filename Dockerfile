@@ -61,6 +61,7 @@ RUN \
         yasm \
         zip \
         zlib1g-dev \
+        python-six \
         wget \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \

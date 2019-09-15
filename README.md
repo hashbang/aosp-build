@@ -80,6 +80,12 @@ cd crosshatch-PQ1A.181205.006/
  * 10GB+ available memory
  * 350GB+ available disk
 
+### Download sources ###
+
+```
+make DEVICE=crosshatch fetch
+```
+
 ### Generate Signing Keys ###
 
 Each device needs its own set of keys:
@@ -91,7 +97,7 @@ make DEVICE=crosshatch keys
 
 Build flashable images for desired device:
 ```
-make DEVICE=crosshatch clean build release
+make DEVICE=crosshatch build release
 ```
 
 ## Develop ##

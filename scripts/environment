@@ -66,7 +66,7 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     device=environment['DEVICE']=environ['DEVICE']
     variant=environment['BUILD_VARIANT']
     build_number=environment['BUILD_NUMBER']
-    device_config=config['devices'][device]['global']
+    device_config=config['devices'][device]
     for key, value in device_config.items():
         environment[key.upper()]=value.lower()
     if variant == "user" or variant == "userdebug":

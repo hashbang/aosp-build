@@ -85,8 +85,6 @@ if __name__ == "__main__":
             for key, value in values.items():
                 config['devices'].setdefault(
                     device,{}
-                ).setdefault(
-                    variant,{}
                 )[key] = value
 
     with open(config_file, 'w') as outfile:
