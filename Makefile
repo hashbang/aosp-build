@@ -8,11 +8,13 @@ CHANNEL := beta
 BUILD := user
 FLAVOR := aosp
 
+
 ## Default Target ##
 
 .DEFAULT_GOAL := default
 .PHONY: default
 default: fetch keys build release
+
 
 ## Primary Targets ##
 
@@ -124,11 +126,16 @@ submodule-latest:
 
 .PHONY: machine-start
 machine-start: machine-install machine-create
-	$(docker_machine) start $(FLAVOR)-$(BACKEND)
+	$(docker_machine) status $(FLAVOR)-$(BACKEND) || \
+		$(docker_machine) start $(FLAVOR)-$(BACKEND)
 
 .PHONY: machine-stop
 machine-stop:
-	$(docker_machine) stop
+	$(docker_machine) stop $(FLAVOR)-$(BACKEND)
+
+.PHONY: machine-delete
+machine-delete:
+	$(docker_machine) rm $(FLAVOR)-$(BACKEND)
 
 .PHONY: machine-install
 machine-install:
@@ -136,7 +143,10 @@ machine-install:
 
 .PHONY: machine-create
 machine-create: machine-install
-	$(docker_machine) create --driver $(BACKEND) $(FLAVOR)-$(BACKEND)
+	$(docker_machine) status $(FLAVOR)-$(BACKEND) || \
+	$(docker_machine) create \
+		$(docker_machine_create_flags) \
+		--driver $(BACKEND) $(FLAVOR)-$(BACKEND)
 
 .PHONY: machine-shell
 machine-shell:
@@ -147,16 +157,17 @@ machine-shell:
 ifeq ($(BACKEND),local)
 
 executables = docker
-docker := docker
+docker = docker
 contain = $(contain_local)
 machine:
 
 else ifeq ($(BACKEND),virtualbox)
 
-export VIRTUALBOX_SHARE_FOLDER="$(HOME):$(HOME)"
-
 executables = docker-machine ssh
-docker := $(docker_machine) ssh $(FLAVOR)-$(BACKEND) docker
+docker_machine_create_flags = \
+		--virtualbox-share-folder="$(PWD):$(PWD)" \
+		--virtualbox-cpu-count="$(CPUS)"
+docker = $(docker_machine) ssh $(FLAVOR)-$(BACKEND) docker
 contain = $(contain_local)
 machine: machine-start
 
@@ -167,6 +178,7 @@ check_executables := $(foreach exec,$(executables),\$(if \
 userid = $(shell id -u)
 groupid = $(shell id -g)
 image = "hashbang/aosp-build:latest"
+docker_machine = docker-machine --storage-path "${PWD}/build/machine"
 contain_local := \
 	$(docker) run -it --rm -h "aosp-build-$(FlAVOR)" \
 		-v $(PWD)/build/base:/home/build/base \
@@ -190,7 +202,3 @@ contain_remote := \
 		-u $(userid):$(groupid) \
 		-e DEVICE=$(DEVICE) \
 		$(image)
-
-docker_machine := \
-	docker-machine \
-		--storage-path "${PWD}/build/machine"
