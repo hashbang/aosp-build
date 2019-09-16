@@ -1,12 +1,12 @@
 ## Argument Variables ##
 
-CPUS := "$(shell nproc)"
-MEMORY := "10000"
-DEVICE := "crosshatch"
-BACKEND := "local"
-CHANNEL := "beta"
-BUILD := "user"
-FLAVOR := "aosp"
+CPUS := $(shell nproc)
+MEMORY := 10000
+DEVICE := crosshatch
+BACKEND := local
+CHANNEL := beta
+BUILD := user
+FLAVOR := aosp
 
 ## Default Target ##
 
@@ -19,27 +19,27 @@ default: fetch keys build release
 .PHONY: fetch
 fetch: submodule-update
 	mkdir -p keys build/base build/release build/external
-	@$(contain) fetch
+	$(contain) fetch
 
 .PHONY: keys
 keys: tools entropy
-	@$(contain) keys
+	$(contain) keys
 
 .PHONY: build
 build: machine image tools
-	@$(contain) build
+	$(contain) build
 
 .PHONY: release
 release: tools
-	@$(contain) release
+	$(contain) release
 
 .PHONY: publish
-release:
-	@$(contain) publish
+publish:
+	$(contain) publish
 
 .PHONY: clean
 clean: image
-	@$(contain) clean
+	$(contain) clean
 
 .PHONY: mrproper
 mrproper:
@@ -144,11 +144,31 @@ machine-shell:
 
 ## VM Bootstrapping ##
 
+ifeq ($(BACKEND),local)
+
+executables = docker
+docker := docker
+contain = $(contain_local)
+machine:
+
+else ifeq ($(BACKEND),virtualbox)
+
+export VIRTUALBOX_SHARE_FOLDER="$(HOME):$(HOME)"
+
+executables = docker-machine ssh
+docker := $(docker_machine) ssh $(FLAVOR)-$(BACKEND) docker
+contain = $(contain_local)
+machine: machine-start
+
+endif
+check_executables := $(foreach exec,$(executables),\$(if \
+	$(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
+
 userid = $(shell id -u)
 groupid = $(shell id -g)
 image = "hashbang/aosp-build:latest"
-docker_run := \
-	run -t --rm -h "android" \
+contain_local := \
+	$(docker) run -it --rm -h "aosp-build-$(FlAVOR)" \
 		-v $(PWD)/build/base:/home/build/base \
 		-v $(PWD)/build/release:/home/build/release \
 		-v $(PWD)/build/external:/home/build/external \
@@ -160,25 +180,17 @@ docker_run := \
 		-e DEVICE=$(DEVICE) \
 		--cpus $(CPUS) \
 		$(image)
-docker_
+contain_remote := \
+	$(docker) run -it --rm -h "aosp-build-$(FLAVOR)" \
+		-v $(PWD)/build/release:/home/build/release \
+		-v $(PWD)/keys:/home/build/keys \
+		-v $(PWD)/scripts:/home/build/scripts \
+		-v $(PWD)/config:/home/build/config \
+		-v $(PWD)/patches:/home/build/patches \
+		-u $(userid):$(groupid) \
+		-e DEVICE=$(DEVICE) \
+		$(image)
+
 docker_machine := \
 	docker-machine \
 		--storage-path "${PWD}/build/machine"
-
-ifeq ($(strip $(BACKEND)),local)
-
-executables = docker
-contain := docker $(docker_run)
-machine:
-
-else ifeq ($(strip $(BACKEND)),virtualbox)
-
-export VIRTUALBOX_SHARE_FOLDER="$(HOME):$(HOME)"
-executables = docker-machine ssh
-contain := $(docker_machine) ssh $(FLAVOR)-$(BACKEND) docker $(docker_run)
-machine: machine-start
-
-endif
-
-check_executables := $(foreach exec,$(executables),\$(if \
-	$(shell which $(exec)),some string,$(error "No $(exec) in PATH)))
