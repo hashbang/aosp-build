@@ -18,6 +18,8 @@ chromium_src_ref=${CHROMIUM_SRC_REF}
 chromium_depot_tools_ref=${CHROMIUM_DEPOT_TOOLS_REF}
 base_dir="${BASE_DIR?}"
 
+sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
+
 mkdir --parents "${base_dir}" "${manifest_dir}"
 
 rsync -P --archive --verbose "${manifest_repo}/" "${manifest_dir}/"

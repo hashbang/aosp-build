@@ -193,7 +193,7 @@ else ifeq ($(BACKEND),virtualbox)
 executables = docker-machine ssh virtualbox
 docker = $(docker_machine) ssh $(NAME) -t docker
 machine: storage-local machine-start
-storage_flags = --volume $(NAME):/home/build/build/ \
+storage_flags = --volume $(NAME):/home/build/build/
 docker_machine_create_flags = \
 		--virtualbox-share-folder="$(PWD):$(PWD)" \
 		--virtualbox-disk-size="$(DISK)" \
@@ -213,7 +213,7 @@ contain := \
 		--name "$(NAME)" \
 		--hostname "$(NAME)" \
 		--user $(userid):$(groupid) \
-		--environment DEVICE=$(DEVICE) \
+		--env DEVICE=$(DEVICE) \
 		--security-opt seccomp=unconfined \
 		--volume $(PWD)/config:/home/build/config \
 		--volume $(PWD)/release:/home/build/release \
