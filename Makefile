@@ -2,25 +2,28 @@
 
 CPUS := $(shell nproc)
 MEMORY := 10000
+DISK := 300000
 DEVICE := crosshatch
 BACKEND := local
 CHANNEL := beta
 BUILD := user
 FLAVOR := aosp
+IMAGE := hashbang/aosp-build:latest
+NAME := aosp-build-$(FLAVOR)-$(BACKEND)
 
 
 ## Default Target ##
 
 .DEFAULT_GOAL := default
 .PHONY: default
-default: fetch keys build release
+default: image fetch keys build release
 
 
 ## Primary Targets ##
 
 .PHONY: fetch
-fetch: submodule-update
-	mkdir -p keys build/base build/release build/external
+fetch: submodule-update machine
+	mkdir -p config/keys build/base release build/external
 	$(contain) fetch
 
 .PHONY: keys
@@ -51,11 +54,11 @@ mrproper:
 ## Secondary Targets ##
 
 .PHONY: image
-image:
+image: machine
 	$(docker) build \
 		--build-arg UID=$(userid) \
 		--build-arg GID=$(groupid) \
-		-t $(image) $(PWD)
+		-t $(IMAGE) $(PWD)
 
 .PHONY: entropy
 entropy:
@@ -104,7 +107,14 @@ patches:
 
 .PHONY: shell
 shell:
-	$(contain) shell
+	$(docker) inspect "$(NAME)" \
+	&& $(docker) exec --interactive --tty "$(NAME)" shell \
+	|| $(contain) shell
+
+.PHONY: monitor
+monitor:
+	$(docker) inspect "$(NAME)" \
+	&& $(docker) exec --interactive --tty "$(NAME)" htop
 
 .PHONY: install
 install: tools
@@ -121,36 +131,53 @@ submodule-update:
 submodule-latest:
 	git submodule foreach 'git checkout master && git pull'
 
+## Storage Bootstrapping ##
+
+.PHONY: storage-local
+storage-local:
+	docker volume ls | grep $(NAME) \
+	|| docker volume create \
+		--driver local \
+		--opt type=none \
+		--opt o=bind \
+		--opt device=/home/build/ \
+		$(NAME)
 
 ## VM Management ##
 
 .PHONY: machine-start
-machine-start: machine-install machine-create
-	$(docker_machine) status $(FLAVOR)-$(BACKEND) || \
-		$(docker_machine) start $(FLAVOR)-$(BACKEND)
+machine-start: machine-install machine-create machine-date
+	$(docker_machine) status $(NAME) \
+	|| $(docker_machine) start $(NAME)
+
+.PHONY: machine-shell
+machine-shell:
+	$(docker_machine) ssh $(NAME)
 
 .PHONY: machine-stop
 machine-stop:
-	$(docker_machine) stop $(FLAVOR)-$(BACKEND)
+	$(docker_machine) stop $(NAME)
 
 .PHONY: machine-delete
 machine-delete:
-	$(docker_machine) rm $(FLAVOR)-$(BACKEND)
+	$(docker_machine) rm $(NAME)
+
+.PHONY: machine-date
+machine-date:
+	$(docker_machine) ssh $(NAME) \
+		"sudo date -s @$(shell date +%s)"
+
+.PHONY: machine-create
+machine-create: machine-install
+	$(docker_machine) status $(NAME) \
+	|| $(docker_machine) create \
+		$(docker_machine_create_flags) \
+		--driver $(BACKEND) $(NAME)
 
 .PHONY: machine-install
 machine-install:
 	# wget docker-machine & hash check here
 
-.PHONY: machine-create
-machine-create: machine-install
-	$(docker_machine) status $(FLAVOR)-$(BACKEND) || \
-	$(docker_machine) create \
-		$(docker_machine_create_flags) \
-		--driver $(BACKEND) $(FLAVOR)-$(BACKEND)
-
-.PHONY: machine-shell
-machine-shell:
-	$(docker_machine) shell
 
 ## VM Bootstrapping ##
 
@@ -158,47 +185,43 @@ ifeq ($(BACKEND),local)
 
 executables = docker
 docker = docker
-contain = $(contain_local)
 machine:
+storage_flags = --volume $(PWD)/build/:/home/build/build/
 
 else ifeq ($(BACKEND),virtualbox)
 
-executables = docker-machine ssh
+executables = docker-machine ssh virtualbox
+docker = $(docker_machine) ssh $(NAME) -t docker
+machine: storage-local machine-start
+storage_flags = --volume $(NAME):/home/build/build/ \
 docker_machine_create_flags = \
 		--virtualbox-share-folder="$(PWD):$(PWD)" \
+		--virtualbox-disk-size="$(DISK)" \
 		--virtualbox-cpu-count="$(CPUS)"
-docker = $(docker_machine) ssh $(FLAVOR)-$(BACKEND) docker
-contain = $(contain_local)
-machine: machine-start
 
 endif
-check_executables := $(foreach exec,$(executables),\$(if \
-	$(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
 
 userid = $(shell id -u)
 groupid = $(shell id -g)
-image = "hashbang/aosp-build:latest"
 docker_machine = docker-machine --storage-path "${PWD}/build/machine"
-contain_local := \
-	$(docker) run -it --rm -h "aosp-build-$(FlAVOR)" \
-		-v $(PWD)/build/base:/home/build/base \
-		-v $(PWD)/build/release:/home/build/release \
-		-v $(PWD)/build/external:/home/build/external \
-		-v $(PWD)/keys:/home/build/keys \
-		-v $(PWD)/scripts:/home/build/scripts \
-		-v $(PWD)/config:/home/build/config \
-		-v $(PWD)/patches:/home/build/patches \
-		-u $(userid):$(groupid) \
-		-e DEVICE=$(DEVICE) \
+contain := \
+	$(docker) run \
+		--rm \
+		--tty \
+		--interactive \
 		--cpus $(CPUS) \
-		$(image)
-contain_remote := \
-	$(docker) run -it --rm -h "aosp-build-$(FLAVOR)" \
-		-v $(PWD)/build/release:/home/build/release \
-		-v $(PWD)/keys:/home/build/keys \
-		-v $(PWD)/scripts:/home/build/scripts \
-		-v $(PWD)/config:/home/build/config \
-		-v $(PWD)/patches:/home/build/patches \
-		-u $(userid):$(groupid) \
-		-e DEVICE=$(DEVICE) \
-		$(image)
+		--name "$(NAME)" \
+		--hostname "$(NAME)" \
+		--user $(userid):$(groupid) \
+		--environment DEVICE=$(DEVICE) \
+		--security-opt seccomp=unconfined \
+		--volume $(PWD)/config:/home/build/config \
+		--volume $(PWD)/release:/home/build/release \
+		$(storage_flags) \
+		$(IMAGE)
+
+
+## Required Binary Check ##
+
+check_executables := $(foreach exec,$(executables),\$(if \
+	$(shell which $(exec)),some string,$(error "No $(exec) in PATH")))

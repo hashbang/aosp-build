@@ -2,4 +2,5 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)";
 
+sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
 bash

@@ -5,8 +5,8 @@ set -e; eval "$(environment)"
 cp /etc/gitconfig ~/.gitconfig
 
 cores=$(nproc)
-manifest_dir="${PWD}/config/manifests"
-manifest_repo="${PWD}/config/manifests"
+manifest_dir="${MANIFEST_DIR?}"
+manifest_repo="${MANIFEST_REPO?}"
 external_dir="${EXTERNAL_DIR?}"
 kernel_name="${KERNEL_NAME?}"
 kernel_dir="${external_dir}/kernel/${kernel_name}"
@@ -16,7 +16,7 @@ chromium_repo="https://chromium.googlesource.com/chromium/"
 chromium_build_tools_url="${chromium_repo}/tools/depot_tools.git"
 chromium_src_ref=${CHROMIUM_SRC_REF}
 chromium_depot_tools_ref=${CHROMIUM_DEPOT_TOOLS_REF}
-base_dir="base"
+base_dir="${BASE_DIR?}"
 
 mkdir --parents "${base_dir}" "${manifest_dir}"
 

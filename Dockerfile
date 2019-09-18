@@ -1,4 +1,4 @@
-FROM ubuntu:cosmic
+FROM ubuntu:cosmic@sha256:7d657275047118bb77b052c4c0ae43e8a289ca2879ebfa78a703c93aa8fd686c
 
 MAINTAINER Hashbang Team <team@hashbang.sh>
 
@@ -8,7 +8,10 @@ ENV PATH=/home/build/scripts:/home/build/out/host/linux-x86/bin:/usr/local/sbin:
 ARG UID=1000
 ARG GID=1000
 
-ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    TZ=UTC \
+    TERM=xterm-256color
 
 RUN \
     groupadd -g $GID -o build && \
@@ -16,7 +19,9 @@ RUN \
     apt-get update && \
     apt-get install -y \
         vim \
+        htop \
         repo \
+        ca-certificates \
         aapt \
         sudo \
         openjdk-8-jdk \
@@ -63,9 +68,9 @@ RUN \
         zlib1g-dev \
         python-six \
         wget \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
-    && echo "[color]\nui = auto\n[user]\nemail = aosp@example.org\nname = AOSP User" >> /etc/gitconfig \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN date \
     && git clone https://github.com/boxboat/fixuid.git fixuid/src/fixuid \
     && git -C "fixuid/src/fixuid" reset --hard \
     	0ec93d22e52bde5b7326e84cb62fd26a3d20cead \
@@ -87,18 +92,20 @@ RUN \
     	7b8349ac747c6a24702b762d2c4fd9266cf4f1d6 \
     && env GOPATH="$PWD/fixuid" GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
     	go build -o "/usr/local/bin/fixuid" fixuid \
-    && rm -rf "fixuid" \
-    && rm -rf "/home/build/.cache" \
     && chown root:root /usr/local/bin/fixuid \
     && chmod 4755 /usr/local/bin/fixuid \
     && mkdir -p /etc/fixuid \
-    && printf "user: build\ngroup: build\n" > /etc/fixuid/config.yml
+    && printf "user: build\ngroup: build\npaths:\n  - /\n  - /home/build/build\n" > /etc/fixuid/config.yml \
+    && rm -rf "fixuid" \
+    && rm -rf "/home/build/.cache" \
+    && echo "[color]\nui = auto\n[user]\nemail = aosp@example.org\nname = AOSP User" >> /etc/gitconfig \
+    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ENTRYPOINT ["/usr/local/bin/fixuid", "-q"]
 
 USER build
 WORKDIR /home/build
-RUN mkdir config && chown -R build: config
+VOLUME /home/build/build
 ADD scripts /usr/local/bin
 
 CMD [ "/bin/bash", "/usr/local/bin/build" ]
