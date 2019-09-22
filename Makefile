@@ -47,7 +47,7 @@ clean: image
 	$(contain) clean
 
 .PHONY: mrproper
-mrproper:
+mrproper: machine-delete
 	rm -rf build
 
 
@@ -58,7 +58,9 @@ image: machine
 	$(docker) build \
 		--build-arg UID=$(userid) \
 		--build-arg GID=$(groupid) \
-		-t $(IMAGE) $(PWD)
+		-t $(IMAGE) \
+		-f $(PWD)/config/container/Dockerfile \
+		$(PWD)
 
 .PHONY: entropy
 entropy:
@@ -142,6 +144,7 @@ storage-local:
 		--opt o=bind \
 		--opt device=/home/build/ \
 		$(NAME)
+
 
 ## VM Management ##
 

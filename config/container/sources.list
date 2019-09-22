@@ -1,0 +1,10 @@
+deb http://archive.ubuntu.com/ubuntu/ cosmic main restricted
+deb http://archive.ubuntu.com/ubuntu/ cosmic-updates main restricted
+deb http://archive.ubuntu.com/ubuntu/ cosmic universe
+deb http://archive.ubuntu.com/ubuntu/ cosmic-updates universe
+deb http://archive.ubuntu.com/ubuntu/ cosmic multiverse
+deb http://archive.ubuntu.com/ubuntu/ cosmic-updates multiverse
+deb http://archive.ubuntu.com/ubuntu/ cosmic-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu/ cosmic-security main restricted
+deb http://security.ubuntu.com/ubuntu/ cosmic-security universe
+deb http://security.ubuntu.com/ubuntu/ cosmic-security multiverse
