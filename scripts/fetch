@@ -2,9 +2,6 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)"
 
-[[ -f ~/.gitconfig ]] || \
-	printf "[user]\nemail = aosp@local\nname = AOSP User" > ~/.gitconfig
-
 cores=$(nproc)
 manifest_dir="${MANIFEST_DIR?}"
 manifest_repo="${MANIFEST_REPO?}"
@@ -20,6 +17,9 @@ chromium_depot_tools_ref="${CHROMIUM_DEPOT_TOOLS_REF}"
 base_dir="${BASE_DIR?}"
 
 sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
+
+[[ -f ~/.gitconfig ]] || \
+	printf "[user]\nemail = aosp@local\nname = AOSP User" > ~/.gitconfig
 
 mkdir --parents "${base_dir}" "${manifest_dir}"
 
