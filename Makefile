@@ -135,8 +135,8 @@ submodule-latest:
 
 .PHONY: storage-local
 storage-local:
-	docker volume ls | grep $(NAME) \
-	|| docker volume create \
+	$(docker) volume ls | grep $(NAME) \
+	|| $(docker) volume create \
 		--driver local \
 		--opt type=none \
 		--opt o=bind \
