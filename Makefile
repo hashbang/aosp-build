@@ -10,6 +10,7 @@ BUILD := user
 FLAVOR := aosp
 IMAGE := hashbang/aosp-build:latest
 NAME := aosp-build-$(FLAVOR)-$(BACKEND)
+REGION := sfo1
 
 
 ## Default Target ##
@@ -135,6 +136,19 @@ submodule-latest:
 
 ## Storage Bootstrapping ##
 
+.PHONY: storage-init-%
+storage-%:
+	cd terraform/$@% \
+	&& $(terraform) apply -y \
+		-var name=$(NAME) \
+		-var disk=$(DISK) \
+		-var region=$(REGION)
+
+.PHONY: storage-digitalocean
+storage-digitalocean: storage-init-digitalocean
+	$(docker) volume ls | grep $(NAME) \
+	|| $(docker) volume create --driver dostorage $(NAME)
+
 .PHONY: storage-local
 storage-local:
 	$(docker) volume ls | grep $(NAME) \
@@ -201,6 +215,14 @@ docker_machine_create_flags = \
 		--virtualbox-share-folder="$(PWD):$(PWD)" \
 		--virtualbox-disk-size="$(DISK)" \
 		--virtualbox-cpu-count="$(CPUS)"
+
+else ifeq ($(BACKEND),digitalocean)
+
+executables = docker-machine ssh virtualbox
+docker = $(docker_machine) ssh $(NAME) -t docker
+machine: storage-digitalocean machine-start
+storage_flags = --volume $(NAME):/home/build/build/
+docker_machine_create_flags =
 
 endif
 
