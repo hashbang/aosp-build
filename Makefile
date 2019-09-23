@@ -48,7 +48,7 @@ clean: image
 	$(contain) clean
 
 .PHONY: mrproper
-mrproper: machine-delete
+mrproper: storage-delete machine-delete
 	rm -rf build
 
 
@@ -57,10 +57,8 @@ mrproper: machine-delete
 .PHONY: image
 image: machine
 	$(docker) build \
-		--build-arg UID=$(userid) \
-		--build-arg GID=$(groupid) \
-		-t $(IMAGE) \
-		-f $(PWD)/config/container/Dockerfile \
+		--tag $(IMAGE) \
+		--file $(PWD)/config/container/Dockerfile \
 		$(PWD)
 
 .PHONY: entropy
@@ -136,18 +134,20 @@ submodule-latest:
 
 ## Storage Bootstrapping ##
 
+# TODO: detect if plugin is already installed or not
+# TODO: Hash lock rexray with sha256 digest to prevent tag clobbering
 .PHONY: storage-digitalocean
 storage-digitalocean:
 	$(docker) volume ls | grep $(NAME) \
 	||( $(docker) plugin install \
-			--disable-content-trust	false \
-			rexray/dobs \
+			--grant-all-permissions \
+			rexray/dobs:0.11.4 \
 			DOBS_REGION=$(DIGITALOCEAN_REGION) \
 			DOBS_TOKEN=$(DIGITALOCEAN_TOKEN) \
-		&& $(docker) volume create \
-			--driver rexray/dobs \
-			--opt=size=$(DISK) \
-			--name=$(NAME)
+		; $(docker) volume create \
+			--driver rexray/dobs:0.11.4 \
+			--opt=size=$$(( $(DISK) / 1000 )) \
+			--name=$(NAME) \
 	)
 
 .PHONY: storage-local
@@ -159,6 +159,10 @@ storage-local:
 		--opt o=bind \
 		--opt device=$(PWD)/build \
 		$(NAME)
+
+.PHONY: storage-delete
+storage-delete:
+	$(docker) volume rm -f $(NAME) || :
 
 
 ## VM Management ##
@@ -182,7 +186,7 @@ machine-stop:
 
 .PHONY: machine-delete
 machine-delete:
-	$(docker_machine) rm $(NAME)
+	$(docker_machine) rm -f -y $(NAME)
 
 .PHONY: machine-date
 machine-date:
@@ -211,7 +215,6 @@ executables = docker
 docker = docker
 machine:
 storage_flags = --volume $(PWD)/build/:/home/build/build/
-env_flags =
 
 else ifeq ($(BACKEND),virtualbox)
 
@@ -219,7 +222,6 @@ executables = docker-machine ssh virtualbox
 docker = $(docker_machine) ssh $(NAME) -t docker
 machine: machine-start storage-local
 storage_flags = --volume $(NAME):/home/build/build/
-env_flags =
 docker_machine_create_flags = \
 	--virtualbox-share-folder="$(PWD):$(PWD)" \
 	--virtualbox-disk-size="$(DISK)" \
@@ -232,8 +234,6 @@ executables = docker-machine ssh
 docker = $(docker_machine) ssh $(NAME) -t docker
 machine: machine-start storage-digitalocean machine-sync
 storage_flags = --volume $(NAME):/home/build/build/
-storage_flags =
-env_flags = --env-file $(PWD)/config/env/digitalocean.env
 docker_machine_create_flags = \
 	--digitalocean-access-token=$(DIGITALOCEAN_TOKEN) \
 	--digitalocean-region=$(DIGITALOCEAN_REGION) \
