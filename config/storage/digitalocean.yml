@@ -1,8 +1,0 @@
-libstorage:
-  service: dobs
-  server:
-    services:
-      dobs:
-        driver: dobs
-        dobs:
-          region: nyc3
