@@ -56,15 +56,7 @@ RUN go build -o /usr/local/bin/terraform-provider-helm \
 
 FROM ubuntu:cosmic@${UBUNTU_IMAGE_REF}
 
-COPY --from=golang /usr/local/bin/fixuid /usr/local/bin/
-COPY --from=golang /usr/local/bin/terraform /usr/local/bin/
-COPY --from=golang /usr/local/bin/terraform-provider-kubernetes \
-    /usr/local/bin/terraform-provider-kubernetes
-COPY --from=golang /usr/local/bin/terraform-provider-helm \
-    /usr/local/bin/terraform-provider-helm
-COPY --from=golang /usr/local/bin/kubectl /usr/local/bin/
-COPY --from=golang /usr/local/bin/helm /usr/local/bin/
-COPY --from=golang /usr/local/bin/tiller /usr/local/bin/
+COPY --from=golang /usr/local/bin/ /usr/local/bin/
 
 ENV HOME=/home/build
 ENV PATH=/home/build/scripts:/opt/aosp-build/scripts:/home/build/out/host/linux-x86/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -75,24 +67,25 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TERM=xterm-256color
 
 ENTRYPOINT ["/usr/local/bin/fixuid", "-q"]
-
 WORKDIR /home/build
 
 CMD [ "/bin/bash", "/usr/local/bin/build" ]
 
+ADD config/container/sources.list /etc/apt/sources.list
+ADD config/container/packages.list /etc/apt/packages.list
+RUN apt update -y \
+    && apt install -y $(cat /etc/apt/packages.list) \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 ADD config /opt/aosp-build/config
 ADD scripts /opt/aosp-build/scripts
-
-RUN cp /opt/aosp-build/config/container/sources.list /etc/apt/ \
-    && apt update -y \
-    && apt install -y $(cat /opt/aosp-build/config/container/packages.list) \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chown root:root /usr/local/bin/fixuid \
     && chmod 4755 /usr/local/bin/fixuid \
     && mkdir -p /etc/fixuid \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && printf "user: build\ngroup: build\npaths:\n  - /\n  - /home/build/build\n" > /etc/fixuid/config.yml \
-    && useradd -G plugdev,sudo -ms /bin/bash build
+    && useradd -G plugdev,sudo -ms /bin/bash build \
+    && chown -R build:build /home/build
 
 USER build
