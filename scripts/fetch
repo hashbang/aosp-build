@@ -19,7 +19,8 @@ base_dir="${BASE_DIR?}"
 sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
 
 [[ -f ~/.gitconfig ]] || \
-	printf "[user]\nemail = aosp@local\nname = AOSP User" > ~/.gitconfig
+	printf "[color]\nui=auto\n[user]\nemail=aosp@example.org\nname=AOSP User" \
+		> ~/.gitconfig
 
 mkdir --parents "${base_dir}" "${manifest_dir}"
 

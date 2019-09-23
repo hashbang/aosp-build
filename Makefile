@@ -10,14 +10,14 @@ BUILD := user
 FLAVOR := aosp
 IMAGE := hashbang/aosp-build:latest
 NAME := aosp-build-$(FLAVOR)-$(BACKEND)
-REGION := sfo1
 
+-include $(PWD)/config/env/$(BACKEND).env
 
 ## Default Target ##
 
 .DEFAULT_GOAL := default
 .PHONY: default
-default: image fetch keys build release
+default: machine image fetch keys build release
 
 
 ## Primary Targets ##
@@ -32,7 +32,7 @@ keys: tools entropy
 	$(contain) keys
 
 .PHONY: build
-build: machine image tools
+build: image tools
 	$(contain) build
 
 .PHONY: release
@@ -136,18 +136,19 @@ submodule-latest:
 
 ## Storage Bootstrapping ##
 
-.PHONY: storage-init-%
-storage-%:
-	cd terraform/$@% \
-	&& $(terraform) apply -y \
-		-var name=$(NAME) \
-		-var disk=$(DISK) \
-		-var region=$(REGION)
-
 .PHONY: storage-digitalocean
-storage-digitalocean: storage-init-digitalocean
+storage-digitalocean:
 	$(docker) volume ls | grep $(NAME) \
-	|| $(docker) volume create --driver dostorage $(NAME)
+	||( $(docker) plugin install \
+			--disable-content-trust	false \
+			rexray/dobs \
+			DOBS_REGION=$(DIGITALOCEAN_REGION) \
+			DOBS_TOKEN=$(DIGITALOCEAN_TOKEN) \
+		&& $(docker) volume create \
+			--driver rexray/dobs \
+			--opt=size=$(DISK) \
+			--name=$(NAME)
+	)
 
 .PHONY: storage-local
 storage-local:
@@ -156,7 +157,7 @@ storage-local:
 		--driver local \
 		--opt type=none \
 		--opt o=bind \
-		--opt device=/home/build/ \
+		--opt device=$(PWD)/build \
 		$(NAME)
 
 
@@ -166,6 +167,10 @@ storage-local:
 machine-start: machine-install machine-create machine-date
 	$(docker_machine) status $(NAME) \
 	|| $(docker_machine) start $(NAME)
+
+.PHONY: machine-sync
+machine-sync:
+	$(docker_machine) scp -r -d config/ $(NAME):$(PWD)/config/
 
 .PHONY: machine-shell
 machine-shell:
@@ -187,9 +192,11 @@ machine-date:
 .PHONY: machine-create
 machine-create: machine-install
 	$(docker_machine) status $(NAME) \
-	|| $(docker_machine) create \
-		$(docker_machine_create_flags) \
-		--driver $(BACKEND) $(NAME)
+	||( $(docker_machine) create \
+			--driver $(BACKEND) \
+			$(docker_machine_create_flags) \
+			$(NAME) \
+	)
 
 .PHONY: machine-install
 machine-install:
@@ -204,25 +211,34 @@ executables = docker
 docker = docker
 machine:
 storage_flags = --volume $(PWD)/build/:/home/build/build/
+env_flags =
 
 else ifeq ($(BACKEND),virtualbox)
 
 executables = docker-machine ssh virtualbox
 docker = $(docker_machine) ssh $(NAME) -t docker
-machine: storage-local machine-start
+machine: machine-start storage-local
 storage_flags = --volume $(NAME):/home/build/build/
+env_flags =
 docker_machine_create_flags = \
-		--virtualbox-share-folder="$(PWD):$(PWD)" \
-		--virtualbox-disk-size="$(DISK)" \
-		--virtualbox-cpu-count="$(CPUS)"
+	--virtualbox-share-folder="$(PWD):$(PWD)" \
+	--virtualbox-disk-size="$(DISK)" \
+	--virtualbox-memory="$(MEMORY)" \
+	--virtualbox-cpu-count="$(CPUS)"
 
 else ifeq ($(BACKEND),digitalocean)
 
-executables = docker-machine ssh virtualbox
+executables = docker-machine ssh
 docker = $(docker_machine) ssh $(NAME) -t docker
-machine: storage-digitalocean machine-start
+machine: machine-start storage-digitalocean machine-sync
 storage_flags = --volume $(NAME):/home/build/build/
-docker_machine_create_flags =
+storage_flags =
+env_flags = --env-file $(PWD)/config/env/digitalocean.env
+docker_machine_create_flags = \
+	--digitalocean-access-token=$(DIGITALOCEAN_TOKEN) \
+	--digitalocean-region=$(DIGITALOCEAN_REGION) \
+	--digitalocean-image=$(DIGITALOCEAN_IMAGE) \
+	--digitalocean-size=$(DIGITALOCEAN_SIZE)
 
 endif
 
@@ -234,7 +250,6 @@ contain := \
 		--rm \
 		--tty \
 		--interactive \
-		--cpus $(CPUS) \
 		--name "$(NAME)" \
 		--hostname "$(NAME)" \
 		--user $(userid):$(groupid) \

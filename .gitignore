@@ -1,4 +1,5 @@
 build/*
 config/keys/*
+config/env/*
 release/*
 .*
