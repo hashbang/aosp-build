@@ -50,6 +50,11 @@ environment = {
     "RANDFILE": "%s/randfile.bin" % base_dir,
     "LC_ALL":"C"
 }
+
+environment['BUILD_KERNEL'] = "true"
+if config.get('build_kernel') == False:
+    environment['BUILD_KERNEL'] = "false"
+
 environment['BUILD_CHROMIUM'] = "false"
 if config.get("apps", {}).get("chromium"):
     environment['BUILD_CHROMIUM'] = "true"

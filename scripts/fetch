@@ -6,6 +6,7 @@ cores=$(nproc)
 manifest_dir="${MANIFEST_DIR?}"
 manifest_repo="${MANIFEST_REPO?}"
 external_dir="${EXTERNAL_DIR?}"
+build_kernel="${BUILD_KERNEL?}"
 kernel_name="${KERNEL_NAME?}"
 kernel_dir="${external_dir}/kernel/${kernel_name}"
 build_chromium="${BUILD_CHROMIUM?}"
@@ -50,18 +51,20 @@ retry 3 repo sync \
 repo forall -c 'git reset --hard ; git clean --force -dx'
 
 # Kernel
-echo "Cloning kernel..."
-mkdir -p "${kernel_dir}"
-cd "${kernel_dir}"
-rm -rf "${kernel_dir}/.repo"
-repo init \
-	--manifest-url "${manifest_dir}" \
-	--manifest-name "kernel-${kernel_name}.xml"
-repo sync -c --no-tags --force-sync --no-clone-bundle --jobs "${cores}"
-repo forall -c 'git reset --hard ; git clean -fdx'
+if [ "${build_kernel}" == "true" ]; then
+	echo "Cloning kernel..."
+	mkdir -p "${kernel_dir}"
+	cd "${kernel_dir}"
+	rm -rf "${kernel_dir}/.repo"
+	repo init \
+		--manifest-url "${manifest_dir}" \
+		--manifest-name "kernel-${kernel_name}.xml"
+	repo sync -c --no-tags --force-sync --no-clone-bundle --jobs "${cores}"
+	repo forall -c 'git reset --hard ; git clean -fdx'
+fi
 
 # Chromium
-if [ "${build_chromium}" == "true"  ]; then
+if [ "${build_chromium}" == "true" ]; then
 echo "Cloning chromium..."
 	[ ! -d "${chromium_dir}/depot_tools" ] && \
 		git clone "${chromium_build_tools_url}" "${chromium_dir}/depot_tools"

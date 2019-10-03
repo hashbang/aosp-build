@@ -5,8 +5,8 @@ variant: user
 datetime: 1570405881
 host: android
 user: build
+build_kernel: true
 platform:
-  ref: android-10.0.0_r3
   extra_remotes:
   - name: github
     fetch: https://github.com
@@ -51,12 +51,14 @@ devices:
     build_id: QP1A.191005.007
     factory_hash: 9754d7c6c75199cc3c45eac5a9bf0ae685c3ce75e84b079e2a58af01b896e89a
     ota_hash: cfb0d182e5900423f4cd844bb22f2111f761e85c3163acc418b728ca226b81f4
+    platform_ref: android-10.0.0_r4
   sargo:
     kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     build_id: QP1A.191005.007
     factory_hash: 664181b1f02e42f177ca3cff0713f0c9f195a4b49b059649d0a5bb5677687b1a
     ota_hash: 3650d4fbc40fea2f6ceca294a06ff0232f0a31e6894dbfe4d332d7a7f714ec58
+    platform_ref: android-10.0.0_r4
   crosshatch:
     kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
@@ -64,6 +66,7 @@ devices:
     build_id: QP1A.191005.007
     factory_hash: 2989a08d105bcbe12087d54054eb0c8a412ed220e1b4df06f93e33e0618e18fc
     ota_hash: a660c15f5b348346604e41cb1090a410820d0fcddba0444072a29c2625fbc90f
+    platform_ref: android-10.0.0_r4
   blueline:
     kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
@@ -71,6 +74,7 @@ devices:
     build_id: QP1A.191005.007
     factory_hash: c36610c69c9561a53498836f3719b6d1b523496d6c9ffd48745b6b57d668b03a
     ota_hash: e5bf373b697e5531cb1aae8017d3836a837254d3bb85567c09f25934a83cdf68
+    platform_ref: android-10.0.0_r4
   taimen:
     kernel_name: wahoo
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
@@ -78,6 +82,7 @@ devices:
     build_id: QP1A.191005.007.A1
     factory_hash: 3ed471615bd9592c26dd372e5e418e52aafbff15552dbb14f02832f64085cb06
     ota_hash: 3d9deb8aebb52825c77a7147db1d6f4fe675ed218675739aac19cf5df3897c0c
+    platform_ref: android-10.0.0_r5
   walleye:
     kernel_name: wahoo
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
@@ -85,6 +90,7 @@ devices:
     build_id: QP1A.191005.007.A1
     factory_hash: 78ad96e7de96b9fd24033b978e9bd4c7546ca9c46e0ef818b174d46bc9234b13
     ota_hash: 8749acbf77db85ae291fc2e73d0a739edb472b5579bc048f83a73f135829ab61
+    platform_ref: android-10.0.0_r5
   marlin:
     kernel_name: marlin
     kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
@@ -92,6 +98,7 @@ devices:
     build_id: QP1A.191005.007.A1
     factory_hash: c27241e0aaf46f4ff60d8279efd9ac6f6ac8e80b1bd08c43d75f851313efaa12
     ota_hash: eea9b8dd1fd63c0c17be56e81d9d2381705491adb24f6aabceb76eb4cf23260d
+    platform_ref: android-10.0.0_r5
   sailfish:
     kernel_name: marlin
     kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
@@ -99,3 +106,4 @@ devices:
     build_id: QP1A.191005.007.A1
     factory_hash: b78689114651587d1ff34ab4d3af9dc0885da3c6f70807e47c6dbdf634385f2a
     ota_hash: 401d182ecee4258bab1f78299ddcd2076413c9672fa4d1f9f8c6eeedb1bfd4aa
+    platform_ref: android-10.0.0_r5

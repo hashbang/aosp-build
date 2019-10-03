@@ -3,6 +3,8 @@
 import yaml
 import re
 import os.path
+import subprocess
+import base64
 from os import environ, getenv, getcwd
 from html.parser import HTMLParser
 from urllib.request import urlopen
@@ -71,6 +73,26 @@ if __name__ == "__main__":
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
 
+    all_tags = []
+    platform_build_url = "https://android.googlesource.com/platform/build"
+    tag_filter = "android-{}".format(config['version'])
+    process = subprocess.run(["git", "ls-remote", "--refs", "--tags", "--sort=v:refname", platform_build_url], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    for line in process.stdout.split(b'\n'):
+        tag = line.decode().split('/')[-1]
+        if tag_filter in tag:
+            all_tags.append(tag)
+    latest_tags = all_tags[-5:]
+
+    build_id_tags = {}
+    build_id_git_url = "https://android.googlesource.com/platform/build/+/refs/tags/{}/core/build_id.mk?format=TEXT"
+    build_id_filter = "BUILD_ID="
+    for tag in latest_tags:
+        output = base64.decodebytes(urlopen(build_id_git_url.format(tag)).read()).decode()
+        for line in output.split('\n'):
+            if build_id_filter in line:
+                build_id = line.split(build_id_filter)[1]
+                build_id_tags[build_id] = tag
+
     parser = AndroidImagesParser(config)
     parser.images = {}
     image_url = "https://developers.google.com/android/images"
@@ -81,6 +103,13 @@ if __name__ == "__main__":
     for device in config['devices']:
         for values in parser.images[device].items():
             config['devices'].setdefault(device,{})[values[0]] = values[1]
+
+            if values[0] == "build_id":
+                factory_build = values[1]
+                if factory_build in build_id_tags:
+                    config['devices'].setdefault(device, {})['platform_ref'] = build_id_tags[factory_build]
+                else:
+                    print("Unable to find latest build tag for factory build {} for device {}".format(factory_build, device))
 
     with open(config_file, 'w') as outfile:
         yaml.dump(config, outfile, default_flow_style=False)
