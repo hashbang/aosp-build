@@ -2,20 +2,20 @@ version: '10'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1568760127
+datetime: 1570405881
 host: android
 user: build
 platform:
-  ref: android-10.0.0_r2
+  ref: android-10.0.0_r3
   extra_remotes:
   - name: github
     fetch: https://github.com
   extra_projects:
-  - name: RattleSnakeOS/android-prepare-vendor
+  - name: hashbang/android-prepare-vendor
     groups: device
     path: vendor/android-prepare-vendor
     remote: github
-    revision: refs/heads/10.0
+    revision: refs/heads/8b55b6865a34449a4195a3a76e6b0a77c8f80018
   remove_paths:
   - platform/prebuilts/qemu-kernel
   - platform/developers/samples/android
@@ -48,25 +48,25 @@ devices:
   bonito:
     kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
-    factory_build: QP1A.190711.020
-    factory_hash: 1f47c677bcb3ce427103a6388e3f07fb8a03789353cfd3baceb6c24e13b62f9a
+    factory_build: QP1A.190711.020.C3
+    factory_hash: ffac7a4a1412546609f3dddffa6f83b5dc61ad424cf625b9c71429ddd2726cb6
   sargo:
     kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
-    factory_build: QP1A.190711.020
-    factory_hash: afb4dbc1df968aace547691a063a6bb6b2cc8cb6cc448b199a8b5b78803beb43
+    factory_build: QP1A.190711.020.C3
+    factory_hash: 2037b55299b85e6567c076172d4b19daf27d7d552ce497e6b4683769440896ed
   crosshatch:
     kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
-    factory_build: QP1A.190711.020
-    factory_hash: 2eae0727565dc516a60e05f8502671d24e6d4b25770618d83d8a763147e259d3
+    factory_build: QP1A.190711.020.C3
+    factory_hash: 59b11ce9a2cd8ef2f75fc3ebe6124924eade2a624d4e9bf516e82d16b9d79749
   blueline:
     kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
-    factory_build: QP1A.190711.020
-    factory_hash: b5633fdfa34df0fccc4b6dc86799b1a2ee6a2fc1de1cd9c8a08da7703ad81ec2
+    factory_build: QP1A.190711.020.C3
+    factory_hash: 1996b3cfc4e83743127f356d349aef2bf577c96d9c8d109b9c8917c81125ab04
   taimen:
     kernel_name: wahoo
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
