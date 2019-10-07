@@ -18,8 +18,7 @@ cores=$(nproc)
 build_chromium="${BUILD_CHROMIUM?}"
 
 function build_external(){
-	local vendor_dist="\
-		${external_dir}/vendor/out/${device}/${build_id,,}/vendor/"
+	local vendor_dist="${external_dir}/vendor/out/${device}/${build_id,,}/vendor/"
 	local vendor_dest="${base_dir}/vendor/"
 	[ -d "${vendor_dist}" ] || build-vendor
 	sudo rm -rf "${vendor_dest}"
@@ -46,10 +45,8 @@ function build_external(){
 
 function apply_patches(){
 	cd "${base_dir}"
-	local fdroid_org="\
-		packages/apps/F-DroidPrivilegedExtension/app/src/main/java/org"
-	local fdroid_whitelist="\
-		${fdroid_org}/fdroid/fdroid/privileged/ClientWhitelist.java"
+	local fdroid_org="packages/apps/F-DroidPrivilegedExtension/app/src/main/java/org"
+	local fdroid_whitelist="${fdroid_org}/fdroid/fdroid/privileged/ClientWhitelist.java"
 	local platform_key_hash; platform_key_hash=$( \
 		openssl x509 -in "${key_dir}/platform.x509.pem" -outform DER \
 		| sha256sum | cut -c1-64; \
