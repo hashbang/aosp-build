@@ -13,7 +13,7 @@
         <linkfile dest="build/target" src="target"/>    
         <linkfile dest="build/tools" src="tools"/>    
     </project>  
-    <project groups="device" name="RattleSnakeOS/android-prepare-vendor" path="vendor/android-prepare-vendor" remote="github" revision="80bd5e7460bf66ce46f2c3eb6acda152ce8782cb" upstream="refs/heads/10.0">
+    <project groups="device" name="hashbang/android-prepare-vendor" path="vendor/android-prepare-vendor" remote="github" revision="8b55b6865a34449a4195a3a76e6b0a77c8f80018" upstream="refs/heads/10.0">
 </project>  
   <project groups="pdk,tradefed" name="platform/build/blueprint" path="build/blueprint" revision="f6d3c565de5921dc201ccc4b6493bfe64b3c62a3" upstream="refs/tags/android-10.0.0_r3"/>  
     <project groups="pdk,tradefed" name="platform/build/kati" path="build/kati" revision="13e8b3ce6eb143606c3351859099adc9697e1732" upstream="refs/tags/android-10.0.0_r3"/>  
