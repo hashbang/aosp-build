@@ -76,7 +76,7 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
         key_dir = "%s/build/target/product/security/" % base_dir
     environment["KEY_DIR"] = key_dir
     environment["RELEASE_DIR"] = "{cwd}/release/".format(cwd=cwd)
-    environment['BUILD_ID'] = device_config['factory_build']
+    environment['BUILD_ID'] = device_config['build_id']
 
 environment['ARCH'] = "arm64"
 environment['LANG'] = "C"
