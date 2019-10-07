@@ -47,6 +47,7 @@ environment = {
     "KBUILD_BUILD_VERSION": \
         strftime('%m%d%H%M', gmtime(config['datetime'])),
     "KCONFIG_NOTIMESTAMP": 1,
+    "RANDFILE": "%s/randfile.bin" % base_dir,
     "LC_ALL":"C"
 }
 environment['BUILD_CHROMIUM'] = "false"

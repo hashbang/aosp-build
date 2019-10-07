@@ -1,0 +1,9 @@
+#!/bin/bash
+[ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
+set -e; eval "$(environment)";
+
+rand_file="${RANDFILE?}"
+
+test -f ${rand_file} || head -c 1G < /dev/urandom > ${rand_file}
+
+ln -sf "${rand_file}" "${HOME}/.rnd"

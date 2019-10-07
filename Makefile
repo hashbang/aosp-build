@@ -10,6 +10,7 @@ BUILD := user
 FLAVOR := aosp
 IMAGE := hashbang/aosp-build:latest
 NAME := aosp-build-$(FLAVOR)-$(BACKEND)
+SHELL := /bin/bash
 
 -include $(PWD)/config/env/$(BACKEND).env
 
@@ -17,26 +18,25 @@ NAME := aosp-build-$(FLAVOR)-$(BACKEND)
 
 .DEFAULT_GOAL := default
 .PHONY: default
-default: machine image fetch keys build release
+default: machine image fetch tools keys build release
 
 
 ## Primary Targets ##
 
 .PHONY: fetch
-fetch: submodule-update machine
-	mkdir -p config/keys build/base release build/external
+fetch: submodule-update machine image
 	$(contain) fetch
 
 .PHONY: keys
-keys: tools entropy
+keys: entropy
 	$(contain) keys
 
 .PHONY: build
-build: image tools
+build:
 	$(contain) build
 
 .PHONY: release
-release: tools
+release:
 	$(contain) release
 
 .PHONY: publish
@@ -44,7 +44,7 @@ publish:
 	$(contain) publish
 
 .PHONY: clean
-clean: image
+clean:
 	$(contain) clean
 
 .PHONY: mrproper
@@ -55,7 +55,7 @@ mrproper: storage-delete machine-delete
 ## Secondary Targets ##
 
 .PHONY: image
-image: machine
+image:
 	$(docker) build \
 		--tag $(IMAGE) \
 		--file $(PWD)/config/container/Dockerfile \
@@ -67,18 +67,19 @@ entropy:
 
 .PHONY: tools
 tools:
+	mkdir -p config/keys build/base release build/external
 	$(contain) tools
 
 .PHONY: vendor
-vendor: tools
+vendor:
 	$(contain) build-vendor
 
 .PHONY: chromium
-chromium: tools
+chromium:
 	$(contain) build-chromium
 
 .PHONY: kernel
-kernel: tools
+kernel:
 	$(contain) build-kernel
 
 
@@ -89,11 +90,11 @@ latest: config submodule-latest fetch
 
 .PHONY: manifest
 manifest:
-	$(contain) manifest
+	$(contain) bash -c "source <(environment) && manifest"
 
 .PHONY: config
 config: manifest
-	$(contain) config
+	$(contain) bash -c "source <(environment) && config"
 
 .PHONY: test-repro
 test-repro:

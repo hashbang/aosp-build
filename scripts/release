@@ -28,6 +28,8 @@ inter_dir="${target_out_dir}/obj/PACKAGING/target_files_intermediates"
 bootloader=$(img_path bootloader "${base_dir}/vendor/google_devices/${device}")
 radio=$(img_path baseband "${base_dir}/vendor/google_devices/${device}")
 
+sudo chown -R "$(id -u)":"$(id -g)" "$HOME/release"
+
 cd "$base_dir"
 mkdir -p "$release_dir"
 

@@ -157,6 +157,7 @@ class AndroidManifest:
 if __name__ == "__main__":
 
     config_file=getenv('CONFIG_FILE')
+    print("Config file: %s" % config_file)
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
 
