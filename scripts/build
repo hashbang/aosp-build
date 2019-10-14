@@ -16,6 +16,7 @@ platform_patches="${PLATFORM_PATCHES?}"
 key_dir="${KEY_DIR?}"
 cores=$(nproc)
 build_chromium="${BUILD_CHROMIUM?}"
+build_kernel="${BUILD_KERNEL?}"
 
 function build_external(){
 	local vendor_dist="${external_dir}/vendor/out/${device}/${build_id,,}/vendor/"
@@ -35,12 +36,14 @@ function build_external(){
 		cp -R "${chromium_dist}." "${chromium_dest}"
 	fi
 
-	local kernel_dir="${external_dir}/kernel/${kernel_name}"
-	local kernel_dist="${kernel_dir}/dist/"
-	local kernel_dest="${base_dir}/device/google/${device}-kernel/"
-	mkdir -p "${kernel_dest}"
-	[ -d "$kernel_dist" ] || build-kernel
-	cp -R "${kernel_dist}." "${kernel_dest}"
+	if [ "$build_kernel" == "true" ]; then
+		local kernel_dir="${external_dir}/kernel/${kernel_name}"
+		local kernel_dist="${kernel_dir}/dist/"
+		local kernel_dest="${base_dir}/device/google/${device}-kernel/"
+		mkdir -p "${kernel_dest}"
+		[ -d "$kernel_dist" ] || build-kernel
+		cp -R "${kernel_dist}." "${kernel_dest}"
+	fi
 }
 
 function apply_patches(){
@@ -78,4 +81,3 @@ function main(){
 	build_external
 	build_platform
 }; main
-
