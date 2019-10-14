@@ -3,8 +3,8 @@
 import yaml
 import re
 import os.path
-import subprocess
 import base64
+from git import cmd
 from os import environ, getenv, getcwd
 from html.parser import HTMLParser
 from urllib.request import urlopen
@@ -76,11 +76,13 @@ if __name__ == "__main__":
     all_tags = []
     platform_build_url = "https://android.googlesource.com/platform/build"
     tag_filter = "android-{}".format(config['version'])
-    process = subprocess.run(["git", "ls-remote", "--refs", "--tags", "--sort=v:refname", platform_build_url], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    for line in process.stdout.split(b'\n'):
-        tag = line.decode().split('/')[-1]
+    for line in cmd.Git().ls_remote("--sort=v:refname", platform_build_url, tags=True, refs=True).split('\n'):
+        try:
+            (ref, tag) = line.split('\t')
+        except ValueError:
+            pass
         if tag_filter in tag:
-            all_tags.append(tag)
+            all_tags.append(tag.replace("refs/tags/", ""))
     latest_tags = all_tags[-5:]
 
     build_id_tags = {}
