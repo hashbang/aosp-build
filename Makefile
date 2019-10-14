@@ -28,7 +28,7 @@ fetch: submodule-update machine image
 	$(contain) fetch
 
 .PHONY: keys
-keys: entropy
+keys:
 	$(contain) keys
 
 .PHONY: build
@@ -60,10 +60,6 @@ image:
 		--tag $(IMAGE) \
 		--file $(PWD)/config/container/Dockerfile \
 		$(PWD)
-
-.PHONY: entropy
-entropy:
-	$(contain) entropy
 
 .PHONY: tools
 tools:
@@ -258,6 +254,7 @@ contain := \
 		--security-opt seccomp=unconfined \
 		--volume $(PWD)/config:/home/build/config \
 		--volume $(PWD)/release:/home/build/release \
+		--volume $(PWD)/scripts:/home/build/scripts \
 		$(storage_flags) \
 		$(IMAGE)
 
