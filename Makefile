@@ -63,6 +63,17 @@ image:
 		$(IMAGE_OPTIONS) \
 		$(PWD)
 
+config/container/Dockerfile.minimal: config/container/Dockerfile config/container/render_template
+	./config/container/render_template "$<" | grep -v '^#\s*$$' > "$@"
+
+.PHONY: image-minimal
+image-minimal: config/container/Dockerfile.minimal
+	$(docker) build \
+		--tag $(IMAGE) \
+		--file "$(PWD)/$<" \
+		$(IMAGE_OPTIONS) \
+		$(PWD)
+
 .PHONY: tools
 tools:
 	mkdir -p config/keys build/base release build/external
