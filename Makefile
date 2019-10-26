@@ -9,6 +9,7 @@ CHANNEL := beta
 BUILD := user
 FLAVOR := aosp
 IMAGE := hashbang/aosp-build:latest
+IMAGE_OPTIONS :=
 NAME := aosp-build-$(FLAVOR)-$(BACKEND)
 SHELL := /bin/bash
 
@@ -59,6 +60,7 @@ image:
 	$(docker) build \
 		--tag $(IMAGE) \
 		--file $(PWD)/config/container/Dockerfile \
+		$(IMAGE_OPTIONS) \
 		$(PWD)
 
 .PHONY: tools

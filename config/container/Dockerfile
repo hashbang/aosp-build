@@ -1,7 +1,7 @@
-ARG GOLANG_IMAGE_REF=sha256:84349ee862d8bafff35e0d2bfd539da565b536b4dfce654773fc21a1db2da6d7
-ARG UBUNTU_IMAGE_REF=sha256:7d657275047118bb77b052c4c0ae43e8a289ca2879ebfa78a703c93aa8fd686c
+ARG GOLANG_IMAGE_REF=@sha256:84349ee862d8bafff35e0d2bfd539da565b536b4dfce654773fc21a1db2da6d7
+ARG UBUNTU_IMAGE_REF=@sha256:7d657275047118bb77b052c4c0ae43e8a289ca2879ebfa78a703c93aa8fd686c
 
-FROM golang@${GOLANG_IMAGE_REF} as golang
+FROM golang${GOLANG_IMAGE_REF} as golang
 
 ARG FIXUID_GIT_REF="0ec93d22e52bde5b7326e84cb62fd26a3d20cead"
 ARG OZZOCONFIG_GIT_REF="0ff174cf5aa6480026e0b40c14fd9cfb61c4abf6"
@@ -56,7 +56,7 @@ RUN go build -o /usr/local/bin/terraform-provider-helm \
     github.com/terraform-providers/terraform-provider-helm
 
 
-FROM ubuntu:cosmic@${UBUNTU_IMAGE_REF}
+FROM ubuntu:cosmic${UBUNTU_IMAGE_REF}
 
 COPY --from=golang /usr/local/bin/ /usr/local/bin/
 
