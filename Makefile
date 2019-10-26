@@ -119,7 +119,7 @@ install: tools
 	@scripts/flash
 
 
-## Source Mangement ##
+## Source Management ##
 
 .PHONY: submodule-update
 submodule-update:
