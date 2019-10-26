@@ -32,6 +32,7 @@ github.com/terraform-providers/terraform-provider-kubernetes github.com/terrafor
 > /go/src/repos
 
 RUN echo ' \
+    set -o nounset -o pipefail -o errexit; \
     cat /go/src/repos | while read -r line; do \
         repo=$(echo $line | awk "{ print \$1 }"); \
         folder=$(echo $line | awk "{ print \$2 }"); \
