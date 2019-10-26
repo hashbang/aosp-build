@@ -21,7 +21,7 @@ RUN printf "\
 github.com/boxboat/fixuid.git github.com/boxboat/fixuid ${FIXUID_GIT_REF} \n\
 github.com/go-ozzo/ozzo-config github.com/go-ozzo/ozzo-config ${OZZOCONFIG_GIT_REF} \n\
 github.com/hnakamur/jsonpreprocess github.com/hnakamur/jsonpreprocess ${JSONPREPROCESS_GIT_REF} \n\
-github.com/BurntSushi/toml github.com/BurntSushi/toml ${JSONPREPROCESS_GIT_REF} \n\
+github.com/BurntSushi/toml github.com/BurntSushi/toml ${TOML_GIT_REF} \n\
 github.com/go-yaml/yaml gopkg.in/yaml.v2 ${YAMLV2_GIT_REF} \n\
 github.com/Masterminds/glide github.com/Masterminds/glide ${GLIDE_GIT_REF} \n\
 github.com/kubernetes/kubernetes k8s.io/kubernetes ${KUBERNETES_GIT_REF} \n\
