@@ -81,7 +81,7 @@ if __name__ == "__main__":
             pass
         if tag_filter in tag:
             all_tags.append(tag.replace("refs/tags/", ""))
-    latest_tags = all_tags[-5:]
+    latest_tags = all_tags[-9:]
 
     build_id_tags = {}
     build_id_git_url = "https://android.googlesource.com/platform/build/+/refs/tags/{}/core/build_id.mk?format=TEXT"
