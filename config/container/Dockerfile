@@ -55,6 +55,7 @@ RUN go build -o /usr/local/bin/terraform-provider-kubernetes \
 RUN go build -o /usr/local/bin/terraform-provider-helm \
     github.com/terraform-providers/terraform-provider-helm
 
+
 FROM ubuntu:cosmic@${UBUNTU_IMAGE_REF}
 
 COPY --from=golang /usr/local/bin/ /usr/local/bin/
