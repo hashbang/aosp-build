@@ -177,7 +177,7 @@ if __name__ == "__main__":
     path=getenv('MANIFEST_DIR')
     makedirs(path, exist_ok=True)
 
-    if config['build_kernel'] == "true":
+    if config['build_kernel']:
         kernel_names=[]
         manifest_kernels=[]
         for device in config['devices'].keys():
