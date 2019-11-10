@@ -84,14 +84,13 @@ rm "${factory_zip}"
 rm "${factory_dir}/flash-all.sh"
 rm "${factory_dir}/flash-all.bat"
 rm "${factory_dir}/flash-base.sh"
-cat <<-EOF > "${factory_dir}/flash-all.sh"
-	if ! grep -q partition-exists \$(which fastboot); then
-		echo "fastboot too old; please update via your OS package manager"
-		exit 1
-	fi
-EOF
 
 cat <<-EOF >> "${factory_dir}/flash-all.sh"
+	if ! [ $($(which fastboot) --version | grep "version" | cut -c18-23 | sed 's/\.//g' ) -ge 2802 ]; then
+		echo "fastboot too old; please download the latest version at https://developer.android.com/studio/releases/platform-tools.html"
+		exit 1
+	fi
+
 	fastboot flashing unlock
 	fastboot flash bootloader bootloader-${device}-${bootloader}.img
 	fastboot reboot-bootloader
