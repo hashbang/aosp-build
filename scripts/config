@@ -1,15 +1,17 @@
 #!/usr/bin/python3
 
-import yaml
 import re
 import os.path
 import base64
-from git import cmd
+
 from os import environ, getenv, getcwd
 from html.parser import HTMLParser
 from urllib.request import urlopen
 from collections import OrderedDict, Counter
+
+import yaml
 from yaml.resolver import BaseResolver
+from git import cmd
 
 class AndroidImagesParser(HTMLParser):
 
