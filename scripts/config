@@ -88,11 +88,13 @@ if __name__ == "__main__":
     build_id_tags = {}
     build_id_git_url = "https://android.googlesource.com/platform/build/+/refs/tags/{}/core/build_id.mk?format=TEXT"
     build_id_filter = "BUILD_ID="
+    build_id_regex = '([A-Z0-9]{4,5}\.[0-9]{6}\.[0-9]{3})'
     for tag in latest_tags:
         output = base64.decodebytes(urlopen(build_id_git_url.format(tag)).read()).decode()
         for line in output.split('\n'):
+            build_id_base = re.search(build_id_regex, line)
             if build_id_filter in line:
-                build_id = line.split(build_id_filter)[1]
+                build_id = re.search(build_id_regex, line)[0]
                 build_id_tags[build_id] = tag
 
     parser = AndroidImagesParser(config)
@@ -105,9 +107,8 @@ if __name__ == "__main__":
     for device in config['devices']:
         for values in parser.images[device].items():
             config['devices'].setdefault(device,{})[values[0]] = values[1]
-
             if values[0] == "build_id":
-                factory_build = values[1]
+                factory_build = re.search(build_id_regex, values[1])[0]
                 if factory_build in build_id_tags:
                     config['devices'].setdefault(device, {})['platform_ref'] = build_id_tags[factory_build]
                 else:
