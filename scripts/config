@@ -3,6 +3,7 @@
 import re
 import os.path
 import base64
+import time
 
 from os import environ, getenv, getcwd
 from html.parser import HTMLParser
@@ -113,6 +114,8 @@ if __name__ == "__main__":
                     config['devices'].setdefault(device, {})['platform_ref'] = build_id_tags[factory_build]
                 else:
                     print("Unable to find latest build tag for factory build {} for device {}".format(factory_build, device))
+
+    config['datetime'] = int(time.time())
 
     with open(config_file, 'w') as outfile:
         yaml.dump(config, outfile, default_flow_style=False)
