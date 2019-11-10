@@ -55,16 +55,16 @@ function apply_patches(){
 		| sha256sum | cut -c1-64; \
 	)
 	echo "Platform Key Hash: ${platform_key_hash}"
-	for patch in ${platform_patches//,/ }; do
-		echo "Applying patch: $patch_dir/${patch}"
-		patch -p1 --no-backup-if-mismatch < "${patch_dir}/${patch}"
-	done
 	if [ -f "${base_dir}/${fdroid_whitelist}" ]; then
 		echo "patching file ${fdroid_whitelist}"
 		sed -i \
 			"s/[a-f0-9]\\{64\\}/${platform_key_hash}/g" \
 			"${base_dir}/${fdroid_whitelist}"
 	fi
+	for patch in ${platform_patches//,/ }; do
+		echo "Applying patch: $patch_dir/${patch}"
+		patch -p1 --no-backup-if-mismatch < "${patch_dir}/${patch}"
+	done
 	echo "export BUILD_ID=${build_id}" > "${base_dir}/build/core/build_id.mk"
 	cd -
 }
