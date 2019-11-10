@@ -30,7 +30,7 @@ function build_external(){
 		local chromium_dest="${base_dir}/external/chromium/prebuilt/arm64/"
 		[ -d "${chromium_dist}" ] || build-chromium
 		mkdir -p "${chromium_dest}" || :
-		cp -R \
+		[ -d "$overlay_dir/external/chromium" ] && cp -R \
 			"$overlay_dir/external/chromium/." \
 			"$base_dir/external/chromium/"
 		cp -R "${chromium_dist}." "${chromium_dest}"
