@@ -19,7 +19,6 @@ build_datetime="${BUILD_DATETIME?}"
 key_dir="${KEY_DIR?}"
 release_dir="${RELEASE_DIR?}"
 build_id=${BUILD_ID?}
-avb_mode="${AVB_MODE?}"
 
 prefix=aosp_
 target_files="${device}-target_files-${build_number}.zip"
@@ -91,14 +90,6 @@ cat <<-EOF > "${factory_dir}/flash-all.sh"
 		exit 1
 	fi
 EOF
-
-if [ "$avb_mode" != "verity_only" ]; then
-	cp "${key_dir}/avb_pkmd.bin" "${factory_dir}/${device}-avb_pkmd.bin"
-	cat <<-EOF >> "${factory_dir}/flash-all.sh"
-	fastboot erase avb_custom_key
-	fastboot flash avb_custom_key ${device}-avb_pkmd.bin
-EOF
-fi
 
 cat <<-EOF >> "${factory_dir}/flash-all.sh"
 	fastboot flashing unlock
