@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import os, argparse
+
+import jinja2
+
+args_parser = argparse.ArgumentParser()
+args_parser.add_argument('template_files', nargs='+', help='Jinja2 template files to render.')
+args = args_parser.parse_args()
+
+render_vars = {
+    'tags': []
+}
+
+environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()))
+for template_file in args.template_files:
+    print(environment.get_template(template_file).render(render_vars))

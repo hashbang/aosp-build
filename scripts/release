@@ -19,7 +19,6 @@ build_datetime="${BUILD_DATETIME?}"
 key_dir="${KEY_DIR?}"
 release_dir="${RELEASE_DIR?}"
 build_id=${BUILD_ID?}
-avb_mode="${AVB_MODE?}"
 
 prefix=aosp_
 target_files="${device}-target_files-${build_number}.zip"
@@ -85,22 +84,13 @@ rm "${factory_zip}"
 rm "${factory_dir}/flash-all.sh"
 rm "${factory_dir}/flash-all.bat"
 rm "${factory_dir}/flash-base.sh"
-cat <<-EOF > "${factory_dir}/flash-all.sh"
-	if ! grep -q partition-exists \$(which fastboot); then
-		echo "fastboot too old; please update via your OS package manager"
-		exit 1
-	fi
-EOF
-
-if [ "$avb_mode" != "verity_only" ]; then
-	cp "${key_dir}/avb_pkmd.bin" "${factory_dir}/${device}-avb_pkmd.bin"
-	cat <<-EOF >> "${factory_dir}/flash-all.sh"
-	fastboot erase avb_custom_key
-	fastboot flash avb_custom_key ${device}-avb_pkmd.bin
-EOF
-fi
 
 cat <<-EOF >> "${factory_dir}/flash-all.sh"
+	if ! [ $($(which fastboot) --version | grep "version" | cut -c18-23 | sed 's/\.//g' ) -ge 2802 ]; then
+		echo "fastboot too old; please download the latest version at https://developer.android.com/studio/releases/platform-tools.html"
+		exit 1
+	fi
+
 	fastboot flashing unlock
 	fastboot flash bootloader bootloader-${device}-${bootloader}.img
 	fastboot reboot-bootloader

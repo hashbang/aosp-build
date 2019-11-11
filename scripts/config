@@ -1,15 +1,18 @@
 #!/usr/bin/python3
 
-import yaml
 import re
 import os.path
 import base64
-from git import cmd
+import time
+
 from os import environ, getenv, getcwd
 from html.parser import HTMLParser
 from urllib.request import urlopen
 from collections import OrderedDict, Counter
+
+import yaml
 from yaml.resolver import BaseResolver
+from git import cmd
 
 class AndroidImagesParser(HTMLParser):
 
@@ -23,7 +26,6 @@ class AndroidImagesParser(HTMLParser):
         self.type = "factory"
         self.images = {}
         self.build = False
-        self.variant = False
         self.device = False
 
     def handle_starttag(self, tag, attrs):
@@ -53,12 +55,11 @@ class AndroidImagesParser(HTMLParser):
                     )['build_id'] = tokens[1].replace("(","").replace(",", "")
 
     def handle_endtag(self, tag):
-        if tag == 'tr' and self.device and self.variant:
+        if tag == 'tr' and self.device:
             if self.version_open == True:
                 self.version_open = False
             self.device = False
             self.build = False
-            self.variant = False
 
 def dict_representer(dumper, data):
     return dumper.represent_dict(data.items())
@@ -83,7 +84,7 @@ if __name__ == "__main__":
             pass
         if tag_filter in tag:
             all_tags.append(tag.replace("refs/tags/", ""))
-    latest_tags = all_tags[-5:]
+    latest_tags = all_tags[-9:]
 
     build_id_tags = {}
     build_id_git_url = "https://android.googlesource.com/platform/build/+/refs/tags/{}/core/build_id.mk?format=TEXT"
@@ -113,6 +114,8 @@ if __name__ == "__main__":
                     config['devices'].setdefault(device, {})['platform_ref'] = build_id_tags[factory_build]
                 else:
                     print("Unable to find latest build tag for factory build {} for device {}".format(factory_build, device))
+
+    config['datetime'] = int(time.time())
 
     with open(config_file, 'w') as outfile:
         yaml.dump(config, outfile, default_flow_style=False)

@@ -9,6 +9,7 @@ CHANNEL := beta
 BUILD := user
 FLAVOR := aosp
 IMAGE := hashbang/aosp-build:latest
+IMAGE_OPTIONS :=
 NAME := aosp-build-$(FLAVOR)-$(BACKEND)
 SHELL := /bin/bash
 
@@ -59,6 +60,18 @@ image:
 	$(docker) build \
 		--tag $(IMAGE) \
 		--file $(PWD)/config/container/Dockerfile \
+		$(IMAGE_OPTIONS) \
+		$(PWD)
+
+config/container/Dockerfile.minimal: config/container/Dockerfile config/container/render_template
+	./config/container/render_template "$<" | grep -v '^#\s*$$' > "$@"
+
+.PHONY: image-minimal
+image-minimal: config/container/Dockerfile.minimal
+	$(docker) build \
+		--tag $(IMAGE) \
+		--file "$(PWD)/$<" \
+		$(IMAGE_OPTIONS) \
 		$(PWD)
 
 .PHONY: tools
@@ -119,7 +132,7 @@ install: tools
 	@scripts/flash
 
 
-## Source Mangement ##
+## Source Management ##
 
 .PHONY: submodule-update
 submodule-update:
