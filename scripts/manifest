@@ -2,6 +2,7 @@
 
 from tempfile import mkdtemp
 from git import Git, Repo, cmd
+import git
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 from xml.dom import minidom
@@ -9,6 +10,7 @@ from sys import argv, exit
 from os import environ, getcwd, getenv, makedirs
 from os.path import isfile, isdir
 import re
+import time
 import yaml
 
 class AndroidManifest:
@@ -144,9 +146,14 @@ class AndroidManifest:
     def _lsremote(self, url):
         remote_refs = {}
         g = cmd.Git()
-        for ref in g.ls_remote(url).split('\n'):
-            hash_ref_list = ref.split('\t')
-            remote_refs[hash_ref_list[1]] = hash_ref_list[0]
+        for _ in range(5):
+            try:
+                for ref in g.ls_remote(url).split('\n'):
+                    hash_ref_list = ref.split('\t')
+                    remote_refs[hash_ref_list[1]] = hash_ref_list[0]
+            except git.exc.GitCommandError:
+                print("Caught GitCommandError exception. Retrying.")
+                time.sleep(2)
         return remote_refs
 
     def pretty_print(self):
@@ -170,7 +177,7 @@ if __name__ == "__main__":
     path=getenv('MANIFEST_DIR')
     makedirs(path, exist_ok=True)
 
-    if config['build_kernel'] == "true":
+    if config['build_kernel']:
         kernel_names=[]
         manifest_kernels=[]
         for device in config['devices'].keys():

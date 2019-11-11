@@ -104,6 +104,6 @@ devices:
     kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
     avb_mode: verity_only
     build_id: QP1A.191005.007.A1
-    factory_hash: b78689114651587d1ff34ab4d3af9dc0885da3c6f70807e47c6dbdf634385f2a
-    ota_hash: 401d182ecee4258bab1f78299ddcd2076413c9672fa4d1f9f8c6eeedb1bfd4aa
+    factory_hash: 78c6703ea4473ed65c51d6e258bb67368962bd13aad3975db08b42c7b8d49cb0
+    ota_hash: 2c90d97b256bb6bccad64744659d6de50c9e51baeb2ab49393131e5803607dc1
     platform_ref: android-10.0.0_r5
