@@ -40,25 +40,6 @@ Please join us on IRC: ircs://irc.hashbang.sh/#!os
   | Pixel XL   | Marlin     | TRUE   | FALSE      | dm-verity   | Soon™    |
   | Pixel      | Sailfish   | TRUE   | FALSE      | dm-verity   | Soon™    |
 
-## Backends ##
-
-### local
-
-This is the default backend
-
-### Digitalocaen
-
-### VirtualBox
-
-
-  | Backend      | Codename   | Tested | Verifiable | Secure Boot | Download |
-  |--------------|:----------:|:------:|:----------:|:-----------:|:--------:|
-  | Digitalocean | Crosshatch | TRUE   | FALSE      | AVB 2.0     | Soon™    |
-  | virtualbox   | Taimen     | TRUE   | FALSE      | AVB 1.0     | Soon™    |
-  | local        | Blueline   | FALSE  | FALSE      | AVB 2.0     | Soon™    |
-
-
-
 ## Install ##
 
 ### Requirements ###
