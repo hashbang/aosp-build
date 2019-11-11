@@ -10,11 +10,6 @@ ARG JSONPREPROCESS_GIT_REF="a4e954386171be645f1eb7c41865d2624b69259d"
 ARG TOML_GIT_REF="3012a1dbe2e4bd1391d42b32f0577cb7bbc7f005"
 ARG YAMLV2_GIT_REF="51d6538a90f86fe93ac480b35f37b2be17fef232"
 ARG GLIDE_GIT_REF="b94b39d657d8abcccba6545e148f1201aee6ffec"
-ARG KUBERNETES_GIT_REF="e298fc723f2597697b770f88ce47fe93507f7463"
-ARG HELM_GIT_REF="e70f012bb6b7b4aa19aa7190d68e182cb1f5b9cb"
-ARG TERRAFORM_GIT_REF="4ebf9082cde695a4bbc908cbf373a2c8139fe534"
-ARG TERRAFORM_HELM_GIT_REF="a8e657341b68c09f901736974aee3aeccdd38be9"
-ARG TERRAFORM_KUBERNETES_GIT_REF="56bb8e012f5f4bdd2fb906e1e6a567e3e57b46a4"
 
 RUN apk add bash git make
 
@@ -23,13 +18,7 @@ github.com/boxboat/fixuid.git github.com/boxboat/fixuid ${FIXUID_GIT_REF} \n\
 github.com/go-ozzo/ozzo-config github.com/go-ozzo/ozzo-config ${OZZOCONFIG_GIT_REF} \n\
 github.com/hnakamur/jsonpreprocess github.com/hnakamur/jsonpreprocess ${JSONPREPROCESS_GIT_REF} \n\
 github.com/BurntSushi/toml github.com/BurntSushi/toml ${TOML_GIT_REF} \n\
-github.com/go-yaml/yaml gopkg.in/yaml.v2 ${YAMLV2_GIT_REF} \n\
-github.com/Masterminds/glide github.com/Masterminds/glide ${GLIDE_GIT_REF} \n\
-github.com/kubernetes/kubernetes k8s.io/kubernetes ${KUBERNETES_GIT_REF} \n\
-github.com/helm/helm k8s.io/helm ${HELM_GIT_REF} \n\
-github.com/hashicorp/terraform github.com/hashicorp/terraform ${TERRAFORM_GIT_REF} \n\
-github.com/terraform-providers/terraform-provider-helm github.com/terraform-providers/terraform-provider-helm ${TERRAFORM_HELM_GIT_REF} \n\
-github.com/terraform-providers/terraform-provider-kubernetes github.com/terraform-providers/terraform-provider-kubernetes ${TERRAFORM_KUBERNETES_GIT_REF}\n" \
+github.com/go-yaml/yaml gopkg.in/yaml.v2 ${YAMLV2_GIT_REF} \n" \
 > /go/src/repos
 
 RUN echo ' \
@@ -44,17 +33,6 @@ RUN echo ' \
 | bash
 
 RUN go build -o /usr/local/bin/fixuid github.com/boxboat/fixuid
-RUN go build -o /usr/local/bin/glide github.com/Masterminds/glide
-RUN go build -o /usr/local/bin/kubectl k8s.io/kubernetes/cmd/kubectl
-RUN cd /go/src/k8s.io/helm \
-    && make bootstrap build \
-    && cp bin/helm /usr/local/bin/ \
-    && cp bin/tiller /usr/local/bin/
-RUN go build -o /usr/local/bin/terraform github.com/hashicorp/terraform
-RUN go build -o /usr/local/bin/terraform-provider-kubernetes \
-    github.com/terraform-providers/terraform-provider-kubernetes
-RUN go build -o /usr/local/bin/terraform-provider-helm \
-    github.com/terraform-providers/terraform-provider-helm
 # {% endif %}
 
 
@@ -89,7 +67,7 @@ RUN useradd -G plugdev,sudo -ms /bin/bash build \
 RUN chown root:root /usr/local/bin/fixuid \
     && chmod 4755 /usr/local/bin/fixuid \
     && mkdir -p /etc/fixuid \
-    && printf "user: build\ngroup: build\npaths:\n  - /\n  - /home/build/build\n" > /etc/fixuid/config.yml \
+    && printf "user: build\ngroup: build\npaths:\n  - /\n  - /home/build/build\n" > /etc/fixuid/config.yml
 
 ENTRYPOINT ["/usr/local/bin/fixuid", "-q"]
 # {% endif %}
