@@ -18,6 +18,29 @@ cores=$(nproc)
 build_chromium="${BUILD_CHROMIUM?}"
 build_kernel="${BUILD_KERNEL?}"
 
+function apply_patches(){
+	cd "${base_dir}"
+	local fdroid_org="packages/apps/F-DroidPrivilegedExtension/app/src/main/java/org"
+	local fdroid_whitelist="${fdroid_org}/fdroid/fdroid/privileged/ClientWhitelist.java"
+	local platform_key_hash; platform_key_hash=$( \
+		openssl x509 -in "${key_dir}/platform.x509.pem" -outform DER \
+		| sha256sum | cut -c1-64; \
+	)
+	echo "Platform Key Hash: ${platform_key_hash}"
+	if [ -f "${base_dir}/${fdroid_whitelist}" ]; then
+		echo "patching file ${fdroid_whitelist}"
+		sed -i \
+			"s/[a-f0-9]\\{64\\}/${platform_key_hash}/g" \
+			"${base_dir}/${fdroid_whitelist}"
+	fi
+	for patch in ${platform_patches//,/ }; do
+		echo "Applying patch: $patch_dir/${patch}"
+		patch -p1 --no-backup-if-mismatch < "${patch_dir}/${patch}"
+	done
+	echo "export BUILD_ID=${build_id}" > "${base_dir}/build/core/build_id.mk"
+	cd -
+}
+
 function build_external(){
 	local vendor_dist="${external_dir}/vendor/out/${device}/${build_id,,}/vendor/"
 	local vendor_dest="${base_dir}/vendor/"
@@ -44,29 +67,6 @@ function build_external(){
 		[ -d "$kernel_dist" ] || build-kernel
 		cp -R "${kernel_dist}." "${kernel_dest}"
 	fi
-}
-
-function apply_patches(){
-	cd "${base_dir}"
-	local fdroid_org="packages/apps/F-DroidPrivilegedExtension/app/src/main/java/org"
-	local fdroid_whitelist="${fdroid_org}/fdroid/fdroid/privileged/ClientWhitelist.java"
-	local platform_key_hash; platform_key_hash=$( \
-		openssl x509 -in "${key_dir}/platform.x509.pem" -outform DER \
-		| sha256sum | cut -c1-64; \
-	)
-	echo "Platform Key Hash: ${platform_key_hash}"
-	if [ -f "${base_dir}/${fdroid_whitelist}" ]; then
-		echo "patching file ${fdroid_whitelist}"
-		sed -i \
-			"s/[a-f0-9]\\{64\\}/${platform_key_hash}/g" \
-			"${base_dir}/${fdroid_whitelist}"
-	fi
-	for patch in ${platform_patches//,/ }; do
-		echo "Applying patch: $patch_dir/${patch}"
-		patch -p1 --no-backup-if-mismatch < "${patch_dir}/${patch}"
-	done
-	echo "export BUILD_ID=${build_id}" > "${base_dir}/build/core/build_id.mk"
-	cd -
 }
 
 function build_platform(){
