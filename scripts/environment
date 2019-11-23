@@ -48,7 +48,8 @@ environment = {
         strftime('%m%d%H%M', gmtime(config['datetime'])),
     "KCONFIG_NOTIMESTAMP": 1,
     "RANDFILE": "%s/randfile.bin" % base_dir,
-    "LC_ALL":"C"
+    "LC_ALL":"C",
+    "PS4": '+ $(date --rfc-3339=seconds) ',
 }
 
 environment['BUILD_KERNEL'] = "true"

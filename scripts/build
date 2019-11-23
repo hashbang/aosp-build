@@ -72,7 +72,7 @@ function build_external(){
 function build_platform(){
 	cd "$base_dir"
 	choosecombo "${build_type}" "aosp_${device}" "${build_variant}"
-	make -j "${cores}" target-files-package brillo_update_payload
+	(set -o xtrace; make -j "${cores}" target-files-package brillo_update_payload)
 	cd -
 }
 
