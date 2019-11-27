@@ -12,9 +12,9 @@ libfaketime = "/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1"
 if 'BASE_DIR' in environ:
     base_dir = environ['BASE_DIR']
 else:
-    base_dir = "%s/build/base" % cwd
+    base_dir = "{}/build/base".format(cwd)
 
-config_file='%s/config/config.yml' % cwd
+config_file='{}/config/config.yml'.format(cwd)
 with open(config_file, encoding='utf-8') as data_file:
     config = yaml.load(data_file.read())
 
@@ -23,14 +23,14 @@ patches = ", ".join(config.get('platform',{}).get('patches',[]))
 environment = {
     "OS_NAME": config['name'],
     "CONFIG_FILE": config_file,
-    "CONFIG_DIR": '%s/config' % cwd,
+    "CONFIG_DIR": '{}/config'.format(cwd),
     "BASE_DIR": base_dir,
-    "ANDROID_HOME": "%s/sdk" % base_dir,
-    "MANIFEST_REPO": "%s/config/manifests" % cwd,
-    "MANIFEST_DIR": "%s/config/manifests" % cwd,
-    "OVERLAY_DIR": "%s/config/overlay" % cwd,
-    "PATCH_DIR": "%s/config/patches" % cwd,
-    "EXTERNAL_DIR": "%s/build/external" % cwd,
+    "ANDROID_HOME": "{}/sdk".format(base_dir),
+    "MANIFEST_REPO": "{}/config/manifests".format(cwd),
+    "MANIFEST_DIR": "{}/config/manifests".format(cwd),
+    "OVERLAY_DIR": "{}/config/overlay".format(cwd),
+    "PATCH_DIR": "{}/config/patches".format(cwd),
+    "EXTERNAL_DIR": "{}/build/external".format(cwd),
     "DEVICES": ",".join(config['devices'].keys()),
     "PLATFORM_PATCHES": patches,
     "BUILD_HOST": config['host'],
@@ -47,7 +47,7 @@ environment = {
     "KBUILD_BUILD_VERSION": \
         strftime('%m%d%H%M', gmtime(config['datetime'])),
     "KCONFIG_NOTIMESTAMP": 1,
-    "RANDFILE": "%s/randfile.bin" % base_dir,
+    "RANDFILE": "{}/randfile.bin".format(base_dir),
     "LC_ALL":"C",
     "PS4": '+ $(date --rfc-3339=seconds) ',
 }
@@ -77,11 +77,11 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     for key, value in device_config.items():
         environment[key.upper()]=value.lower()
     if variant == "user" or variant == "userdebug":
-        key_dir = "%s/config/keys/%s" % (cwd, device)
+        key_dir = "{}/config/keys/{}".format(cwd, device)
     else:
-        key_dir = "%s/build/target/product/security/" % base_dir
+        key_dir = "{}/build/target/product/security/".format(base_dir)
     environment["KEY_DIR"] = key_dir
-    environment["RELEASE_DIR"] = "{cwd}/release/".format(cwd=cwd)
+    environment["RELEASE_DIR"] = "{}/release/".format(cwd)
     environment['BUILD_ID'] = device_config['build_id']
 
 environment['ARCH'] = "arm64"

@@ -178,7 +178,7 @@ storage-delete:
 ## VM Management ##
 
 .PHONY: machine-start
-machine-start: machine-install machine-create machine-date
+machine-start: machine-create machine-date
 	$(docker_machine) status $(NAME) \
 	|| $(docker_machine) start $(NAME)
 
@@ -204,18 +204,13 @@ machine-date:
 		"sudo date -s @$(shell date +%s)"
 
 .PHONY: machine-create
-machine-create: machine-install
+machine-create:
 	$(docker_machine) status $(NAME) \
 	||( $(docker_machine) create \
 			--driver $(BACKEND) \
 			$(docker_machine_create_flags) \
 			$(NAME) \
 	)
-
-.PHONY: machine-install
-machine-install:
-	# wget docker-machine & hash check here
-
 
 ## VM Bootstrapping ##
 
