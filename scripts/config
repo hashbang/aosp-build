@@ -1,13 +1,18 @@
 #!/usr/bin/python3
 
-import yaml
 import re
 import os.path
+import base64
+import time
+
 from os import environ, getenv, getcwd
 from html.parser import HTMLParser
 from urllib.request import urlopen
 from collections import OrderedDict, Counter
+
+import yaml
 from yaml.resolver import BaseResolver
+from git import cmd
 
 class AndroidImagesParser(HTMLParser):
 
@@ -18,48 +23,43 @@ class AndroidImagesParser(HTMLParser):
         self.version = self.config['version']
         self.version_open = False
         self.hash_pattern = re.compile(r'\b[0-9a-f]{64}\b')
+        self.type = "factory"
         self.images = {}
-        self.image = {}
         self.build = False
-        self.variant = False
         self.device = False
 
     def handle_starttag(self, tag, attrs):
+        if tag == 'meta' and len(attrs) > 1 and attrs[0][1] == "og:url":
+            suffix = attrs[1][1].split('/').pop()
+            if suffix == "images": self.type = "factory"
+            if suffix == "ota": self.type = "ota"
         if tag == 'tr':
             for attr in attrs:
                 if attr[0] == 'id':
                     for device in self.devices:
                         if attr[1].startswith(device):
-                            self.image = {}
                             self.device = device
 
     def handle_data(self, data):
         if self.device:
             if len(data) > 6:
-                if self.hash_pattern.match(data) \
-                and self.version_open == True:
-                    self.image['factory_hash'] = data
+                if self.hash_pattern.match(data) and self.version_open == True:
+                    self.images.setdefault(
+                        self.device,{}
+                    )["%s_hash" % self.type] = data
                 elif data.split(' ')[0].startswith("%s." % self.version):
                     self.version_open = True
                     tokens = data.split(" ")
-                    self.image['factory_build'] = \
-                        tokens[1].replace("(","").replace(",", "")
-                    variant = tokens[4:5]
-                    if variant:
-                        self.variant = variant[0].replace(")","").lower()
-                    else:
-                        self.variant = "global"
+                    self.images.setdefault(
+                        self.device,{}
+                    )['build_id'] = tokens[1].replace("(","").replace(",", "")
 
     def handle_endtag(self, tag):
-        if tag == 'tr' and self.device and self.variant:
+        if tag == 'tr' and self.device:
             if self.version_open == True:
-                self.images.setdefault(
-                    self.device,{}
-                )[self.variant] = self.image
                 self.version_open = False
             self.device = False
             self.build = False
-            self.variant = False
 
 def dict_representer(dumper, data):
     return dumper.represent_dict(data.items())
@@ -70,22 +70,52 @@ yaml.add_constructor(BaseResolver.DEFAULT_MAPPING_TAG, dict_constructor)
 
 if __name__ == "__main__":
 
-    config_file='%s/config.yml' % getcwd()
+    config_file=getenv('CONFIG_FILE')
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
 
-    url = "https://developers.google.com/android/images"
-    html = urlopen(url).read()
+    all_tags = []
+    platform_build_url = "https://android.googlesource.com/platform/build"
+    tag_filter = "android-{}".format(config['version'])
+    for line in cmd.Git().ls_remote("--sort=v:refname", platform_build_url, tags=True, refs=True).split('\n'):
+        try:
+            (ref, tag) = line.split('\t')
+        except ValueError:
+            pass
+        if tag_filter in tag:
+            all_tags.append(tag.replace("refs/tags/", ""))
+    latest_tags = all_tags[-9:]
+
+    build_id_tags = {}
+    build_id_git_url = "https://android.googlesource.com/platform/build/+/refs/tags/{}/core/build_id.mk?format=TEXT"
+    build_id_filter = "BUILD_ID="
+    build_id_regex = '([A-Z0-9]{4,5}\.[0-9]{6}\.[0-9]{3})'
+    for tag in latest_tags:
+        output = base64.decodebytes(urlopen(build_id_git_url.format(tag)).read()).decode()
+        for line in output.split('\n'):
+            build_id_base = re.search(build_id_regex, line)
+            if build_id_filter in line:
+                build_id = re.search(build_id_regex, line)[0]
+                build_id_tags[build_id] = tag
+
     parser = AndroidImagesParser(config)
     parser.images = {}
-    parser.feed(str(html))
+    image_url = "https://developers.google.com/android/images"
+    ota_url = "https://developers.google.com/android/ota"
+    parser.feed(str(urlopen(image_url).read()))
+    parser.feed(str(urlopen(ota_url).read()))
 
     for device in config['devices']:
-        for variant, values in parser.images[device].items():
-            for key, value in values.items():
-                config['devices'].setdefault(
-                    device,{}
-                )[key] = value
+        for values in parser.images[device].items():
+            config['devices'].setdefault(device,{})[values[0]] = values[1]
+            if values[0] == "build_id":
+                factory_build = re.search(build_id_regex, values[1])[0]
+                if factory_build in build_id_tags:
+                    config['devices'].setdefault(device, {})['platform_ref'] = build_id_tags[factory_build]
+                else:
+                    print("Unable to find latest build tag for factory build {} for device {}".format(factory_build, device))
+
+    config['datetime'] = int(time.time())
 
     with open(config_file, 'w') as outfile:
         yaml.dump(config, outfile, default_flow_style=False)

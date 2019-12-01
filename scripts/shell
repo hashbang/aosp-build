@@ -1,5 +1,3 @@
-#!/bin/bash
+#!/bin/bash --init-file
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
-set -e; eval "$(environment)";
-
-bash
+eval "$(environment)"

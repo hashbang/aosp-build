@@ -2,48 +2,89 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)"
 
-key_dir="${KEY_DIR?}"
-cert_subject="/CN=${OS_NAME?}"
+readonly key_dir="${KEY_DIR?}"
+readonly os_name="${OS_NAME?}"
+readonly rand_file="${RANDFILE?}"
+declare -a keys=(
+	avb
+	releasekey
+	platform
+	shared
+	media
+	verity
+	kernel
+	com.android.conscrypt
+	com.android.media
+	com.android.media.swcodec
+	com.android.resolv
+	com.android.runtime
+	com.android.tzdata
+)
 
-[ ! -d "$key_dir" ] || {
-	echo "Key directory already exists. Refusing to overwrite"; exit 1;
-}
 mkdir -p "${key_dir}"
-cd "${key_dir}" || exit
 
-for key in {releasekey,platform,shared,media,verity} ; do
-	echo "Generating Key: \"$key\""
-	! make_key "$key" "$cert_subject"
+if [ -f "${rand_file}" ]; then
+	echo "Keeping seed: ${rand_file}"
+else
+	echo "Generating seed: ${rand_file}"
+	head -c 1G < /dev/urandom > "${rand_file}";
+fi
+ln -sf "${rand_file}" "${HOME}/.rnd";
+
+echo "Generating signing keychain:"
+for key in "${keys[@]}"; do
+	x509_file="${key_dir}/${key}.x509.pem"
+	pk8_file="${key_dir}/${key}.pk8"
+	[ -f "${pk8_file}" ] && continue;
+	echo "-> ${x509_file}"
+	echo "-> ${pk8_file}"
+	cat <<-EOF | bash && exit 1
+		cd "${key_dir}"
+		printf "" | make_key "$key" "/CN=${os_name}" >/dev/null 2>&1
+	EOF
+	[ -f "${pk8_file}" ] || { echo "Generation failed for ${key}"; exit 1 ;};
+	case $key in
+		verity)
+			der_file="${key_dir}/${key}_user.der.x509"
+			verity_file="${key_dir}/${key}_key"
+			echo "-> ${der_file}"
+			openssl x509 -outform der -in "${x509_file}" -out "${der_file}"
+			[ -f "${der_file}" ] || \
+				{ echo "Generation failed for ${key}"; exit 1 ;};
+			echo "-> ${verity_file}.pub"
+			generate_verity_key -convert "${x509_file}" "${verity_file}"
+			[ -f "${verity_file}.pub" ] || \
+				{ echo "Generation failed for ${key}"; exit 1 ;};
+		;;
+		avb)
+			avb_file="${key_dir}/avb_pkmd.bin"
+			pem_file="${key_dir}/avb.pem"
+			echo "-> ${pem_file}"
+			openssl pkcs8 \
+				-inform DER \
+				-nocrypt \
+				-in "${pk8_file}" \
+				-out "${pem_file}"
+			[ -f "${pem_file}" ] || \
+				{ echo "Generation failed for ${key}"; exit 1 ;};
+			echo "-> ${avb_file}"
+			avbtool extract_public_key \
+				--key "${pem_file}" \
+				--output "${avb_file}"
+			[ -f "${avb_file}" ] || \
+				{ echo "Generation failed for ${key}"; exit 1 ;};
+		;;
+		com.android.*)
+			payload_file="${key_dir}/${key}.pem"
+			avbpubkey_file="${key_dir}/${key}.avbpubkey"
+			echo "-> ${payload_file}"
+			openssl genrsa -out "${payload_file}" 4096 >/dev/null 2>&1
+			[ -f "${payload_file}" ] \
+				|| { echo "Generation failed for ${payload_file}"; exit 1 ;};
+			echo "-> ${avbpubkey_file}"
+			avbtool extract_public_key \
+				--key "${payload_file}" \
+				--output "${avbpubkey_file}"
+		;;
+	esac
 done
-
-echo "Generating Key: \"avb\""
-openssl genrsa -out avb.pem 2048
-
-echo "Generating Key: \"avb_pkmd\""
-avbtool extract_public_key --key avb.pem --output avb_pkmd.bin
-
-echo "Generating Key: \"verity_user\""
-openssl x509 -outform der -in verity.x509.pem -out verity_user.der.x509
-
-echo "Generating Key: \"verity_key\""
-generate_verity_key -convert verity.x509.pem verity_key
-
-echo "Generating Key: \"kernel_key\""
-openssl req \
-	-newkey "rsa:4096" \
-	-nodes \
-	-utf8 \
-	-sha256 \
-	-subj "$cert_subject" \
-	-days 36500 \
-	-batch \
-	-x509 \
-	-outform pem \
-	-out kernel.pem \
-	-keyout kernel.pem \
-	-addext "basicConstraints=critical,CA:FALSE" \
-	-addext	"keyUsage=digitalSignature" \
-	-addext	"subjectKeyIdentifier=hash" \
-	-addext	"authorityKeyIdentifier=keyid"
-openssl pkey -in kernel.pem -out kernel.key
-openssl x509 -outform der -in kernel.pem -out kernel.crt

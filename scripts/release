@@ -19,7 +19,6 @@ build_datetime="${BUILD_DATETIME?}"
 key_dir="${KEY_DIR?}"
 release_dir="${RELEASE_DIR?}"
 build_id=${BUILD_ID?}
-avb_mode="${AVB_MODE?}"
 
 prefix=aosp_
 target_files="${device}-target_files-${build_number}.zip"
@@ -27,6 +26,8 @@ target_out_dir="${base_dir}/out/target/product/${device}"
 inter_dir="${target_out_dir}/obj/PACKAGING/target_files_intermediates"
 bootloader=$(img_path bootloader "${base_dir}/vendor/google_devices/${device}")
 radio=$(img_path baseband "${base_dir}/vendor/google_devices/${device}")
+
+sudo chown -R "$(id -u)":"$(id -g)" "$HOME/release"
 
 cd "$base_dir"
 mkdir -p "$release_dir"
@@ -52,7 +53,7 @@ ota_from_target_files \
 echo 'Generating testing OTA metadata'
 ota_channel=${OTA_CHANNEL:-beta}
 generate-metadata \
-  --channel ${ota_channel} \
+  --channel "${ota_channel}" \
   "${release_dir}/${device}-ota_update-${build_number}.zip"
 
 echo "Running img_from_target_files"
@@ -73,7 +74,7 @@ cat <<-EOF | bash
 	source "${base_dir}/device/common/generate-factory-images-common.sh"
 EOF
 
-echo "Copy scripts and optionally the avb key into factory zip"
+echo "Copy scripts and the avb key into factory zip"
 cd "${release_dir}"
 factory_zip="$(ls -t "${device}"-"${build_id}"-factory-*.zip | head -1)"
 factory_tmp="${device}-${build_id}-factory.zip"
@@ -83,22 +84,13 @@ rm "${factory_zip}"
 rm "${factory_dir}/flash-all.sh"
 rm "${factory_dir}/flash-all.bat"
 rm "${factory_dir}/flash-base.sh"
-cat <<-EOF > "${factory_dir}/flash-all.sh"
-	if ! grep -q partition-exists \$(which fastboot); then
-		echo "fastboot too old; please update via your OS package manager"
-		exit 1
-	fi
-EOF
-
-if [ "$avb_mode" != "verity_only" ]; then
-	cp "${key_dir}/avb_pkmd.bin" "${factory_dir}/${device}-avb_pkmd.bin"
-	cat <<-EOF >> "${factory_dir}/flash-all.sh"
-	fastboot erase avb_custom_key
-	fastboot flash avb_custom_key ${device}-avb_pkmd.bin
-EOF
-fi
 
 cat <<-EOF >> "${factory_dir}/flash-all.sh"
+	if ! [ $($(which fastboot) --version | grep "version" | cut -c18-23 | sed 's/\.//g' ) -ge 2802 ]; then
+		echo "fastboot too old; please download the latest version at https://developer.android.com/studio/releases/platform-tools.html"
+		exit 1
+	fi
+
 	fastboot flashing unlock
 	fastboot flash bootloader bootloader-${device}-${bootloader}.img
 	fastboot reboot-bootloader
@@ -106,10 +98,18 @@ cat <<-EOF >> "${factory_dir}/flash-all.sh"
 	fastboot flash radio radio-${device}-${radio}.img
 	fastboot reboot-bootloader
 	sleep 5
+	fastboot erase avb_custom_key
+	fastboot flash avb_custom_key avb_pkmd.bin
+	fastboot reboot-bootloader
+	sleep 5
 	fastboot -w --skip-reboot update image-${device}-${build_id}.zip
+	fastboot reboot-bootloader
 	fastboot flashing lock
 EOF
 chmod +x "${factory_dir}/flash-all.sh"
+
+cp "${key_dir}/avb_pkmd.bin" "${factory_dir}/${device}-avb_pkmd.bin"
+
 timestamp=$(date -d "@$build_datetime" "+%y%m%d%H%M.%S")
 find "${factory_dir}" -exec touch -t "$timestamp" {} +
 zip -X -r "${factory_tmp}" "${factory_dir}"

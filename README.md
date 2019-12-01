@@ -37,8 +37,6 @@ Please join us on IRC: ircs://irc.hashbang.sh/#!os
   | Pixel 3    | Blueline   | FALSE  | FALSE      | AVB 2.0     | Soon™    |
   | Pixel 2 XL | Taimen     | TRUE   | FALSE      | AVB 1.0     | Soon™    |
   | Pixel 2    | Walleye    | FALSE  | FALSE      | AVB 1.0     | Soon™    |
-  | Pixel XL   | Marlin     | TRUE   | FALSE      | dm-verity   | Soon™    |
-  | Pixel      | Sailfish   | TRUE   | FALSE      | dm-verity   | Soon™    |
 
 ## Install ##
 
@@ -72,37 +70,84 @@ cd crosshatch-PQ1A.181205.006/
 
 ## Build ##
 
-### Requirements ###
+### Backends ###
 
- * Linux host system
- * Docker
+#### Local
+
+##### Requirements
+ * Docker 10+
  * x86_64 CPU
  * 10GB+ available memory
  * 350GB+ available disk
 
-### Download sources ###
+##### Usage
+
+```
+make DEVICE=crosshatch
+```
+
+#### VirtualBox
+
+##### Requirements
+ * Virtualbox 5+
+ * x86_64 CPU
+ * 12GB+ available memory
+ * 350GB+ available disk
+
+##### Usage
+
+```
+make DEVICE=crosshatch BACKEND=virtualbox
+```
+
+#### DigitalOcean
+
+##### Requirements
+ * Digitalocean API token
+
+##### Usage
+
+```
+cp config/env/digitalocean.{sample.,}env
+vim config/env/digitalocean.env
+make DEVICE=crosshatch BACKEND=digitalocean
+```
+
+### Make Targets
+
+#### Default
+
+On a fresh clone you will want to run the default target which will setup
+the backend, build the docker image, fetch sources, build the toolchain,
+generate signing keys, compile everything, then package a release zip.
+
+The default backend is 'local'.
+
+```
+make DEVICE=crosshatch
+```
+
+#### Download sources
 
 ```
 make DEVICE=crosshatch fetch
 ```
 
-### Generate Signing Keys ###
+#### Generate Signing Keys
 
 Each device needs its own set of keys:
 ```
 make DEVICE=crosshatch keys
 ```
 
-### Build Factory Image ###
+#### Build Release
 
 Build flashable images for desired device:
 ```
 make DEVICE=crosshatch build release
 ```
 
-## Develop ##
-
-### Clean ###
+#### Clean
 
 Do basic cleaning without deleting cached artifacts/sources:
 ```
@@ -114,7 +159,7 @@ Clean everything but keys
 make mrproper
 ```
 
-### Test ###
+#### Test
 
 * Build a given device twice from scratch and compare with diffoscope
 * Future: Run Android Compatibility Test Suite
@@ -123,14 +168,14 @@ make mrproper
 make test
 ```
 
-### Edit ###
+#### Edit ####
 
 Create a shell inside the docker environment:
 ```
 make shell
 ```
 
-### Patch ###
+#### Diff ####
 
 Output all untracked changes in android sources to a patchfile:
 ```

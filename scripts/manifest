@@ -2,6 +2,7 @@
 
 from tempfile import mkdtemp
 from git import Git, Repo, cmd
+import git
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 from xml.dom import minidom
@@ -9,6 +10,7 @@ from sys import argv, exit
 from os import environ, getcwd, getenv, makedirs
 from os.path import isfile, isdir
 import re
+import time
 import yaml
 
 class AndroidManifest:
@@ -144,9 +146,14 @@ class AndroidManifest:
     def _lsremote(self, url):
         remote_refs = {}
         g = cmd.Git()
-        for ref in g.ls_remote(url).split('\n'):
-            hash_ref_list = ref.split('\t')
-            remote_refs[hash_ref_list[1]] = hash_ref_list[0]
+        for _ in range(5):
+            try:
+                for ref in g.ls_remote(url).split('\n'):
+                    hash_ref_list = ref.split('\t')
+                    remote_refs[hash_ref_list[1]] = hash_ref_list[0]
+            except git.exc.GitCommandError:
+                print("Caught GitCommandError exception. Retrying.")
+                time.sleep(2)
         return remote_refs
 
     def pretty_print(self):
@@ -156,27 +163,35 @@ class AndroidManifest:
 
 if __name__ == "__main__":
 
-    config_file='%s/config.yml' % getcwd()
+    config_file=getenv('CONFIG_FILE')
+    print("Config file: %s" % config_file)
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
 
-    path="%s/manifests" % getcwd()
+    device_env = 'DEVICE'
+    if device_env not in environ.keys():
+        print("need to provide environment variable {}".format(device_env))
+        exit(1)
+    device = environ[device_env]
+
+    path=getenv('MANIFEST_DIR')
     makedirs(path, exist_ok=True)
 
-    kernel_names=[]
-    manifest_kernels=[]
-    for device in config['devices'].keys():
-        kernel_name = config['devices'][device]['kernel_name']
-        repo = "kernel/manifest"
-        ref = config['devices'][device]['kernel_ref']
-        filename = '{}/kernel-{}.xml'.format(path, kernel_name)
-        if kernel_name not in kernel_names:
-            kernel_manifest = AndroidManifest(ref, repo).pretty_print()
-            open(filename,'w').write(kernel_manifest)
-        kernel_names.append(kernel_name)
+    if config['build_kernel']:
+        kernel_names=[]
+        manifest_kernels=[]
+        for device in config['devices'].keys():
+            kernel_name = config['devices'][device]['kernel_name']
+            repo = "kernel/manifest"
+            ref = config['devices'][device]['kernel_ref']
+            filename = '{}/kernel-{}.xml'.format(path, kernel_name)
+            if kernel_name not in kernel_names:
+                kernel_manifest = AndroidManifest(ref, repo).pretty_print()
+                open(filename,'w').write(kernel_manifest)
+            kernel_names.append(kernel_name)
 
     manifest = AndroidManifest(
-        ref=config['platform']['ref'],
+        ref=config['devices'][device]['platform_ref'],
         extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
         extra_projects = config.get('platform',{}).get('extra_projects',[]),
         remove_paths = config.get('platform',{}).get('remove_paths',[]),
