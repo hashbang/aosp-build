@@ -141,6 +141,12 @@ class AndroidManifest:
             )
             remote_refs = self._lsremote(project_repo_url)
             project.attrib['upstream'] = revision
+            if revision not in remote_refs:
+                raise Exception(
+                    "remote ref: {} not found in {}".format(
+                        revision, remote_refs
+                    )
+                )
             project.attrib['revision'] = remote_refs[revision]
 
     def _lsremote(self, url):
@@ -168,12 +174,6 @@ if __name__ == "__main__":
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
 
-    device_env = 'DEVICE'
-    if device_env not in environ.keys():
-        print("need to provide environment variable {}".format(device_env))
-        exit(1)
-    device = environ[device_env]
-
     path=getenv('MANIFEST_DIR')
     makedirs(path, exist_ok=True)
 
@@ -190,14 +190,15 @@ if __name__ == "__main__":
                 open(filename,'w').write(kernel_manifest)
             kernel_names.append(kernel_name)
 
-    manifest = AndroidManifest(
-        ref=config['devices'][device]['platform_ref'],
-        extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
-        extra_projects = config.get('platform',{}).get('extra_projects',[]),
-        remove_paths = config.get('platform',{}).get('remove_paths',[]),
-        remove_groups = config.get('platform',{}).get('remove_groups',[]),
-    ).pretty_print()
-    open('%s/base.xml' % (path),'w').write(manifest)
+    for device in config['devices'].keys():
+        manifest = AndroidManifest(
+            ref=config['devices'][device]['platform_ref'],
+            extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
+            extra_projects = config.get('platform',{}).get('extra_projects',[]),
+            remove_paths = config.get('platform',{}).get('remove_paths',[]),
+            remove_groups = config.get('platform',{}).get('remove_groups',[]),
+        ).pretty_print()
+        open('{}/{}-base.xml'.format(path,device),'w').write(manifest)
 
     repo = Repo.init(path)
     repo.index.add(['*'])
