@@ -54,7 +54,6 @@
     <project clone-depth="1" groups="device,pdk" name="device/google/cuttlefish_kernel" path="device/google/cuttlefish_kernel" revision="e4575b0d924dc8a22c9488bbb9dd244b0d7a63fb" upstream="refs/tags/android-10.0.0_r10"/>  
     <project clone-depth="1" groups="device,pdk" name="device/google/cuttlefish_vmm" path="device/google/cuttlefish_vmm" revision="d16558e387614afc1654d2cfad512558315d5c96" upstream="refs/tags/android-10.0.0_r10"/>  
     <project groups="device" name="device/google/fuchsia" path="device/google/fuchsia" revision="c2ca3cc9cd068bd177b0a96439b8fdaccc8a0456" upstream="refs/tags/android-10.0.0_r10"/>  
-    <project groups="device,marlin" name="device/google/marlin" path="device/google/marlin" revision="0846c6bd5e2eb45acd8b0032abfb3fb10a89ec43" upstream="refs/tags/android-10.0.0_r10"/>  
     <project clone-depth="1" groups="device,marlin" name="device/google/marlin-kernel" path="device/google/marlin-kernel" revision="4a63126c136af42e07af044a1ec8546df952829c" upstream="refs/tags/android-10.0.0_r10"/>  
     <project groups="device,taimen" name="device/google/taimen" path="device/google/taimen" revision="402d88d3f63518f550a2c8f1cef98665bd3cc1b4" upstream="refs/tags/android-10.0.0_r10"/>  
     <project clone-depth="1" groups="pdk" name="device/google/vrservices" path="device/google/vrservices" revision="17c98511d2c85828e962c7bff992129fb5c16f8e" upstream="refs/tags/android-10.0.0_r10"/>  
