@@ -36,11 +36,11 @@ unset GIT_DIR GIT_WORK_TREE
 
 echo "Cloning platform..."
 cd "${base_dir}"
-[ -d "${base_dir}/.repo" ] || \
-	repo init \
-		--no-clone-bundle \
-		--manifest-url "${manifest_dir}" \
-		--manifest-name base.xml
+rm .repo/manifests/ .repo/manifests.git/ -rf
+repo init \
+	--no-clone-bundle \
+	--manifest-url "${manifest_dir}" \
+	--manifest-name base.xml
 retry 3 repo sync \
 	--current-branch \
 	--no-tags \
@@ -54,12 +54,18 @@ if [ "${build_kernel}" == "true" ]; then
 	echo "Cloning kernel..."
 	mkdir -p "${kernel_dir}"
 	cd "${kernel_dir}"
-	rm -rf "${kernel_dir}/.repo"
+	rm .repo/manifests/ .repo/manifests.git/ -rf
 	repo init \
+		--no-clone-bundle \
 		--manifest-url "${manifest_dir}" \
 		--manifest-name "kernel-${kernel_name}.xml"
-	repo sync -c --no-tags --force-sync --no-clone-bundle --jobs "${cores}"
-	repo forall -c 'git reset --hard ; git clean -fdx'
+	repo sync \
+		--current-branch \
+		--no-tags \
+		--force-sync \
+		--no-clone-bundle \
+		--jobs "${cores}"
+	repo forall -c 'git reset --hard ; git clean --force -dx'
 fi
 
 # Chromium
