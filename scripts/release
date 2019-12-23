@@ -86,26 +86,26 @@ rm "${factory_dir}/flash-all.bat"
 rm "${factory_dir}/flash-base.sh"
 
 cat <<-EOF >> "${factory_dir}/flash-all.sh"
-	if ! [ $($(which fastboot) --version | grep "version" | cut -c18-23 | sed 's/\.//g' ) -ge 2802 ]; then
-		echo "fastboot too old; please download the latest version at https://developer.android.com/studio/releases/platform-tools.html"
-		exit 1
-	fi
+if ! [ \$(\$(which fastboot) --version | grep "version" | cut -c18-23 | sed 's/\.//g' ) -ge 2802 ]; then
+  echo "fastboot too old; please download the latest version at https://developer.android.com/studio/releases/platform-tools.html"
+  exit 1
+fi
 
-	fastboot flashing unlock
-	fastboot flash bootloader bootloader-${device}-${bootloader}.img
-	fastboot reboot-bootloader
-	sleep 5
-	fastboot flash radio radio-${device}-${radio}.img
-	fastboot reboot-bootloader
-	sleep 5
-	fastboot erase avb_custom_key
-	fastboot flash avb_custom_key avb_pkmd.bin
-	fastboot reboot-bootloader
-	sleep 5
-	fastboot -w --skip-reboot update image-${device}-${build_id}.zip
-	fastboot reboot-bootloader
-	sleep 5
-	fastboot flashing lock
+fastboot flashing unlock
+fastboot flash bootloader bootloader-${device}-${bootloader}.img
+fastboot reboot-bootloader
+sleep 5
+fastboot flash radio radio-${device}-${radio}.img
+fastboot reboot-bootloader
+sleep 5
+fastboot erase avb_custom_key
+fastboot flash avb_custom_key ${device}-avb_pkmd.bin
+fastboot reboot-bootloader
+sleep 5
+fastboot -w --skip-reboot update image-${device}-${build_id}.zip
+fastboot reboot-bootloader
+sleep 5
+fastboot flashing lock
 EOF
 chmod +x "${factory_dir}/flash-all.sh"
 
