@@ -42,6 +42,7 @@ class AndroidImagesParser(HTMLParser):
 
     def handle_data(self, data):
         if self.device:
+            data = data.strip()
             if len(data) > 6:
                 if self.hash_pattern.match(data) and self.version_open == True:
                     self.images.setdefault(

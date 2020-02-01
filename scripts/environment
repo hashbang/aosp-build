@@ -47,7 +47,7 @@ environment = {
     "KBUILD_BUILD_VERSION": \
         strftime('%m%d%H%M', gmtime(config['datetime'])),
     "KCONFIG_NOTIMESTAMP": 1,
-    "RANDFILE": "{}/randfile.bin".format(base_dir),
+    "RANDFILE": "{}/build/randfile.bin".format(cwd),
     "LC_ALL":"C",
     "PS4": '+ $(date --rfc-3339=seconds) ',
 }

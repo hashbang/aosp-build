@@ -2,25 +2,26 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)"
 
-[ -d "$HOME/base" ] && {
-	cd "$HOME/base"
-	[ -d ".repo/manifests/.git/HEAD" ] && {
-		repo forall -c 'git reset --hard ; git clean -fdx';
+external_dir="${EXTERNAL_DIR?}"
+base_dir="${BASE_DIR?}"
+
+[ -d "$base_dir" ] && {
+	cd "$base_dir"
+	[ -f ".repo/manifests/.git/HEAD" ] && {
+		repo forall -c 'git reset --hard ; git clean --force -dx';
 	}
 	[ -f "Makefile" ] && make clean
-	[ -d "$HOME/external/kernel" ] && {
+	[ -d "${external_dir}/kernel" ] && {
 		mapfile -t -d '' dirs \
-			< <(find "$HOME/external/kernel" -maxdepth 1 -mindepth 1 -type d -print0)
+			< <(find "${external_dir}/kernel" -maxdepth 1 -mindepth 1 -type d -print0)
 		for dir in "${dirs[@]}"; do (
-			[ ! -d "$dir/.repo/manifests/.git/HEAD" ] || {
+			[ -f "$dir/.repo/manifests/.git/HEAD" ] && {
 				cat <<-EOF | bash
 					cd "$dir" || exit;
-					repo forall -c 'git reset --hard ; git clean -fdx';
+					repo forall -c 'git reset --hard ; git clean --force -dx';
 					rm -rf out
 				EOF
 			}
 		) done
 	}
 }
-
-rm -rf "$HOME"/{external/chromium/out,.gradle,.android,.cache,.repoconfig,base/.repo}

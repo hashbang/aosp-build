@@ -31,12 +31,14 @@ Please join us on IRC: ircs://irc.hashbang.sh/#!os
 
 ## Devices ##
 
-  | Device     | Codename   | Tested | Verifiable | Secure Boot | Download |
-  |------------|:----------:|:------:|:----------:|:-----------:|:--------:|
-  | Pixel 3 XL | Crosshatch | TRUE   | FALSE      | AVB 2.0     | Soon™    |
-  | Pixel 3    | Blueline   | FALSE  | FALSE      | AVB 2.0     | Soon™    |
-  | Pixel 2 XL | Taimen     | TRUE   | FALSE      | AVB 1.0     | Soon™    |
-  | Pixel 2    | Walleye    | FALSE  | FALSE      | AVB 1.0     | Soon™    |
+  | Device      | Codename   | Tested | Verifiable | Secure Boot | Download |
+  |-------------|:----------:|:------:|:----------:|:-----------:|:--------:|
+  | Pixel 3a XL | Bonito     | FALSE  | FALSE      | AVB 2.0     | Soon™    |
+  | Pixel 3a    | Sargo      | TRUE   | FALSE      | AVB 2.0     | Soon™    |
+  | Pixel 3 XL  | Crosshatch | TRUE   | FALSE      | AVB 2.0     | Soon™    |
+  | Pixel 3     | Blueline   | FALSE  | FALSE      | AVB 2.0     | Soon™    |
+  | Pixel 2 XL  | Taimen     | TRUE   | FALSE      | AVB 1.0     | Soon™    |
+  | Pixel 2     | Walleye    | FALSE  | FALSE      | AVB 1.0     | Soon™    |
 
 ## Install ##
 
@@ -46,27 +48,81 @@ Please join us on IRC: ircs://irc.hashbang.sh/#!os
 
 [4]: https://developer.android.com/studio/releases/platform-tools
 
-### Extract
-```
-unzip crosshatch-PQ1A.181205.006-factory-1947dcec.zip
-cd crosshatch-PQ1A.181205.006/
-```
+### Connect
+
+ 1. Go to "Settings > About Phone"
+ 2. Tap "Build number" 7 times.
+ 3. Go to "Settings > System > Advanced > Developer options"
+ 4. Enable "USB Debugging"
+ 5. Connect to device to laptop via short USB C cable
+ 6. Hit "OK" on "Allow USB Debugging?" prompt on device if present.
+ 7. Verify ADB connectivity
+   ```
+   adb devices
+   ```
+   Note: Should return something like: "7CKY1QD3F       device"
 
 ### Flash
 
- 1. Unlock "Developer Settings" by tapping "About -> Build" several times
- 2. Ensure "Enable OEM Unlocking" is enabled under "Developer Settings".
- 3. Unlock the bootloader.
+ 1. Extract
+
+   ```
+   unzip crosshatch-PQ1A.181205.006-factory-1947dcec.zip
+   cd crosshatch-PQ1A.181205.006
+   ```
+
+ 2. [Connect](#Connect)
+ 3. Go to "Settings > System > Advanced > Developer options"
+ 4. Enable "OEM Unlocking"
+ 5. Unlock the bootloader via ADB
+
    ```
    adb reboot bootloader
    fastboot flashing unlock
    ```
+   Note: You must manually accept prompt on device.
 
- 4. Repeat steps #1 and #2
- 5. Flash new factory images
+ 6. Flash new factory images
+
    ```
    ./flash-all.sh
+  ```
+
+### Harden
+
+ 1. [Connect](#Connect)
+ 2. Lock the bootloader
    ```
+   adb reboot bootloader
+   fastboot flashing lock
+   ```
+ 3. Go to "Settings > About Phone"
+ 4. Tap "Build number" 7 times.
+ 5. Go to "Settings > System > Advanced > Developer options"
+ 6. Disable "OEM unlocking"
+ 7. Reboot
+ 8. Verify boot message: "Your device is loading a different operating system"
+ 9. Go to "Settings > System > Advanced > Developer options"
+ 10. Verify "OEM unlocking" is still disabled
+
+#### Notes
+
+  * Failure to run these hardening steps means -anyone- can flash your device.
+  * Past this point if signing keys are lost, all devices are bricked. Backup!
+
+### Update ###
+
+ 1. Go to "Settings > System > Developer options" and enable "USB Debugging"
+ 2. Reboot to recovery
+   ```
+   adb reboot recovery
+   ```
+ 3. Select "Apply Update from ADB"
+ 4. Apply Update
+   ```
+   adb sideload crosshatch-ota_update-08050423.zip
+   ```
+ 5. Go to "Settings > System > Developer options" and disable "USB Debugging"
 
 ## Build ##
 
@@ -133,6 +189,13 @@ make DEVICE=crosshatch
 make DEVICE=crosshatch fetch
 ```
 
+#### Build basic tools
+
+Build tools required for generating signing keys and flashing.
+```
+make DEVICE=crosshatch tools
+```
+
 #### Generate Signing Keys
 
 Each device needs its own set of keys:
@@ -182,17 +245,17 @@ Output all untracked changes in android sources to a patchfile:
 make diff > patches/my-feature.patch
 ```
 
-### Flash ###
+#### Flash ####
 ```
 make install
 ```
 
-### Update ###
+#### Update ####
 
 Build latest config from upstream sources:
 
 ```
-make DEVICE=crosshatch config manifest
+make DEVICE=crosshatch manifest
 ```
 
 ## Notes ##
