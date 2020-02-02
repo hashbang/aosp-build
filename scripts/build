@@ -15,7 +15,6 @@ build_id="${BUILD_ID?}"
 platform_patches="${PLATFORM_PATCHES?}"
 key_dir="${KEY_DIR?}"
 cores=$(nproc)
-build_chromium="${BUILD_CHROMIUM?}"
 build_kernel="${BUILD_KERNEL?}"
 
 function apply_patches(){
@@ -47,17 +46,6 @@ function build_external(){
 	[ -d "${vendor_dist}" ] || build-vendor
 	sudo rm -rf "${vendor_dest}"
 	cp -R "${vendor_dist}." "${vendor_dest}"
-
-	if [ "$build_chromium" == "true"  ]; then
-		local chromium_dist="${external_dir}/chromium/src/out/Default/apks/"
-		local chromium_dest="${base_dir}/external/chromium/prebuilt/arm64/"
-		[ -d "${chromium_dist}" ] || build-chromium
-		mkdir -p "${chromium_dest}" || :
-		[ -d "$overlay_dir/external/chromium" ] && cp -R \
-			"$overlay_dir/external/chromium/." \
-			"$base_dir/external/chromium/"
-		cp -R "${chromium_dist}." "${chromium_dest}"
-	fi
 
 	if [ "$build_kernel" == "true" ]; then
 		local kernel_dir="${external_dir}/kernel/${kernel_name}"

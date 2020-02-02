@@ -9,12 +9,6 @@ external_dir="${EXTERNAL_DIR?}"
 build_kernel="${BUILD_KERNEL?}"
 kernel_name="${KERNEL_NAME?}"
 kernel_dir="${external_dir}/kernel/${kernel_name}"
-build_chromium="${BUILD_CHROMIUM?}"
-chromium_dir="${external_dir}/chromium"
-chromium_repo="https://chromium.googlesource.com/chromium/"
-chromium_build_tools_url="${chromium_repo}/tools/depot_tools.git"
-chromium_src_ref="${CHROMIUM_SRC_REF}"
-chromium_depot_tools_ref="${CHROMIUM_DEPOT_TOOLS_REF}"
 base_dir="${BASE_DIR?}"
 
 sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
@@ -66,25 +60,4 @@ if [ "${build_kernel}" == "true" ]; then
 		--no-clone-bundle \
 		--jobs "${cores}"
 	repo forall -c 'git reset --hard ; git clean --force -dx'
-fi
-
-# Chromium
-if [ "${build_chromium}" == "true" ]; then
-echo "Cloning chromium..."
-	[ ! -d "${chromium_dir}/depot_tools" ] && \
-		git clone "${chromium_build_tools_url}" "${chromium_dir}/depot_tools"
-	cd "${chromium_dir}/depot_tools"
-	git fetch
-	git reset --hard "${chromium_depot_tools_ref}"
-
-	export PATH="$PATH:${chromium_dir}/depot_tools"
-	mkdir -p "${chromium_dir}"
-	cd "${chromium_dir}"
-	[ ! -d "${chromium_dir}/src/.git" ] && \
-		yes Y | "${chromium_dir}/depot_tools/fetch" --nohooks android
-	yes Y | gclient sync --with_branch_heads --jobs "${cores}" -RDf
-	gclient runhooks
-
-	cd "${chromium_dir}/src"
-	git reset --hard "${chromium_src_ref}"
 fi
