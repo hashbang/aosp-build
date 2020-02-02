@@ -2,7 +2,7 @@ version: '10'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1580633119
+datetime: 1580636740
 host: android
 user: build
 build_kernel: true
@@ -47,21 +47,18 @@ platform:
   - darwin
 devices:
   bonito:
-    kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     build_id: QQ1A.200105.002
     factory_hash: 3169d39601cf5e2bbec9680c244365e132903c8e3df7b1ca05629b4e94688a0d
     ota_hash: 592a20ac4d8c537c65a473efd2679b4bfd70fb9887fb588460524345d6ddcfee
     platform_ref: android-10.0.0_r21
   sargo:
-    kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     build_id: QQ1A.200105.002
     factory_hash: 0c3e12c2499d8132bd4e21772c4028c24e993852abe0622e025a7325a555ef73
     ota_hash: 3316c5ea9842f7634be3835a79ae34daa1aa02b0063fc45a86f9c96d6bb9e771
     platform_ref: android-10.0.0_r21
   crosshatch:
-    kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
     build_id: QQ1A.200105.003
@@ -69,7 +66,6 @@ devices:
     ota_hash: d156e29c1c0d3af19fd9795bb8bf63c60ff15ac0fc7328aded7cb3c6e53bb7b8
     platform_ref: android-10.0.0_r22
   blueline:
-    kernel_name: bluecross
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
     build_id: QQ1A.200105.003
@@ -77,7 +73,6 @@ devices:
     ota_hash: f758eeb5738a9f7d586b569ef0ed18b2223c076f6b1f980de159f6e183b1fd7b
     platform_ref: android-10.0.0_r22
   taimen:
-    kernel_name: wahoo
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
     build_id: QQ1A.200105.002
@@ -85,7 +80,6 @@ devices:
     ota_hash: 150a82f7593456769f85dd031673f1b8612be4e766a5d7524bdcd3ffc5186a45
     platform_ref: android-10.0.0_r21
   walleye:
-    kernel_name: wahoo
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
     build_id: QQ1A.200105.002
