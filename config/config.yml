@@ -2,7 +2,7 @@ version: '10'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1574869871
+datetime: 1575290869
 host: android
 user: build
 build_kernel: true
@@ -31,6 +31,7 @@ platform:
   - device/google/atv
   - device/google/contexthub
   - device/google/muskie
+  - device/google/marlin
   - device/generic/mips
   - device/google/hikey-kernel
   - device/generic/mips64
@@ -91,19 +92,3 @@ devices:
     factory_hash: 46d5a6f0693750241b72457865b0169537560c9569f9d1d587a7b7ebeb6c353c
     ota_hash: a12c59318104b0821b84ace9f74406867a54a0ce049b71680827f79226b5d442
     platform_ref: android-10.0.0_r11
-  marlin:
-    kernel_name: marlin
-    kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
-    avb_mode: verity_only
-    build_id: QP1A.191005.007.A1
-    factory_hash: c27241e0aaf46f4ff60d8279efd9ac6f6ac8e80b1bd08c43d75f851313efaa12
-    ota_hash: eea9b8dd1fd63c0c17be56e81d9d2381705491adb24f6aabceb76eb4cf23260d
-    platform_ref: android-10.0.0_r5
-  sailfish:
-    kernel_name: marlin
-    kernel_ref: origin/android-msm-marlin-3.18-pie-qpr2
-    avb_mode: verity_only
-    build_id: QP1A.191005.007.A1
-    factory_hash: 78c6703ea4473ed65c51d6e258bb67368962bd13aad3975db08b42c7b8d49cb0
-    ota_hash: 2c90d97b256bb6bccad64744659d6de50c9e51baeb2ab49393131e5803607dc1
-    platform_ref: android-10.0.0_r5
