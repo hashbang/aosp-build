@@ -19,7 +19,7 @@ base_dir="${BASE_DIR?}"
 				cat <<-EOF | bash
 					cd "$dir" || exit;
 					repo forall -c 'git reset --hard ; git clean --force -dx';
-					rm -rf out
+					rm -rf dist
 				EOF
 			}
 		) done
