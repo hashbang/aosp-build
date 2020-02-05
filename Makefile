@@ -3,7 +3,7 @@
 CPUS := $(shell nproc)
 MEMORY := 10000
 DISK := 300000
-DEVICE := crosshatch
+DEVICE :=
 BACKEND := local
 CHANNEL := beta
 BUILD := user

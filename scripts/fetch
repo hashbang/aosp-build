@@ -3,12 +3,12 @@
 set -e; eval "$(environment)"
 
 cores=$(nproc)
-manifest_dir="${MANIFEST_DIR?}"
-manifest_repo="${MANIFEST_REPO?}"
+device="${DEVICE?}"
+manifest_dir="${MANIFEST_DIR?}/${device}"
+manifest_repo="${MANIFEST_REPO?}/${device}"
 external_dir="${EXTERNAL_DIR?}"
 build_kernel="${BUILD_KERNEL?}"
-kernel_name="${KERNEL_NAME?}"
-kernel_dir="${external_dir}/kernel/${kernel_name}"
+kernel_dir="${external_dir}/kernel/${device}"
 base_dir="${BASE_DIR?}"
 
 sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
@@ -52,7 +52,7 @@ if [ "${build_kernel}" == "true" ]; then
 	repo init \
 		--no-clone-bundle \
 		--manifest-url "${manifest_dir}" \
-		--manifest-name "kernel-${kernel_name}.xml"
+		--manifest-name "kernel.xml"
 	repo sync \
 		--current-branch \
 		--no-tags \
