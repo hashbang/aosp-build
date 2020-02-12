@@ -18,6 +18,7 @@ class AndroidManifest:
     def __init__(
         self,
         ref,
+        name,
         repo='platform/manifest',
         extra_remotes=[],
         extra_projects=[],
@@ -26,6 +27,7 @@ class AndroidManifest:
     ):
         self.default_fetch="https://android.googlesource.com"
         self.ref = ref
+        self.name = name
         self.repo = repo
         self.extra_remotes = extra_remotes
         self.extra_projects = extra_projects
@@ -43,7 +45,11 @@ class AndroidManifest:
 
     def _fetch(self):
         manifest_url = "%s/%s" % (self.default_fetch, self.repo)
-        print("Checking out: \"%s\" at \"%s\"" % (manifest_url, self.ref))
+        print("[{}] Checking out: \"{}\" at \"{}\"".format(
+            self.name,
+            manifest_url,
+            self.ref
+        ))
         manifest_repo = Repo.clone_from(manifest_url, mkdtemp())
         manifest_repo.head.reference = manifest_repo.commit(self.ref)
         string = manifest_repo.git.show('HEAD:default.xml')
@@ -55,7 +61,10 @@ class AndroidManifest:
             element.attrib = remote
             element.tail = "\n"
             self.manifest.insert(1,element)
-            print("Adding Remote: \"%s\"" % (element.attrib['name']))
+            print("[{}] Adding Remote: \"{}\"".format(
+                self.name,
+                element.attrib['name']
+            ))
         for project in self.extra_projects:
             element = Element("project")
             element.text = "\n"
@@ -71,7 +80,10 @@ class AndroidManifest:
             element.attrib = project
             element.tail = "\n"
             self.manifest.insert(4,element)
-            print("Adding Project: \"%s\"" % (element.attrib['name']))
+            print("[{}] Adding Project: \"{}\"".format(
+                self.name,
+                element.attrib['name']
+            ))
 
     def _remove(self):
         projects=self.manifest.findall(".//project")
@@ -81,11 +93,17 @@ class AndroidManifest:
                 groups = project.attrib['groups'].split(',')
                 if any(i in groups for i in self.remove_groups):
                     self.manifest.remove(project)
-                    print("Removing Project: \"%s\"" % (path))
+                    print("[{}] Removing Project: \"{}\"".format(
+                        self.name,
+                        path
+                    ))
             if 'path' in project.attrib:
                 if project.attrib['path'] in self.remove_paths:
                     self.manifest.remove(project)
-                    print("Removing Project: \"%s\"" % (path))
+                    print("[{}] Removing Project: \"{}\"".format(
+                        self.name,
+                        path
+                    ))
 
     def _set_remotes(self):
         self.remotes={}
@@ -108,23 +126,32 @@ class AndroidManifest:
             else:
                 self.remotes[remote_node.attrib["name"]]["revision"] = \
                     self.default_revision
-            print("Adding Remote: \"%s\"" % (remote_node.attrib['name']))
+            print("[{}] Adding Remote: \"{}\"".format(
+                self.name,
+                remote_node.attrib['name'],
+            ))
 
     def _set_default_revision(self):
         self.default_revision = \
             revision=self.manifest.findall(".//default")[0].attrib['revision']
-        print("Setting Revision: \"%s\"" % (revision))
+        print("[{}] Setting Revision: \"{}\"".format(self.name, revision))
 
     def _set_default_remote(self):
         default_remote_name = \
             self.manifest.findall(".//default")[0].attrib['remote']
         self.default_remote = default_remote_name
-        print("Setting Default Remote: \"%s\"" % default_remote_name)
+        print("[{}] Setting Default Remote: \"{}\"".format(
+            self.name,
+            default_remote_name
+        ))
 
     def _lock(self):
         projects=self.manifest.findall(".//project")
         for project in projects:
-            print("Locking Project: \"%s\"" % (project.attrib['name']))
+            print("[{}] Locking Project: \"{}\"".format(
+                self.name,
+                project.attrib['name']
+            ))
             if 'remote' in project.attrib:
                 remote = self.remotes[project.attrib['remote']]
             else:
@@ -141,6 +168,12 @@ class AndroidManifest:
             )
             remote_refs = self._lsremote(project_repo_url)
             project.attrib['upstream'] = revision
+            if revision not in remote_refs:
+                raise Exception(
+                    "remote ref: {} not found in {}".format(
+                        revision, remote_refs
+                    )
+                )
             project.attrib['revision'] = remote_refs[revision]
 
     def _lsremote(self, url):
@@ -168,36 +201,33 @@ if __name__ == "__main__":
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
 
-    device_env = 'DEVICE'
-    if device_env not in environ.keys():
-        print("need to provide environment variable {}".format(device_env))
-        exit(1)
-    device = environ[device_env]
-
     path=getenv('MANIFEST_DIR')
-    makedirs(path, exist_ok=True)
 
-    if config['build_kernel']:
-        kernel_names=[]
-        manifest_kernels=[]
-        for device in config['devices'].keys():
-            kernel_name = config['devices'][device]['kernel_name']
-            repo = "kernel/manifest"
-            ref = config['devices'][device]['kernel_ref']
-            filename = '{}/kernel-{}.xml'.format(path, kernel_name)
-            if kernel_name not in kernel_names:
-                kernel_manifest = AndroidManifest(ref, repo).pretty_print()
-                open(filename,'w').write(kernel_manifest)
-            kernel_names.append(kernel_name)
+    kernel_names=[]
+    manifest_kernels=[]
+    devices=config['devices'].keys()
+    if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
+        devices=[environ['DEVICE']]
 
-    manifest = AndroidManifest(
-        ref=config['devices'][device]['platform_ref'],
-        extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
-        extra_projects = config.get('platform',{}).get('extra_projects',[]),
-        remove_paths = config.get('platform',{}).get('remove_paths',[]),
-        remove_groups = config.get('platform',{}).get('remove_groups',[]),
-    ).pretty_print()
-    open('%s/base.xml' % (path),'w').write(manifest)
+    for device in devices:
+        makedirs('{}/{}'.format(path, device), exist_ok=True)
+        filename = '{}/{}/kernel.xml'.format(path, device)
+        kernel_manifest = AndroidManifest(
+            name="{}-kernel".format(device),
+            ref=config['devices'][device]['kernel_ref'],
+            repo="kernel/manifest"
+        ).pretty_print()
+        open(filename,'w').write(kernel_manifest)
+
+        base_manifest = AndroidManifest(
+            ref=config['devices'][device]['platform_ref'],
+            name="{}-base".format(device),
+            extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
+            extra_projects = config.get('platform',{}).get('extra_projects',[]),
+            remove_paths = config.get('platform',{}).get('remove_paths',[]),
+            remove_groups = config.get('platform',{}).get('remove_groups',[]),
+        ).pretty_print()
+        open('{}/{}/base.xml'.format(path,device),'w').write(base_manifest)
 
     repo = Repo.init(path)
     repo.index.add(['*'])
