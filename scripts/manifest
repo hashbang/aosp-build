@@ -50,8 +50,11 @@ class AndroidManifest:
             manifest_url,
             self.ref
         ))
-        manifest_repo = Repo.clone_from(manifest_url, mkdtemp())
-        manifest_repo.head.reference = manifest_repo.commit(self.ref)
+        manifest_repo = Repo.clone_from(
+            manifest_url,
+            mkdtemp(),
+            branch=self.ref
+        )
         string = manifest_repo.git.show('HEAD:default.xml')
         self.manifest = ElementTree.fromstring(string)
 
@@ -148,10 +151,6 @@ class AndroidManifest:
     def _lock(self):
         projects=self.manifest.findall(".//project")
         for project in projects:
-            print("[{}] Locking Project: \"{}\"".format(
-                self.name,
-                project.attrib['name']
-            ))
             if 'remote' in project.attrib:
                 remote = self.remotes[project.attrib['remote']]
             else:
@@ -160,21 +159,29 @@ class AndroidManifest:
                 revision = project.attrib['revision']
             elif 'revision' in remote:
                 revision = remote['revision']
-            if 'refs' not in revision:
-                revision = "refs/heads/%s" % revision
-            project_repo_url="%s/%s.git" % (
-                remote.get('fetch',self.remotes[self.default_remote]['fetch']),
-                project.attrib['name']
-            )
-            remote_refs = self._lsremote(project_repo_url)
-            project.attrib['upstream'] = revision
-            if revision not in remote_refs:
-                raise Exception(
-                    "remote ref: {} not found in {}".format(
-                        revision, remote_refs
+            sha1_re = re.compile(r'\b[0-9a-f]{40}\b')
+            remote=str(remote.get(
+                'fetch',
+                self.remotes[self.default_remote]['fetch']
+            )).rstrip('/')
+            project_repo_url="%s/%s.git" % (remote, project.attrib['name'])
+            print("[{}] Locking Project: \"{}\" to \"{}\"".format(
+                self.name,
+                project_repo_url,
+                revision
+            ))
+            if re.match(sha1_re, revision) is None:
+                if 'refs' not in revision:
+                    revision = "refs/heads/%s" % revision
+                remote_refs = self._lsremote(project_repo_url)
+                project.attrib['upstream'] = revision
+                if revision not in remote_refs:
+                    raise Exception(
+                        "remote ref: {} not found in {}".format(
+                            revision, remote_refs
+                        )
                     )
-                )
-            project.attrib['revision'] = remote_refs[revision]
+                project.attrib['revision'] = remote_refs[revision]
 
     def _lsremote(self, url):
         remote_refs = {}

@@ -98,7 +98,7 @@ kernel:
 latest: config submodule-latest fetch
 
 .PHONY: manifest
-manifest: config
+manifest:
 	$(contain) bash -c "source <(environment) && manifest"
 
 .PHONY: config
