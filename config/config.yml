@@ -2,7 +2,7 @@ version: '10'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1580725592
+datetime: 1581579260
 host: android
 user: build
 build_kernel: true
@@ -46,43 +46,55 @@ platform:
   remove_groups:
   - darwin
 devices:
+  coral:
+    kernel_ref: android-msm-coral-4.14-android10-c2f2
+    build_id: QQ1D.200205.002
+    platform_ref: android-10.0.0_r29
+    factory_hash: 1b0df87390f1832353007b83bb58a9516718a7b6f19c46da21617e4da4eb2fae
+    ota_hash: 59b64433591512ec9e36d765d2c343cd0d4639340bea0ddd9a087fa06d3cd19e
+  flame:
+    kernel_ref: android-msm-coral-4.14-android10-c2f2
+    build_id: QQ1D.200205.002
+    platform_ref: android-10.0.0_r29
+    factory_hash: b6d27121e104cd70dae66a156c8aa21babae296be370abcffbb4450041a7a4e9
+    ota_hash: 673c8a11f02d5d9c639b3795a87543e0a24579d9f8acef81210f6891dd41a2e5
   bonito:
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
-    build_id: QQ1A.200105.002
-    factory_hash: 3169d39601cf5e2bbec9680c244365e132903c8e3df7b1ca05629b4e94688a0d
-    ota_hash: 592a20ac4d8c537c65a473efd2679b4bfd70fb9887fb588460524345d6ddcfee
-    platform_ref: android-10.0.0_r21
+    build_id: QQ1A.200205.002
+    factory_hash: 238bc80e5739832d56ce3d610fe728fedc6d0b963f38f9cb25ece4ba14206260
+    ota_hash: a70b689986ebf0c1ace9eceac8d2224e99c64779ed11d50cf5e9283358b999aa
+    platform_ref: android-10.0.0_r26
   sargo:
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
-    build_id: QQ1A.200105.002
-    factory_hash: 0c3e12c2499d8132bd4e21772c4028c24e993852abe0622e025a7325a555ef73
-    ota_hash: 3316c5ea9842f7634be3835a79ae34daa1aa02b0063fc45a86f9c96d6bb9e771
-    platform_ref: android-10.0.0_r21
+    build_id: QQ1A.200205.002
+    factory_hash: 36d5179f8e3bdf4ce7ea1c7d76b231fd4671468bf2394ad7a4b65f53e5d47dd0
+    ota_hash: b24334d2e43c559436457e7a0fe1637f5de51fe0a64fc25064288daea4d9e42e
+    platform_ref: android-10.0.0_r26
   crosshatch:
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
-    build_id: QQ1A.200105.003
-    factory_hash: 6d235f477ac74153bf8bc23e69e30c81cb500ca2ac72a3d67731f916981dacea
-    ota_hash: d156e29c1c0d3af19fd9795bb8bf63c60ff15ac0fc7328aded7cb3c6e53bb7b8
-    platform_ref: android-10.0.0_r22
+    build_id: QQ1A.200205.002
+    factory_hash: 3e5c17fd3cf6ae1dfb4aae64f932587b42d35e2a6d80fde173c20b0167d7e4df
+    ota_hash: 5a70576f6bfb7d25c07733b21f2ff99ea2fc5f27697cc1ddaf7e4bf664f6d2ee
+    platform_ref: android-10.0.0_r26
   blueline:
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
-    build_id: QQ1A.200105.003
-    factory_hash: 8e0fc70e8d598ce753b8e3a9ef77381293af63ea0e91c9c72837233b2d2eb14e
-    ota_hash: f758eeb5738a9f7d586b569ef0ed18b2223c076f6b1f980de159f6e183b1fd7b
-    platform_ref: android-10.0.0_r22
+    build_id: QQ1A.200205.002
+    factory_hash: 25feefff12afcbe9c0fbbb1e8b53001c5ccc7275769345adde47227f6a6f2b7a
+    ota_hash: 7849ee411379efb7acd3d0d090578cd977e7cca9648d245918757d4f1c11cdae
+    platform_ref: android-10.0.0_r26
   taimen:
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
-    build_id: QQ1A.200105.002
-    factory_hash: 10d1c3227e4e37994386f6d5940a2a6a973ceba423369a75200e7f2fb6a5f915
-    ota_hash: 150a82f7593456769f85dd031673f1b8612be4e766a5d7524bdcd3ffc5186a45
-    platform_ref: android-10.0.0_r21
+    build_id: QQ1A.200205.002
+    factory_hash: f382b0cf72f2cfa6ebd406511b6e4a58be72178866f9a36780e6a9397bc278c5
+    ota_hash: 1c1322039cffcea2a4cfbfe96afb3ff4e05a405d34287db32c3112825f787d26
+    platform_ref: android-10.0.0_r26
   walleye:
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
-    build_id: QQ1A.200105.002
-    factory_hash: 877e8ab1131301ef680056e45ca40a87421a72833d53fda87ed00fadb1fe7480
-    ota_hash: cfc5642bb00103ecbf8315420834ab3d346f14feba3f14c650d503b688c3fa97
-    platform_ref: android-10.0.0_r21
+    build_id: QQ1A.200205.002
+    factory_hash: 3f01c9f0de5bdb6bc8f66937d7d615dbde11b4fb8892f4dddba3fb7e1ac6ec3a
+    ota_hash: 9fa6e9ac9644f299cd0b851e81ae0af6d0dab00d62e0d8b60e53809a74f542a3
+    platform_ref: android-10.0.0_r26

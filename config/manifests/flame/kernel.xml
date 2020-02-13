@@ -1,0 +1,19 @@
+<?xml version="1.0" ?><manifest>  
+    <remote fetch="https://android.googlesource.com/" name="aosp"/>  
+    <default remote="aosp" revision="android-msm-coral-4.14-android10-c2f2" sync-j="4"/>  
+
+    <project name="kernel/build" path="build" revision="5ffa3b2a33bc21854256e2b913184b3c1d7e91b2" upstream="refs/heads/master"/>  
+    <project name="kernel/msm" path="private/msm-google" revision="b3ac0fc2b0f7c2e2acf4b6aa2cf9f3ed7c15c2e0" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2">    
+        <linkfile dest="build.config" src="build.config.no-cfi"/>    
+    </project>  
+    <project name="kernel/msm-extra" path="private/msm-google/techpack/audio" revision="ec71eb8e8a4d17cc77b8c67cfa97fb6affa33937" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2"/>  
+    <project name="kernel/msm-modules/data-kernel" path="private/msm-google-modules/data-kernel" revision="e7210f09d00c91f87b295c7a952f040c73506cc0" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2"/>  
+    <project name="kernel/msm-modules/qca-wfi-host-cmn" path="private/msm-google-modules/wlan/qca-wifi-host-cmn" revision="0596a89afc357119f39fd0e093f6b6b327d89881" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2"/>  
+    <project name="kernel/msm-modules/qcacld" path="private/msm-google-modules/wlan/qcacld-3.0" revision="f5d0597469900cc3b855de2a5d7a11594db6f74d" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2"/>  
+    <project name="kernel/msm-modules/wlan-fw-api" path="private/msm-google-modules/wlan/fw-api" revision="53d899727e4278f4e9fb46328d740a8fb2d9a493" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2"/>  
+    <project name="kernel/msm-modules/fts_touch" path="private/msm-google-modules/touch/fts" revision="13f68731a3778d2ec7abd4b2075d8f452ef87adf" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2"/>  
+    <project clone-depth="1" name="platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9" path="prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9" revision="961622e926a1b21382dba4dd9fe0e5fb3ee5ab7c" upstream="refs/heads/pie-release"/>  
+    <project clone-depth="1" name="platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9" path="prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9" revision="cb7b3ac1b7fdb49474ff68761909934d1142f594" upstream="refs/heads/pie-release"/>  
+    <project clone-depth="1" groups="partner" name="platform/prebuilts/clang/host/linux-x86" path="prebuilts-master/clang/host/linux-x86" revision="4b1f275e6b3826c86f791ae8c4d5ec3563c2fc11"/>  
+    <project clone-depth="1" name="platform/prebuilts/misc" path="prebuilts-master/misc" revision="15560bb32cdb9b47db48eb4865b736df9708a8fe" upstream="refs/heads/pie-release"/>  
+</manifest>
