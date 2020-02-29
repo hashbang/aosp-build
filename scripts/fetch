@@ -10,6 +10,9 @@ external_dir="${EXTERNAL_DIR?}"
 build_kernel="${BUILD_KERNEL?}"
 kernel_dir="${external_dir}/kernel/${device}"
 base_dir="${BASE_DIR?}"
+apv_repo_dir="${external_dir}/vendor/android-prepare-vendor"
+apv_repo="${APV_REPO?}"
+apv_revision="${APV_REVISION?}"
 
 sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
 
@@ -28,20 +31,11 @@ git add .
 git commit --all --message "automated cache commit" || :
 unset GIT_DIR GIT_WORK_TREE
 
-echo "Cloning platform..."
-cd "${base_dir}"
-rm .repo/manifests/ .repo/manifests.git/ -rf
-repo init \
-	--no-clone-bundle \
-	--manifest-url "${manifest_dir}" \
-	--manifest-name base.xml
-retry 3 repo sync \
-	--current-branch \
-	--no-tags \
-	--force-sync \
-	--no-clone-bundle \
-	--jobs "${cores}"
-repo forall -c 'git reset --hard ; git clean --force -dx'
+# Vendor binaries
+echo "Cloning android-prepare-vendor..."
+[ ! -d "${apv_repo_dir}" ] && git clone "${apv_repo}" "${apv_repo_dir}"
+cd "${apv_repo_dir}"
+git checkout "${apv_revision}"
 
 # Kernel
 if [ "${build_kernel}" == "true" ]; then
@@ -61,3 +55,18 @@ if [ "${build_kernel}" == "true" ]; then
 		--jobs "${cores}"
 	repo forall -c 'git reset --hard ; git clean --force -dx'
 fi
+
+echo "Cloning platform..."
+cd "${base_dir}"
+rm .repo/manifests/ .repo/manifests.git/ -rf
+repo init \
+	--no-clone-bundle \
+	--manifest-url "${manifest_dir}" \
+	--manifest-name base.xml
+retry 3 repo sync \
+	--current-branch \
+	--no-tags \
+	--force-sync \
+	--no-clone-bundle \
+	--jobs "${cores}"
+repo forall -c 'git reset --hard ; git clean --force -dx'

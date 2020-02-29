@@ -56,6 +56,9 @@ environment['BUILD_KERNEL'] = "true"
 if config.get('build_kernel') == False:
     environment['BUILD_KERNEL'] = "false"
 
+environment['APV_REPO'] = config['prepare_vendor']['repo']
+environment['APV_REVISION'] = config['prepare_vendor']['revision']
+
 if 'OTA_CHANNEL' in environ and len(environ['OTA_CHANNEL']) > 0:
     environment['OTA_CHANNEL']=environ['OTA_CHANNEL']
 

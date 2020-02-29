@@ -13,8 +13,6 @@
         <linkfile dest="build/target" src="target"/>    
         <linkfile dest="build/tools" src="tools"/>    
     </project>  
-    <project groups="device" name="hashbang/android-prepare-vendor" path="vendor/android-prepare-vendor" remote="github" revision="8b55b6865a34449a4195a3a76e6b0a77c8f80018" upstream="refs/heads/10.0">
-</project>  
   <project groups="pdk,tradefed" name="platform/build/blueprint" path="build/blueprint" revision="58a2f93a5e0e4048bdb85569bb257f762374107f" upstream="refs/tags/android-10.0.0_r29"/>  
     <project groups="pdk,tradefed" name="platform/build/kati" path="build/kati" revision="e70ab4e19bf25a0b10d2dd69c8fb14d0cc4bc029" upstream="refs/tags/android-10.0.0_r29"/>  
     <project groups="pdk,tradefed" name="platform/build/soong" path="build/soong" revision="91490de8f4681515b4de9062a2fc8025e2ea92b1" upstream="refs/tags/android-10.0.0_r29">    

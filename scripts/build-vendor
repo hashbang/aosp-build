@@ -39,7 +39,7 @@ if [ ! -f "${factory_dir}/${factory_file}" ]; then
 
 fi
 
-"${base_dir}/vendor/android-prepare-vendor/execute-all.sh" \
+"${external_dir}/vendor/android-prepare-vendor/execute-all.sh" \
 	--debugfs \
 	--yes \
 	--device "${device}" \
@@ -48,3 +48,5 @@ fi
 	--timestamp "${build_datetime}"  \
     --imgs "${factory_dir}/${factory_file}" \
     --ota "${factory_dir}/${ota_file}"
+
+rsync -Pav "${vendor_out}/coral/${build_id,,}/" "${base_dir}/"

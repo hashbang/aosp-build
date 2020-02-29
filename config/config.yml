@@ -1,21 +1,19 @@
 version: '10'
 name: Android Open Source Project
 type: release
-variant: user
-datetime: 1581579260
+variant: userdebug
+datetime: 1582807071
 host: android
 user: build
 build_kernel: true
+prepare_vendor:
+  repo: https://github.com/hashbang/android-prepare-vendor
+  revision: coral-flame
 platform:
   extra_remotes:
   - name: github
     fetch: https://github.com
   extra_projects:
-  - name: hashbang/android-prepare-vendor
-    groups: device
-    path: vendor/android-prepare-vendor
-    remote: github
-    revision: refs/heads/10.0
   remove_paths:
   - platform/prebuilts/qemu-kernel
   - platform/developers/samples/android

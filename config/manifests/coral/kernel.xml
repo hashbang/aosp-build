@@ -2,7 +2,7 @@
     <remote fetch="https://android.googlesource.com/" name="aosp"/>  
     <default remote="aosp" revision="android-msm-coral-4.14-android10-c2f2" sync-j="4"/>  
 
-    <project name="kernel/build" path="build" revision="5ffa3b2a33bc21854256e2b913184b3c1d7e91b2" upstream="refs/heads/master"/>  
+    <project name="kernel/build" path="build" revision="75d37dad74db04963842b52b60c3b93acdaef79e" upstream="refs/heads/master"/>  
     <project name="kernel/msm" path="private/msm-google" revision="b3ac0fc2b0f7c2e2acf4b6aa2cf9f3ed7c15c2e0" upstream="refs/heads/android-msm-coral-4.14-android10-c2f2">    
         <linkfile dest="build.config" src="build.config.no-cfi"/>    
     </project>  
