@@ -48,6 +48,10 @@ publish:
 clean:
 	$(contain) clean
 
+.PHONY: flash
+flash:
+	source <(scripts/environment) && fastboot flashall -w
+
 .PHONY: mrproper
 mrproper: storage-delete machine-delete
 	rm -rf build
