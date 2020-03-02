@@ -8,6 +8,7 @@ readonly rand_file="${RANDFILE?}"
 declare -a keys=(
 	avb
 	releasekey
+	networkstack
 	platform
 	shared
 	media
