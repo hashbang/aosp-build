@@ -8,13 +8,16 @@ build_type="${BUILD_TYPE?}"
 build_id="${BUILD_ID?}"
 build_variant="${BUILD_VARIANT?}"
 external_dir="${EXTERNAL_DIR?}"
-overlay_dir="${OVERLAY_DIR?}"
 patch_dir="${PATCH_DIR?}"
 build_id="${BUILD_ID?}"
 platform_patches="${PLATFORM_PATCHES?}"
 key_dir="${KEY_DIR?}"
 cores=$(nproc)
 build_kernel="${BUILD_KERNEL?}"
+vendor_dist="${external_dir}/vendor/out/${device}/${build_id,,}"
+kernel_dir="${external_dir}/kernel/${device}"
+kernel_dist="${kernel_dir}/dist/"
+kernel_dest="${base_dir}/device/google/${device}-kernel/"
 
 function apply_patches(){
 	cd "${base_dir}"
@@ -40,25 +43,20 @@ function apply_patches(){
 }
 
 function build_external(){
-	local vendor_dist="${external_dir}/vendor/out/${device}/${build_id,,}/vendor/"
-	local vendor_dest="${base_dir}/vendor/"
 	[ -d "${vendor_dist}" ] || build-vendor
-	sudo rm -rf "${vendor_dest}"
-	cp -R "${vendor_dist}." "${vendor_dest}"
-
 	if [ "$build_kernel" == "true" ]; then
-		local kernel_dir="${external_dir}/kernel/${device}"
-		local kernel_dist="${kernel_dir}/dist/"
-		local kernel_dest="${base_dir}/device/google/${device}-kernel/"
 		mkdir -p "${kernel_dest}"
 		[ -d "$kernel_dist" ] || build-kernel
-		cp -R "${kernel_dist}." "${kernel_dest}"
 	fi
 }
 
 function build_platform(){
 	cd "$base_dir"
 	choosecombo "${build_type}" "aosp_${device}" "${build_variant}"
+	[ "$build_kernel" == "true" ] && \
+		rsync -Pav "${kernel_dist}/" "${kernel_dest}/"
+	rm -rf "${base_dir}/vendor"
+	rsync -Pav "${vendor_dist}/" "${base_dir}/"
 	(cd "$base_dir/external/icu/tools" && ./updateicudata.py)
 	(cd "$base_dir/external/icu/tools/srcgen" && ./generate_android_icu4j.sh)
 	(set -o xtrace; make -j "${cores}" target-files-package brillo_update_payload)

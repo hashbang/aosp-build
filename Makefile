@@ -131,6 +131,21 @@ monitor:
 install: tools
 	@scripts/flash
 
+.PHONY: update-packages
+update-packages:
+	$(docker) run \
+		--rm \
+		--detach \
+		--name "$(NAME)" \
+		--user $(userid):$(groupid) \
+		--volume $(PWD)/config:/home/build/config \
+		--volume $(PWD)/scripts:/home/build/scripts \
+		$(IMAGE) tail -f /dev/null
+	$(docker) exec -it --user=root "$(NAME)" update-packages
+	$(docker) cp \
+		"$(NAME):/etc/apt/packages.list" \
+		"$(PWD)/config/container/packages.list"
+	$(docker) rm -f "$(NAME)"
 
 ## Source Management ##
 

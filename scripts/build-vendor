@@ -3,7 +3,6 @@
 set -e; eval "$(environment)"
 
 device="${DEVICE?}"
-base_dir="${BASE_DIR?}"
 external_dir="${EXTERNAL_DIR?}"
 temp_dir="$(mktemp -d)"
 download_dir="${temp_dir}/downloads/"
@@ -48,5 +47,3 @@ fi
 	--timestamp "${build_datetime}"  \
     --imgs "${factory_dir}/${factory_file}" \
     --ota "${factory_dir}/${ota_file}"
-
-rsync -Pav "${vendor_out}/coral/${build_id,,}/" "${base_dir}/"

@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+apt update -y
+
+apt upgrade -y
+
+dpkg -l | awk '{ if ($1 == "ii") print $2 "=" $3 }' > /etc/apt/packages.list
