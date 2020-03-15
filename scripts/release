@@ -17,6 +17,8 @@ base_dir="${BASE_DIR?}"
 build_number="${BUILD_NUMBER?}"
 build_datetime="${BUILD_DATETIME?}"
 key_dir="${KEY_DIR?}"
+device_key_dir="${key_dir?}/device/${device}"
+apex_key_dir="${key_dir?}/apex"
 release_dir="${RELEASE_DIR?}"
 build_id=${BUILD_ID?}
 
@@ -34,19 +36,46 @@ mkdir -p "$release_dir"
 
 echo "Running sign_target_files_apks"
 sign_target_files_apks \
-	-o \
-	-d "$key_dir" \
-	--avb_vbmeta_key "${key_dir}/avb.pem" \
+	--default_key_mappings "$device_key_dir" \
+	--avb_vbmeta_key "${device_key_dir}/avb.pem" \
 	--avb_vbmeta_algorithm SHA256_RSA2048 \
-	--avb_system_key "${key_dir}/avb.pem" \
+	--avb_system_key "${device_key_dir}/avb.pem" \
 	--avb_system_algorithm SHA256_RSA2048 \
-  	"${inter_dir}/${prefix}${device}-target_files-${build_number}.zip" \
+	--avb_system_key "${device_key_dir}/avb.pem" \
+	--key_mapping \
+		"build/target/product/security/networkstack=${device_key_dir}/networkstack" \
+	--extra_apks \
+		"com.android.conscrypt.apex=${apex_key_dir}/com.android.conscrypt" \
+    --extra_apex_payload_key \
+    	"com.android.conscrypt.apex=${apex_key_dir}/com.android.conscrypt.pem" \
+	--extra_apks \
+		"com.android.media.apex=${apex_key_dir}/com.android.media" \
+    --extra_apex_payload_key \
+    	"com.android.media.apex=${apex_key_dir}/com.android.media.pem" \
+	--extra_apks \
+		"com.android.media.swcodec.apex=${apex_key_dir}/com.android.media.swcodec" \
+    --extra_apex_payload_key \
+    	"com.android.media.swcodec.apex=${apex_key_dir}/com.android.media.swcodec.pem" \
+	--extra_apks \
+		"com.android.resolv.apex=${apex_key_dir}/com.android.resolv" \
+    --extra_apex_payload_key \
+    	"com.android.resolv.apex=${apex_key_dir}/com.android.resolv.pem" \
+	--extra_apks \
+		"com.android.runtime.apex=${apex_key_dir}/com.android.runtime" \
+    --extra_apex_payload_key \
+    	"com.android.runtime.apex=${apex_key_dir}/com.android.runtime.pem" \
+	--extra_apks \
+		"com.android.tzdata.apex=${apex_key_dir}/com.android.tzdata" \
+    --extra_apex_payload_key \
+    	"com.android.tzdata.apex=${apex_key_dir}/com.android.tzdata.pem" \
+	--replace_ota_keys \
+  		"${inter_dir}/${prefix}${device}-target_files-${build_number}.zip" \
 	"$release_dir/$target_files"
 
 echo "Running ota_from_target_files"
 ota_from_target_files \
 	--block \
-	-k "${key_dir}/releasekey" \
+	-k "${device_key_dir}/releasekey" \
   	"${release_dir}/${target_files}" \
 	"${release_dir}/${device}-ota_update-${build_number}.zip"
 
@@ -109,7 +138,7 @@ fastboot flashing lock
 EOF
 chmod +x "${factory_dir}/flash-all.sh"
 
-cp "${key_dir}/avb_pkmd.bin" "${factory_dir}/${device}-avb_pkmd.bin"
+cp "${device_key_dir}/avb_pkmd.bin" "${factory_dir}/${device}-avb_pkmd.bin"
 
 timestamp=$(date -d "@$build_datetime" "+%y%m%d%H%M.%S")
 find "${factory_dir}" -exec touch -t "$timestamp" {} +

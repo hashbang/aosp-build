@@ -2,7 +2,9 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)"
 
-readonly key_dir="${KEY_DIR?}"
+readonly device="${DEVICE?}"
+readonly device_key_dir="${KEY_DIR?}/device/${device}"
+readonly apex_key_dir="${KEY_DIR?}/apex"
 readonly os_name="${OS_NAME?}"
 readonly rand_file="${RANDFILE?}"
 declare -a keys=(
@@ -22,7 +24,8 @@ declare -a keys=(
 	com.android.tzdata
 )
 
-mkdir -p "${key_dir}"
+
+mkdir -p "${apex_key_dir}" "${device_key_dir}"
 
 if [ -f "${rand_file}" ]; then
 	echo "Keeping seed: ${rand_file}"
@@ -32,8 +35,13 @@ else
 fi
 ln -sf "${rand_file}" "${HOME}/.rnd";
 
-echo "Generating signing keychain:"
+echo "Generating keychain:"
 for key in "${keys[@]}"; do
+	if [[ "$key" == *"com.android"* ]]; then
+		key_dir=${apex_key_dir}
+	else
+		key_dir=${device_key_dir}
+	fi
 	x509_file="${key_dir}/${key}.x509.pem"
 	pk8_file="${key_dir}/${key}.pk8"
 	[ -f "${pk8_file}" ] && continue;
@@ -44,6 +52,7 @@ for key in "${keys[@]}"; do
 		printf "" | make_key "$key" "/CN=${os_name}" >/dev/null 2>&1
 	EOF
 	[ -f "${pk8_file}" ] || { echo "Generation failed for ${key}"; exit 1 ;};
+
 	case $key in
 		verity)
 			der_file="${key_dir}/${key}_user.der.x509"

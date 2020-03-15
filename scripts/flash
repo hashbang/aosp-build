@@ -2,12 +2,14 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)";
 
-cd "$HOME/base"
+base_dir="${BASE_DIR?}"
 
 device="${DEVICE?}"
 build_type="${BUILD_TYPE:-release}"
 build_variant="${BUILD_VARIANT:-user}"
 
+
+cd "$base_dir"
 # shellcheck disable=SC1091
 source build/envsetup.sh
 choosecombo "${build_type}" "aosp_${device}" "${build_variant}"

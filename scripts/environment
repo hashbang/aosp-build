@@ -70,15 +70,12 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     for key, value in device_config.items():
         environment[key.upper()]=value.lower()
     if variant == "user" or variant == "userdebug":
-        key_dir = "{}/config/keys/{}".format(cwd, device)
+        key_dir = "{}/config/keys".format(cwd)
     else:
         key_dir = "{}/build/target/product/security/".format(base_dir)
     environment["KEY_DIR"] = key_dir
     environment["RELEASE_DIR"] = "{}/release/".format(cwd)
     environment['BUILD_ID'] = device_config['build_id']
-    environment['ANDROID_PRODUCT_OUT'] = \
-        "{}/out/target/product/{}/".format(base_dir, device)
-
 
 environment['ARCH'] = "arm64"
 environment['LANG'] = "C"
