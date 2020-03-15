@@ -50,7 +50,9 @@ clean:
 
 .PHONY: flash
 flash:
-	source <(scripts/environment) && fastboot flashall -w
+	source <(scripts/environment) \
+	&& ANDROID_PRODUCT_OUT="build/base/out/target/product/$(DEVICE)" \
+		fastboot flashall -w
 
 .PHONY: mrproper
 mrproper: storage-delete machine-delete
