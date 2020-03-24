@@ -36,7 +36,7 @@ RUN go build -o /usr/local/bin/fixuid github.com/boxboat/fixuid
 # {% endif %}
 
 
-FROM ubuntu:cosmic${UBUNTU_IMAGE_REF}
+FROM ubuntu:eoan${UBUNTU_IMAGE_REF}
 
 # {% if "golang" in tags %}
 COPY --from=golang /usr/local/bin/ /usr/local/bin/
