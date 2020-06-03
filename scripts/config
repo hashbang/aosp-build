@@ -80,7 +80,7 @@ if __name__ == "__main__":
         config = yaml.load(data_file.read())
 
     all_tags = []
-    accept_tos_header = {'Cookie': 'devsite_wall_acks=nexus-image-tos'}
+    accept_tos_header = {'Cookie': 'devsite_wall_acks=nexus-image-tos,nexus-ota-tos'}
     platform_build_url = "https://android.googlesource.com/platform/build"
     tag_filter = "android-{}".format(config['version'])
     for line in cmd.Git().ls_remote("--sort=v:refname", platform_build_url, tags=True, refs=True).split('\n'):
