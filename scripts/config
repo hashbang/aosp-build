@@ -5,9 +5,10 @@ import os.path
 import base64
 import time
 
+import urllib.request
+
 from os import environ, getenv, getcwd
 from html.parser import HTMLParser
-from urllib.request import urlopen
 from collections import OrderedDict, Counter
 
 import yaml
@@ -49,11 +50,14 @@ class AndroidImagesParser(HTMLParser):
                         self.device,{}
                     )["%s_hash" % self.type] = data
                 elif data.split(' ')[0].startswith("%s." % self.version):
-                    self.version_open = True
-                    tokens = data.split(" ")
-                    self.images.setdefault(
-                        self.device,{}
-                    )['build_id'] = tokens[1].replace("(","").replace(",", "")
+                    _re = re.search(r'\b\w{3} \d{4}(?P<optional_close_bracket>\)?)', data)
+                    # Skip none generic carrier versions for now.
+                    if _re and _re.group('optional_close_bracket') != '':
+                        self.version_open = True
+                        tokens = data.split(" ")
+                        self.images.setdefault(
+                            self.device,{}
+                        )['build_id'] = tokens[1].replace("(","").replace(",", "")
 
     def handle_endtag(self, tag):
         if tag == 'tr' and self.device:
@@ -76,6 +80,7 @@ if __name__ == "__main__":
         config = yaml.load(data_file.read())
 
     all_tags = []
+    accept_tos_header = {'Cookie': 'devsite_wall_acks=nexus-image-tos,nexus-ota-tos'}
     platform_build_url = "https://android.googlesource.com/platform/build"
     tag_filter = "android-{}".format(config['version'])
     for line in cmd.Git().ls_remote("--sort=v:refname", platform_build_url, tags=True, refs=True).split('\n'):
@@ -92,7 +97,7 @@ if __name__ == "__main__":
     build_id_filter = "BUILD_ID="
     build_id_regex = '([A-Z0-9]{4,5}\.[0-9]{6}\.[0-9]{3})'
     for tag in latest_tags:
-        output = base64.decodebytes(urlopen(build_id_git_url.format(tag)).read()).decode()
+        output = base64.decodebytes(urllib.request.urlopen(build_id_git_url.format(tag)).read()).decode()
         for line in output.split('\n'):
             build_id_base = re.search(build_id_regex, line)
             if build_id_filter in line:
@@ -103,8 +108,8 @@ if __name__ == "__main__":
     parser.images = {}
     image_url = "https://developers.google.com/android/images"
     ota_url = "https://developers.google.com/android/ota"
-    parser.feed(str(urlopen(image_url).read()))
-    parser.feed(str(urlopen(ota_url).read()))
+    parser.feed(str(urllib.request.urlopen(urllib.request.Request(image_url, headers=accept_tos_header)).read()))
+    parser.feed(str(urllib.request.urlopen(urllib.request.Request(ota_url, headers=accept_tos_header)).read()))
 
     for device in config['devices']:
         for values in parser.images[device].items():
