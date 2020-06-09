@@ -166,28 +166,19 @@ class AndroidManifest:
                 remote.get('fetch',self.remotes[self.default_remote]['fetch']),
                 project.attrib['name']
             )
-            remote_refs = self._lsremote(project_repo_url)
             project.attrib['upstream'] = revision
-            if revision not in remote_refs:
-                raise Exception(
-                    "remote ref: {} not found in {}".format(
-                        revision, remote_refs
-                    )
-                )
-            project.attrib['revision'] = remote_refs[revision]
+            project.attrib['revision'] = self._lsremote(project_repo_url, revision)
 
-    def _lsremote(self, url):
+    def _lsremote(self, url, refs):
         remote_refs = {}
         g = cmd.Git()
-        for _ in range(5):
+        for x in range(5):
             try:
-                for ref in g.ls_remote(url).split('\n'):
-                    hash_ref_list = ref.split('\t')
-                    remote_refs[hash_ref_list[1]] = hash_ref_list[0]
+                return g.ls_remote(url, refs).split('\t')[0]
             except git.exc.GitCommandError:
-                print("Caught GitCommandError exception. Retrying.")
-                time.sleep(2)
-        return remote_refs
+                print("Caught GitCommandError exception for the {} time. Retrying.".format(x))
+                time.sleep(2**x)
+        raise Exception("Repeatedly failed trying git ls-remote.")
 
     def pretty_print(self):
         rough_string = ElementTree.tostring(self.manifest, 'utf-8')
