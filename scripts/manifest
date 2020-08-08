@@ -147,9 +147,10 @@ class AndroidManifest:
     def _lock(self):
         projects=self.manifest.findall(".//project")
         for project in projects:
-            print("[{}] Locking Project: \"{}\"".format(
+            print("[{}] Locking Project: \"{}\" (path \"{}\")".format(
                 self.name,
-                project.attrib['name']
+                project.attrib['name'],
+                project.attrib['path'],
             ))
             if 'remote' in project.attrib:
                 remote = self.remotes[project.attrib['remote']]
