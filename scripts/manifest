@@ -50,8 +50,7 @@ class AndroidManifest:
             manifest_url,
             self.ref
         ))
-        manifest_repo = Repo.clone_from(manifest_url, mkdtemp())
-        manifest_repo.head.reference = manifest_repo.commit(self.ref)
+        manifest_repo = Repo.clone_from(manifest_url, mkdtemp(), branch=self.ref, depth=1)
         string = manifest_repo.git.show('HEAD:default.xml')
         self.manifest = ElementTree.fromstring(string)
 
@@ -148,9 +147,10 @@ class AndroidManifest:
     def _lock(self):
         projects=self.manifest.findall(".//project")
         for project in projects:
-            print("[{}] Locking Project: \"{}\"".format(
+            print("[{}] Locking Project: \"{}\" (path \"{}\")".format(
                 self.name,
-                project.attrib['name']
+                project.attrib['name'],
+                project.attrib['path'],
             ))
             if 'remote' in project.attrib:
                 remote = self.remotes[project.attrib['remote']]
