@@ -163,7 +163,7 @@ class AndroidManifest:
             if 'refs' not in revision:
                 revision = "refs/heads/%s" % revision
             project_repo_url="%s/%s.git" % (
-                remote.get('fetch',self.remotes[self.default_remote]['fetch']),
+                remote.get('fetch', self.remotes[self.default_remote]['fetch']),
                 project.attrib['name']
             )
             project.attrib['upstream'] = revision
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         kernel_manifest = AndroidManifest(
             name="{}-kernel".format(device),
             ref=config['devices'][device]['kernel_ref'],
-            repo="kernel/manifest"
+            repo="kernel/manifest",
         ).pretty_print()
         open(filename,'w').write(kernel_manifest)
 
