@@ -91,18 +91,18 @@ class AndroidManifest:
             if 'groups' in project.attrib:
                 groups = project.attrib['groups'].split(',')
                 if any(i in groups for i in self.remove_groups):
-                    self.manifest.remove(project)
                     print("[{}] Removing Project: \"{}\"".format(
                         self.name,
                         path
                     ))
+                    self.manifest.remove(project)
             if 'path' in project.attrib:
                 if project.attrib['path'] in self.remove_paths:
-                    self.manifest.remove(project)
                     print("[{}] Removing Project: \"{}\"".format(
                         self.name,
                         path
                     ))
+                    self.manifest.remove(project)
 
     def _set_remotes(self):
         self.remotes={}
