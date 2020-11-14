@@ -88,7 +88,11 @@ class AndroidManifest:
         for project in self.manifest.findall(".//project"):
             path=project.attrib['path']
             if 'groups' in project.attrib:
-                groups = project.attrib['groups'].split(',')
+                groups_string = project.attrib['groups']
+
+                ## from `repo` program source: manifest_xml.py
+                groups = [x for x in re.split(r'[,\s]+', groups_string) if x]
+
                 group_intersections = self.remove_groups.intersection(groups)
                 if len(group_intersections):
                     print("[{}] Removing Project: \"{}\" (because of remove_groups {})".format(
