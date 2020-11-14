@@ -161,14 +161,18 @@ class AndroidManifest:
             ))
             remote = self.remotes[project.attrib.get('remote', self.default_remote)]
             revision = project.attrib.get('revision', remote['revision'])
-            if 'refs' not in revision:
-                revision = "refs/heads/%s" % revision
-            project_repo_url="%s/%s.git" % (
-                remote['fetch'],
-                project.attrib['name']
-            )
-            project.attrib['upstream'] = revision
-            project.attrib['revision'] = self._lsremote(project_repo_url, revision)
+
+            # TODO: Analyse if this can be attacked by naming a branch like a
+            # commit hash for example.
+            if not re.search(r'^[0-9a-f]{40}$', revision):
+                if 'refs' not in revision:
+                    revision = "refs/heads/%s" % revision
+                project_repo_url="%s/%s.git" % (
+                    remote['fetch'],
+                    project.attrib['name']
+                )
+                project.attrib['upstream'] = revision
+                project.attrib['revision'] = self._lsremote(project_repo_url, revision)
 
     def _lsremote(self, url, refs):
         remote_refs = {}
