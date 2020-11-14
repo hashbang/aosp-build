@@ -159,14 +159,8 @@ class AndroidManifest:
                 project.attrib['name'],
                 project.attrib['path'],
             ))
-            if 'remote' in project.attrib:
-                remote = self.remotes[project.attrib['remote']]
-            else:
-                remote = self.remotes[self.default_remote]
-            if 'revision' in project.attrib:
-                revision = project.attrib['revision']
-            elif 'revision' in remote:
-                revision = remote['revision']
+            remote = self.remotes[project.attrib.get('remote', self.default_remote)]
+            revision = project.attrib.get('revision', remote['revision'])
             if 'refs' not in revision:
                 revision = "refs/heads/%s" % revision
             project_repo_url="%s/%s.git" % (
