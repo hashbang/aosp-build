@@ -32,7 +32,7 @@ class AndroidManifest:
         self.extra_remotes = extra_remotes
         self.extra_projects = extra_projects
         self.remove_paths = remove_paths
-        self.remove_groups = remove_groups
+        self.remove_groups = frozenset(remove_groups)
         for project in self.extra_projects:
             self.remove_paths.append(project['path'])
         self._fetch()
@@ -90,10 +90,12 @@ class AndroidManifest:
             path=project.attrib['path']
             if 'groups' in project.attrib:
                 groups = project.attrib['groups'].split(',')
-                if any(i in groups for i in self.remove_groups):
-                    print("[{}] Removing Project: \"{}\"".format(
+                group_intersections = self.remove_groups.intersection(groups)
+                if len(group_intersections):
+                    print("[{}] Removing Project: \"{}\" (because of remove_groups {})".format(
                         self.name,
-                        path
+                        path,
+                        list(group_intersections),
                     ))
                     self.manifest.remove(project)
             if 'path' in project.attrib:
