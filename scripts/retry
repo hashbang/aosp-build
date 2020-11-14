@@ -14,10 +14,10 @@ until "$@"; do
     wait=$((2 ** count))
     count=$((count + 1))
     if [ "$count" -lt "$retries" ]; then
-        echo "Retry $count/$retries exited $exit, retrying in $wait seconds ..."
+        echo "Try $count/$retries terminated with exit code $exit, retrying in $wait seconds ..."
         sleep $wait
     else
-        echo "Retry $count/$retries exited $exit, no more retries left."
+        echo "Try $count/$retries terminated with exit code $exit, no more retries left."
         exit $exit
     fi
 done
