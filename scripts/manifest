@@ -85,8 +85,7 @@ class AndroidManifest:
             ))
 
     def _remove(self):
-        projects=self.manifest.findall(".//project")
-        for project in projects:
+        for project in self.manifest.findall(".//project"):
             path=project.attrib['path']
             if 'groups' in project.attrib:
                 groups = project.attrib['groups'].split(',')
@@ -98,6 +97,8 @@ class AndroidManifest:
                         list(group_intersections),
                     ))
                     self.manifest.remove(project)
+        for project in self.manifest.findall(".//project"):
+            path=project.attrib['path']
             if 'path' in project.attrib:
                 if project.attrib['path'] in self.remove_paths:
                     print("[{}] Removing Project: \"{}\"".format(
