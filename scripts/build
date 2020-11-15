@@ -35,7 +35,7 @@ function apply_patches(){
 		echo "Applying patch: $patch_dir/${patch}"
 		patch -p1 --no-backup-if-mismatch < "${patch_dir}/${patch}"
 	done
-	echo "export BUILD_ID=${build_id}" > "${base_dir}/build/core/build_id.mk"
+	echo "BUILD_ID=${build_id}" > "${base_dir}/build/core/build_id.mk"
 	cd -
 }
 
