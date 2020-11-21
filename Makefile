@@ -1,3 +1,5 @@
+SHELL ?= /bin/bash -o nounset -o pipefail -o errexit
+
 ## Argument Variables ##
 
 CPUS := $(shell nproc)
