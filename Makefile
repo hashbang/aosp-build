@@ -1,4 +1,6 @@
 SHELL ?= /bin/bash -o nounset -o pipefail -o errexit
+MAKEFLAGS += --no-builtin-rules
+.SUFFIXES:
 
 ## Argument Variables ##
 
