@@ -263,6 +263,7 @@ contain := \
 		--hostname "$(NAME)" \
 		--user $(userid):$(groupid) \
 		--env DEVICE=$(DEVICE) \
+		--privileged \
 		--security-opt seccomp=unconfined \
 		--volume $(PWD)/config:/home/build/config \
 		--volume $(PWD)/release:/home/build/release \
