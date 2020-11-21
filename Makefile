@@ -101,13 +101,13 @@ kernel:
 .PHONY: latest
 latest: config submodule-latest fetch
 
-.PHONY: manifest
-manifest: config
-	$(contain) bash -c "source <(environment) && manifest"
-
 .PHONY: config
 config:
 	$(contain) bash -c "source <(environment) && config"
+
+.PHONY: manifest
+manifest: config
+	$(contain) bash -c "source <(environment) && manifest"
 
 .PHONY: test-repro
 test-repro:
