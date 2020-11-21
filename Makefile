@@ -106,7 +106,7 @@ config:
 	$(contain) bash -c "source <(environment) && config"
 
 .PHONY: manifest
-manifest: config
+manifest:
 	$(contain) bash -c "source <(environment) && manifest"
 
 .PHONY: test-repro
