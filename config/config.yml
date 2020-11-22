@@ -17,32 +17,32 @@ platform:
     remote: github
     revision: refs/heads/10.0
   remove_paths:
-  - platform/prebuilts/qemu-kernel
-  - platform/developers/samples/android
-  - platform/developers/demos
   - device/generic/car
-  - device/generic/qemu
-  - device/lenaro/bootloader/arm-trusted-firmware
-  - device/lenaro/bootloader/edk2
-  - device/lenaro/bootloader/OpenPlatformPkg
-  - device/lenaro/hikey
-  - device/lenaro/hikey-kernel
-  - device/lenaro/
-  - device/google/atv
-  - device/google/contexthub
-  - device/google/muskie
-  - device/google/marlin
-  - device/generic/mips
-  - device/google/hikey-kernel
-  - device/generic/mips64
   - device/generic/mini-emulator-arm64
   - device/generic/mini-emulator-armv7-a-neon
   - device/generic/mini-emulator-mips
   - device/generic/mini-emulator-mips64
   - device/generic/mini-emulator-x86
   - device/generic/mini-emulator-x86_64
+  - device/generic/mips
+  - device/generic/mips64
+  - device/generic/qemu
   - device/google/accessory/arduino
   - device/google/accessory/demokit
+  - device/google/atv
+  - device/google/contexthub
+  - device/google/hikey-kernel
+  - device/google/marlin
+  - device/google/muskie
+  - device/lenaro/
+  - device/lenaro/bootloader/OpenPlatformPkg
+  - device/lenaro/bootloader/arm-trusted-firmware
+  - device/lenaro/bootloader/edk2
+  - device/lenaro/hikey
+  - device/lenaro/hikey-kernel
+  - platform/developers/demos
+  - platform/developers/samples/android
+  - platform/prebuilts/qemu-kernel
   remove_groups:
   - darwin
 devices:
