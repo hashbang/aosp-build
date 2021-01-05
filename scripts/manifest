@@ -20,6 +20,7 @@ class AndroidManifest:
         ref,
         name,
         repo='platform/manifest',
+        manifest_url=None,
         extra_remotes=[],
         extra_projects=[],
         remove_paths=[],
@@ -29,6 +30,10 @@ class AndroidManifest:
         self.ref = ref
         self.name = name
         self.repo = repo
+        if manifest_url is None:
+            self.manifest_url = "{}/{}".format(self.default_fetch, self.repo)
+        else:
+            self.manifest_url = manifest_url
         self.extra_remotes = extra_remotes
         self.extra_projects = extra_projects
         self.remove_paths = remove_paths
@@ -44,15 +49,14 @@ class AndroidManifest:
         self._lock()
 
     def _fetch(self):
-        manifest_url = "%s/%s" % (self.default_fetch, self.repo)
         print("[{}] Checking out: \"{}\" at \"{}\"".format(
             self.name,
-            manifest_url,
+            self.manifest_url,
             self.ref
         ))
-        manifest_repo = Repo.clone_from(manifest_url, mkdtemp(), branch=self.ref, depth=1)
-        string = manifest_repo.git.show('HEAD:default.xml')
-        self.manifest = ElementTree.fromstring(string)
+        manifest_repo = Repo.clone_from(self.manifest_url, mkdtemp(), branch=self.ref, depth=1)
+        manifest_string = manifest_repo.git.show('HEAD:default.xml')
+        self.manifest = ElementTree.fromstring(manifest_string)
 
     def _extend(self):
         for remote in self.extra_remotes:
@@ -206,16 +210,17 @@ if __name__ == "__main__":
         devices=[environ['DEVICE']]
 
     for device in devices:
-        makedirs('{}/{}'.format(path, device), exist_ok=True)
-        filename = '{}/{}/kernel.xml'.format(path, device)
+        device_manifest_repo = os.path.join(path, device)
         kernel_manifest = AndroidManifest(
             name="{}-kernel".format(device),
             ref=config['devices'][device]['kernel_ref'],
             repo="kernel/manifest",
         ).pretty_print()
-        open(filename,'w').write(kernel_manifest)
+        with open(os.path.join(device_manifest_repo, 'kernel.xml'),'w') as fh:
+            fh.write(kernel_manifest)
 
         base_manifest = AndroidManifest(
+            manifest_url = config.get('platform',{}).get('manifest_url', None),
             ref=config['devices'][device]['platform_ref'],
             name="{}-base".format(device),
             extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
@@ -223,7 +228,8 @@ if __name__ == "__main__":
             remove_paths = config.get('platform',{}).get('remove_paths',[]),
             remove_groups = config.get('platform',{}).get('remove_groups',[]),
         ).pretty_print()
-        open('{}/{}/base.xml'.format(path,device),'w').write(base_manifest)
+        with open(os.path.join(device_manifest_repo, 'base.xml'),'w') as fh:
+            fh.write(base_manifest)
 
     repo = Repo.init(path)
     repo.index.add(['*'])
