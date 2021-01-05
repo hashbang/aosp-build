@@ -1,17 +1,19 @@
 #!/usr/bin/python3
 
 from tempfile import mkdtemp
-from git import Git, Repo, cmd
-import git
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 from xml.dom import minidom
 from sys import argv, exit
 from os import environ, getcwd, getenv, makedirs
 from os.path import isfile, isdir
+import os
 import re
 import time
+
 import yaml
+from git import Git, Repo, cmd
+import git
 
 class AndroidManifest:
 
@@ -198,8 +200,8 @@ if __name__ == "__main__":
 
     config_file=getenv('CONFIG_FILE')
     print("Config file: %s" % config_file)
-    with open(config_file, encoding='utf-8') as data_file:
-        config = yaml.load(data_file.read())
+    with open(config_file, encoding='utf-8') as fh:
+        config = yaml.load(fh.read())
 
     path=getenv('MANIFEST_DIR')
 
