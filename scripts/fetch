@@ -1,6 +1,8 @@
 #!/bin/bash
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
-set -e; eval "$(environment)"
+eval "$(environment)"
+set -o nounset -o pipefail -o errexit -o errtrace
+# nounset is incompatible with envsetup.sh so we set it after environment.
 
 cores=$(nproc)
 device="${DEVICE?}"
