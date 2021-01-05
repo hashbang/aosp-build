@@ -92,7 +92,7 @@ class AndroidManifest:
 
     def _remove(self):
         for project in self.manifest.findall(".//project"):
-            path=project.attrib['path']
+            path=project.attrib.get('path', project.attrib['name'])
             if 'groups' in project.attrib:
                 groups_string = project.attrib['groups']
 
@@ -108,14 +108,13 @@ class AndroidManifest:
                     ))
                     self.manifest.remove(project)
         for project in self.manifest.findall(".//project"):
-            path=project.attrib['path']
-            if 'path' in project.attrib:
-                if project.attrib['path'] in self.remove_paths:
-                    print("[{}] Removing Project: \"{}\"".format(
-                        self.name,
-                        path
-                    ))
-                    self.manifest.remove(project)
+            path=project.attrib.get('path', project.attrib['name'])
+            if path in self.remove_paths:
+                print("[{}] Removing Project: \"{}\"".format(
+                    self.name,
+                    path,
+                ))
+                self.manifest.remove(project)
 
     def _set_remotes(self):
         self.remotes={}
@@ -160,17 +159,23 @@ class AndroidManifest:
     def _lock(self):
         projects=self.manifest.findall(".//project")
         for project in projects:
-            print("[{}] Locking Project: \"{}\" (path \"{}\")".format(
-                self.name,
-                project.attrib['name'],
-                project.attrib['path'],
-            ))
             remote = self.remotes[project.attrib.get('remote', self.default_remote)]
             revision = project.attrib.get('revision', remote['revision'])
 
             # TODO: Analyse if this can be attacked by naming a branch like a
             # commit hash for example.
-            if not re.search(r'^[0-9a-f]{40}$', revision):
+            if re.search(r'^[0-9a-f]{40}$', revision):
+                print("[{}] Reusing Locked Project: \"{}\"{}".format(
+                    self.name,
+                    project.attrib['name'],
+                    "  (path \"{}\")".format(project.attrib['path']) if 'path' in project.attrib else '',
+                ))
+            else:
+                print("[{}] Locking Project: \"{}\"{}".format(
+                    self.name,
+                    project.attrib['name'],
+                    "  (path \"{}\")".format(project.attrib['path']) if 'path' in project.attrib else '',
+                ))
                 if 'refs' not in revision:
                     revision = "refs/heads/%s" % revision
                 project_repo_url="%s/%s.git" % (
