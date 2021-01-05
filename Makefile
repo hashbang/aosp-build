@@ -59,24 +59,38 @@ mrproper: storage-delete machine-delete
 
 ## Secondary Targets ##
 
+config/container/Dockerfile: config/container/Dockerfile.j2 config/container/render_template
+	./config/container/render_template "$<" "{\"tags\":[]}" > "$@"
+
+## Support for different Docker image variants.
+config/container/Dockerfile-golang:
+config/container/Dockerfile-latest:
+config/container/Dockerfile-%: config/container/Dockerfile.j2 config/container/render_template
+	./config/container/render_template "$<" "{\"tags\":[\"$*\"]}" > "$@"
+
 .PHONY: image
-image:
-	$(docker) build \
-		--tag $(IMAGE) \
-		--file $(PWD)/config/container/Dockerfile \
-		$(IMAGE_OPTIONS) \
-		$(PWD)
-
-config/container/Dockerfile.minimal: config/container/Dockerfile config/container/render_template
-	./config/container/render_template "$<" | grep -v '^#\s*$$' > "$@"
-
-.PHONY: image-minimal
-image-minimal: config/container/Dockerfile.minimal
+image: config/container/Dockerfile
 	$(docker) build \
 		--tag $(IMAGE) \
 		--file "$(PWD)/$<" \
 		$(IMAGE_OPTIONS) \
 		$(PWD)
+
+.PHONY: image-%
+image-golang:
+image-latest:
+image-%: config/container/Dockerfile-%
+	$(docker) build \
+		--tag $(IMAGE) \
+		--file "$(PWD)/$<" \
+		$(IMAGE_OPTIONS) \
+		$(PWD)
+
+## Note that the default `image` target should be used for pinning.
+.PHONY: config/container/packages-pinned.list
+config/container/packages-pinned.list:
+	$(contain-no-tty) pin-packages > "$@"
+
 
 .PHONY: tools
 tools:

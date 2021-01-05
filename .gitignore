@@ -1,6 +1,6 @@
 build/*
 config/keys/*
 config/env/*
-config/container/Dockerfile.*
+config/container/Dockerfile-*
 release/*
 .*
