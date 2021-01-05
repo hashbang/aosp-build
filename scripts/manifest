@@ -231,6 +231,6 @@ if __name__ == "__main__":
         with open(os.path.join(device_manifest_repo, 'base.xml'),'w') as fh:
             fh.write(base_manifest)
 
-    repo = Repo.init(path)
-    repo.index.add(['*'])
-    repo.index.commit("manifest commit")
+        repo = Repo.init(device_manifest_repo)
+        repo.index.add(['*'])
+        repo.index.commit("manifest commit")
