@@ -8,7 +8,7 @@ base_dir="${BASE_DIR?}"
 [ -d "$base_dir" ] && {
 	cd "$base_dir"
 	[ -f ".repo/manifests/.git/HEAD" ] && {
-		repo forall -c 'git reset --hard ; git clean --force -dx';
+		repo --no-pager forall --abort-on-errors -p --verbose -c 'git reset --hard ; git clean --force -dx';
 	}
 	[ -f "Makefile" ] && make clean
 	[ -d "${external_dir}/kernel" ] && {
@@ -18,7 +18,7 @@ base_dir="${BASE_DIR?}"
 			[ -f "$dir/.repo/manifests/.git/HEAD" ] && {
 				cat <<-EOF | bash
 					cd "$dir" || exit;
-					repo forall -c 'git reset --hard ; git clean --force -dx';
+					repo --no-pager forall --abort-on-errors -p --verbose -c 'git reset --hard ; git clean --force -dx';
 					rm -rf dist
 				EOF
 			}

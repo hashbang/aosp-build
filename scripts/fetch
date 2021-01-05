@@ -43,7 +43,7 @@ retry 3 repo sync \
 	--force-sync \
 	--no-clone-bundle \
 	--jobs "${cores}"
-repo forall -c 'git reset --hard ; git clean --force -dx'
+repo --no-pager forall --abort-on-errors -p --verbose -c 'git reset --hard ; git clean --force -dx'
 
 # Kernel
 if [ "${build_kernel}" == "true" ]; then
@@ -61,5 +61,5 @@ if [ "${build_kernel}" == "true" ]; then
 		--force-sync \
 		--no-clone-bundle \
 		--jobs "${cores}"
-	repo forall -c 'git reset --hard ; git clean --force -dx'
+	repo --no-pager forall --abort-on-errors -p --verbose -c 'git reset --hard ; git clean --force -dx'
 fi
