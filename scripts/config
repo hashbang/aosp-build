@@ -123,5 +123,10 @@ if __name__ == "__main__":
 
     config['datetime'] = int(time.time())
 
+    if 'remove_paths' in config['platform']:
+        config['platform']['remove_paths'] = sorted(config['platform']['remove_paths'])
+    if 'remove_groups' in config['platform']:
+        config['platform']['remove_groups'] = sorted(config['platform']['remove_groups'])
+
     with open(config_file, 'w') as outfile:
         yaml.dump(config, outfile, default_flow_style=False)
