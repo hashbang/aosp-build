@@ -1,4 +1,4 @@
-build/*
+build
 config/keys/*
 config/env/*
 config/container/Dockerfile-*
