@@ -37,6 +37,7 @@ rsync
 libfaketime
 python3
 python3-git
+python3-gnupg
 python3-yaml
 
 ## https://grapheneos.org/build#building-grapheneos

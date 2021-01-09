@@ -48,12 +48,14 @@ devices:
     factory_hash: 30f25dd2b0049915da8fd45c42c9b56becbebcba54adcb2af56e68d6d1cb357f
     ota_hash: b5852e2a7234dc9220634f5fc197ae324780be6323e2e07ef687355671520e87
     platform_ref: android-11.0.0_r17
+    platform_pubkey: aosp.asc
   sargo:
-    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    kernel_ref: android-msm-bonito-4.9-android11
     build_id: RP1A.201105.002
     factory_hash: 2433e0c0574d731c103951d16164bd2502b34d386e2ab12082f686c784c3929c
     ota_hash: cd4ef64b5f052acbf0c19c0532f254c53c4902ec862db26a6d7ddb853103de7e
-    platform_ref: android-11.0.0_r17
+    platform_ref: android-11.0.0_r26
+    platform_pubkey: aosp.asc
   crosshatch:
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
@@ -61,6 +63,7 @@ devices:
     factory_hash: c60d8b3ab2960bf3bff25985f0c64447f4b4e111a71017e0128669fc49a80cac
     ota_hash: 9315242f00af51e42ac9309a8ec3cfc18b9165b59d0635f2217feaf4aeacd78e
     platform_ref: android-11.0.0_r17
+    platform_pubkey: aosp.asc
   blueline:
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
@@ -68,6 +71,7 @@ devices:
     factory_hash: 0347d8cd0a70609ebb46f62f635b6d8d91435312b37eed6df17eff02e9aec34c
     ota_hash: 8dd4eb5b0f0d4ae0c33833fa48082b077f67e1069e07736f73568cc512119564
     platform_ref: android-11.0.0_r17
+    platform_pubkey: aosp.asc
   taimen:
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
@@ -75,6 +79,7 @@ devices:
     factory_hash: f797c86c31a79d2f219a8a75e643899fa3576cefca9245314aa87fe80a1f04e2
     ota_hash: b5dff51e9891236ea84bb1027614d6e9c8a4ad59f0a35275a9e0ff14f946a70c
     platform_ref: android-10.0.0_r21
+    platform_pubkey: aosp.asc
   walleye:
     kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
@@ -82,3 +87,4 @@ devices:
     factory_hash: 78b8d156a944a5664f366ea75f78068e45a8000d112a4a48fe1402a24b7aadf9
     ota_hash: 6efaff496f25b06961b92c562ae748007fafdfb92b45db4e3e59d5c741f67e58
     platform_ref: android-10.0.0_r21
+    platform_pubkey: aosp.asc

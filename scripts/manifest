@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from tempfile import mkdtemp
+from tempfile import mkdtemp, TemporaryDirectory
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 from xml.dom import minidom
@@ -10,10 +10,13 @@ from os.path import isfile, isdir
 import os
 import re
 import time
+import subprocess
+import sys
 
 import yaml
 from git import Git, Repo, cmd
 import git
+from gnupg import GPG
 
 class AndroidManifest:
 
@@ -23,6 +26,7 @@ class AndroidManifest:
         name,
         repo='platform/manifest',
         manifest_url=None,
+        manifest_pubkey=None,
         extra_remotes=[],
         extra_projects=[],
         remove_paths=[],
@@ -36,6 +40,13 @@ class AndroidManifest:
             self.manifest_url = "{}/{}".format(self.default_fetch, self.repo)
         else:
             self.manifest_url = manifest_url
+
+        self.resource_paths = [
+            '/home/build',
+            '/opt/aosp-build',
+        ]
+        self.manifest_pubkey = manifest_pubkey
+
         self.extra_remotes = extra_remotes
         self.extra_projects = extra_projects
         self.remove_paths = remove_paths
@@ -50,13 +61,57 @@ class AndroidManifest:
         self._set_default_remote()
         self._lock()
 
+    def _search_file(self, file_sub_path):
+        for resource_path in self.resource_paths:
+            potential_file = os.path.join(
+                resource_path,
+                file_sub_path)
+            if os.path.isfile(potential_file):
+                return potential_file
+        raise IOError("File sub path {} not found.".format(
+            file_sub_path
+            ))
+
+    def _verify_tag(self, manifest_repo):
+        if self.manifest_pubkey is None:
+            print("[{}] No manifest pubkey specified. Skipping verification of git tag signature.".format(
+                self.name,
+            ))
+            return
+
+        pubkey_file = self._search_file(os.path.join(
+            'config/openpgp_keys',
+            self.manifest_pubkey,
+        ))
+
+        with TemporaryDirectory() as temp_gpg_home:
+            gpg = GPG(gnupghome=temp_gpg_home)
+            with open(pubkey_file, 'rb') as pubkey_fh:
+                import_result = gpg.import_keys(pubkey_fh.read())
+            if len(import_result.results) == 0:
+                raise Exception("Did not import any keys.")
+
+            manifest_repo.git.update_environment(GNUPGHOME=temp_gpg_home)
+
+            # Not yet supported upstream and looks non-trivial for me to add it.
+            # https://github.com/gitpython-developers/GitPython/issues/611
+            repo_ext_output = manifest_repo.git.execute(
+                ['git', 'verify-tag',
+                    #  '--raw',
+                    self.ref],
+                with_extended_output=True,
+            )
+            print(repo_ext_output[1] + repo_ext_output[2])
+
     def _fetch(self):
-        print("[{}] Checking out: \"{}\" at \"{}\"".format(
+        manifest_repo = Repo.clone_from(self.manifest_url, mkdtemp(), branch=self.ref, depth=1)
+        print("[{}] Checked out: \"{}\" at \"{}\" ({})".format(
             self.name,
             self.manifest_url,
-            self.ref
+            self.ref,
+            manifest_repo.head.commit.hexsha
         ))
-        manifest_repo = Repo.clone_from(self.manifest_url, mkdtemp(), branch=self.ref, depth=1)
+        self._verify_tag(manifest_repo)
         manifest_string = manifest_repo.git.show('HEAD:default.xml')
         self.manifest = ElementTree.fromstring(manifest_string)
 
@@ -219,15 +274,16 @@ if __name__ == "__main__":
     for device in devices:
         device_manifest_repo = os.path.join(path, device)
         kernel_manifest = AndroidManifest(
-            name="{}-kernel".format(device),
-            ref=config['devices'][device]['kernel_ref'],
-            repo="kernel/manifest",
-        ).pretty_print()
+                name="{}-kernel".format(device),
+                ref=config['devices'][device]['kernel_ref'],
+                repo="kernel/manifest",
+                ).pretty_print()
         with open(os.path.join(device_manifest_repo, 'kernel.xml'),'w') as fh:
             fh.write(kernel_manifest)
 
         base_manifest = AndroidManifest(
             manifest_url = config.get('platform',{}).get('manifest_url', None),
+            manifest_pubkey=config['devices'][device]['platform_pubkey'],
             ref=config['devices'][device]['platform_ref'],
             name="{}-base".format(device),
             extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
