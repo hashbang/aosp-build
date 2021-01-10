@@ -1,0 +1,20 @@
+#!/bin/bash
+[ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
+set -o nounset -o pipefail -o errexit
+
+case $REPO_REMOTE in
+	grapheneos) GNUPGHOME="$BASE_GNUPGHOME/daniel.micay" ;;
+	seedvault-app) echo "WARNING: Cannot verify repo path $REPO_PATH because of https://github.com/seedvault-app/seedvault/issues/188" 1>&2
+		exit 0 ;;
+	*) GNUPGHOME="$BASE_GNUPGHOME/$REPO_REMOTE" ;;
+esac
+
+export GNUPGHOME
+
+if [[ $REPO_UPSTREAM =~ refs/tags/.* ]]; then
+	git_tag="${REPO_UPSTREAM#refs/tags/}"
+
+	git verify-tag "$git_tag"
+else
+	echo "WARNING: Cannot verify repo path $REPO_PATH because the manifest specifies no git tag." 1>&2
+fi

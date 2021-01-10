@@ -1,0 +1,39 @@
+#!/bin/bash
+[ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
+eval "$(environment)"
+set -o nounset -o pipefail -o errexit
+trap 'echo Encountered an unexpected error. Exiting with exit code $? in ${BASH_SOURCE-}:${LINENO-}. >&2' ERR
+
+base_dir="${BASE_DIR?}"
+cores=$(nproc)
+BASE_GNUPGHOME="$(mktemp -d)"
+export BASE_GNUPGHOME
+
+find /opt/aosp-build/config/openpgp_keys/ /home/build/config/openpgp_keys/ -iname '*.asc' -print0 | while read -r -d $'\0' pubkey
+do
+	pubkey_filename_no_suffix="$(basename "$pubkey")"
+	pubkey_filename_no_suffix="${pubkey_filename_no_suffix%.asc}"
+
+	GNUPGHOME="${BASE_GNUPGHOME:?}/$pubkey_filename_no_suffix"
+	export GNUPGHOME
+
+	rm -rf "$GNUPGHOME"  # Ensure absent.
+	mkdir -p "$GNUPGHOME"
+	chmod 0700 "$GNUPGHOME"
+	gpg --import "$pubkey"
+	echo -e '5\ny\n' | gpg --command-fd 0 --edit-key '*' trust
+	pkill gpg-agent
+
+	unset GNUPGHOME
+done
+
+cd "${base_dir}"
+
+# Might be needed when the SHA1 commit hashes are already there locally and
+# `repo sync` therefore "forgets" to download the corresponding git tag.
+# shellcheck disable=SC2016
+# repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c bash -c '
+#     git_tag="${REPO_UPSTREAM#refs/tags/}"
+#     git fetch "$REPO_REMOTE" tag "$git_tag" --no-tags'
+
+repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'verify-do'

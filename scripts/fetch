@@ -63,3 +63,5 @@ if [ "${build_kernel}" == "true" ]; then
 		--jobs "${cores}"
 	repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'git reset --hard ; git clean --force -dx'
 fi
+
+verify
