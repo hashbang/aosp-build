@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
 from tempfile import mkdtemp, TemporaryDirectory
-from xml.etree import ElementTree
+import defusedxml.ElementTree as ElementTree
 from xml.etree.ElementTree import Element
-from xml.dom import minidom
+from defusedxml import minidom
 from sys import argv, exit
 from os import environ, getcwd, getenv, makedirs
 from os.path import isfile, isdir
