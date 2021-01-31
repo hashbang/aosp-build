@@ -84,7 +84,7 @@ environment['CROSS_COMPILE_ARM32'] = \
 
 paths = [
     '.repo/repo',
-    'prebuilts/jdk/jdk8/linux-x86/bin',
+    'prebuilts/jdk/jdk11/linux-x86/bin',
     'build/tools/releasetools',
     'development/tools',
     'external/avb',
