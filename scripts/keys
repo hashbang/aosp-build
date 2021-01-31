@@ -5,12 +5,15 @@ set -e; eval "$(environment)"
 readonly key_dir="${KEY_DIR?}"
 readonly os_name="${OS_NAME?}"
 readonly rand_file="${RANDFILE?}"
+
+# TODO: Review the list of keys. Probably not all of them are needed anymore with Android 11.
 declare -a keys=(
 	avb
 	releasekey
 	platform
 	shared
 	media
+	networkstack
 	verity
 	kernel
 	com.android.conscrypt
