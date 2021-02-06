@@ -1,4 +1,4 @@
-## https://source.android.com/setup/build/initializing#installing-required-packages-ubuntu-1804
+# https://source.android.com/setup/build/initializing#installing-required-packages-ubuntu-1804
 git
 gnupg
 flex
@@ -20,13 +20,13 @@ xsltproc
 unzip
 fontconfig
 
-## https://source.android.com/setup/build/requirements#hardware-requirements
+# https://source.android.com/setup/build/requirements#hardware-requirements
 python
 
-## https://source.android.com/setup/develop
+# https://source.android.com/setup/develop
 repo/buster-backports
 
-## Needed for aosp-build.
+# Needed for aosp-build.
 locales
 procps
 bc
@@ -41,29 +41,30 @@ python3-gnupg
 python3-yaml
 python3-defusedxml
 
-## https://grapheneos.org/build#building-grapheneos
-## Additional Android Open Source Project build dependencies not provided by the source tree:
+# https://grapheneos.org/build#building-grapheneos
+# Additional Android Open Source Project build dependencies not provided by the source tree:
 diffutils
 libncurses5
 openssl
 
-## https://grapheneos.org/build#building-grapheneos
-## Additional android-prepare-vendor (for Pixel phones) dependencies:
+# https://grapheneos.org/build#building-grapheneos
+# Additional android-prepare-vendor (for Pixel phones) dependencies:
 openjdk-11-jdk-headless
 python
 python-protobuf
+python3-protobuf
 
-## Building helpers
+# Building helpers
 htop
 schedtool
 
-## Additional tools to replace Android prebuilds will be added as needed.
-## ant: CLDR/ICU.
+# Additional tools to replace Android prebuilds will be added as needed.
+# ant: CLDR/ICU.
 ant
 # ninja-build
 # squashfs-tools
 
-## Development
+# Development
 vim
 ncat
 bsdmainutils

@@ -91,3 +91,6 @@ WORKDIR /home/build
 CMD [ "/bin/bash", "/usr/local/bin/build" ]
 
 USER build
+
+# Other scripts might also need to use git. So do it here.
+RUN printf "[color]\nui=auto\n[user]\nemail=aosp@example.org\nname=AOSP User" > ~/.gitconfig
