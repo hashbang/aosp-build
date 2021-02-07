@@ -63,7 +63,7 @@ function build_platform(){
 	(cd "$base_dir/external/icu/tools/srcgen" && ./generate_android_icu4j.sh)
 	clear
 	if [ "$build_variant" == "user" ]; then
-		(set -o xtrace; m target-files-package brillo_update_payload)
+		(set -o xtrace; m target-files-package brillo_update_payload otatools-package)
 	else
 		(set -o xtrace; m)
 	fi
