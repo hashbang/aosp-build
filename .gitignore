@@ -1,6 +1,12 @@
 build
-config/keys/*
 config/env/*
 config/container/Dockerfile-*
 release/*
+
+# Old path, please manually move to new path.
+config/keys
+
+# New keys path.
+keys
+
 .*

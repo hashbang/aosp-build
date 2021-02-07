@@ -1,21 +1,20 @@
-SHELL ?= /bin/bash -o nounset -o pipefail -o errexit
+SHELL = /bin/bash -o nounset -o pipefail -o errexit
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
 ## Argument Variables ##
 
-CPUS := $(shell nproc)
-MEMORY := 10000
-DISK := 300000
-DEVICE :=
-BACKEND := local
-CHANNEL := beta
-BUILD := user
-FLAVOR := aosp
-IMAGE := hashbang/aosp-build:latest
-IMAGE_OPTIONS :=
-NAME := aosp-build-$(FLAVOR)-$(BACKEND)
-SHELL := /bin/bash
+CPUS = $(shell nproc)
+MEMORY = 10000
+DISK = 300000
+DEVICE =
+BACKEND = local
+CHANNEL = beta
+FLAVOR = aosp
+IMAGE = hashbang/aosp-build:latest
+IMAGE_OPTIONS =
+RUN_OPTIONS =
+NAME = aosp-build-$(FLAVOR)-$(BACKEND)
 
 -include $(PWD)/config/env/$(BACKEND).env
 
@@ -29,12 +28,12 @@ default: machine image fetch tools keys build release
 ## Primary Targets ##
 
 .PHONY: fetch
-fetch: submodule-update machine image
+fetch:
 	$(contain) fetch
 
 .PHONY: keys
 keys:
-	$(contain) keys
+	$(contain-keys) keys
 
 .PHONY: build
 build:
@@ -42,7 +41,7 @@ build:
 
 .PHONY: release
 release:
-	$(contain) release
+	$(contain-keys) release
 
 .PHONY: publish
 publish:
@@ -55,7 +54,6 @@ clean:
 .PHONY: mrproper
 mrproper: storage-delete machine-delete
 	rm -rf build
-
 
 ## Secondary Targets ##
 
@@ -136,14 +134,12 @@ patches:
 
 .PHONY: shell
 shell:
-	$(docker) inspect "$(NAME)" \
-	&& $(docker) exec --interactive --tty "$(NAME)" shell \
-	|| $(contain) shell
+	$(docker) exec --interactive --tty "$(NAME)" shell \
+		|| $(contain) shell
 
 .PHONY: monitor
 monitor:
-	$(docker) inspect "$(NAME)" \
-	&& $(docker) exec --interactive --tty "$(NAME)" htop
+	$(docker) exec --interactive --tty "$(NAME)" htop
 
 .PHONY: install
 install: tools
@@ -268,10 +264,15 @@ endif
 userid = $(shell id -u)
 groupid = $(shell id -g)
 docker_machine = docker-machine --storage-path "${PWD}/build/machine"
-contain := \
+
+# Can be used mount aosp-build directory to /opt/aosp-build to allow fast
+# development without the need to rebuild the container image all the time.
+# See HashbangOS for example.
+contain-base-extend =
+
+contain-base = \
 	$(docker) run \
 		--rm \
-		--tty \
 		--interactive \
 		--name "$(NAME)" \
 		--hostname "$(NAME)" \
@@ -282,9 +283,36 @@ contain := \
 		--volume $(PWD)/config:/home/build/config \
 		--volume $(PWD)/release:/home/build/release \
 		--volume $(PWD)/scripts:/home/build/scripts \
-		$(storage_flags) \
+		$(contain-base-extend) \
+		$(RUN_OPTIONS) \
+		--shm-size="1g" \
+		$(storage_flags)
+
+contain-no-tty = \
+	$(contain-base) \
 		$(IMAGE)
 
+contain-keys = \
+	$(contain-base) \
+		--tty \
+		--volume $(PWD)/keys:/home/build/keys \
+		$(IMAGE)
+
+contain = \
+	$(contain-base) \
+		--tty \
+		$(IMAGE)
+
+## Helpers ##
+
+ensure-git-status-clean:
+	@if [ -z "$(shell git status --porcelain=v2)" ]; then \
+		echo "git status has no output. Working tree is clean."; \
+	else \
+		git status; \
+		echo "Working tree is not clean as required. Exiting."; \
+		exit 1; \
+	fi
 
 ## Required Binary Check ##
 
