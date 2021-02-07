@@ -61,7 +61,12 @@ function build_platform(){
 	choosecombo "${build_type}" "aosp_${device}" "${build_variant}"
 	(cd "$base_dir/external/icu/tools" && ./updateicudata.py)
 	(cd "$base_dir/external/icu/tools/srcgen" && ./generate_android_icu4j.sh)
-	(set -o xtrace; make -j "${cores}" target-files-package brillo_update_payload)
+	clear
+	if [ "$build_variant" == "user" ]; then
+		(set -o xtrace; m target-files-package brillo_update_payload)
+	else
+		(set -o xtrace; m)
+	fi
 	cd -
 }
 
