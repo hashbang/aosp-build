@@ -42,72 +42,12 @@ Please join us on IRC: ircs://irc.hashbang.sh/#!os
 
 ## Install ##
 
-### Requirements ###
+Refer to [GrapheneOS CLI install].
 
- * [Android Developer Tools][4]
+[GrapheneOS CLI install]: https://grapheneos.org/install/cli
 
-[4]: https://developer.android.com/studio/releases/platform-tools
+### Notes
 
-### Connect
-
- 1. Go to "Settings > About Phone"
- 2. Tap "Build number" 7 times.
- 3. Go to "Settings > System > Advanced > Developer options"
- 4. Enable "USB Debugging"
- 5. Connect to device to laptop via short USB C cable
- 6. Hit "OK" on "Allow USB Debugging?" prompt on device if present.
- 7. Verify ADB connectivity
-   ```
-   adb devices
-   ```
-   Note: Should return something like: "7CKY1QD3F       device"
-
-### Flash
-
- 1. Extract
-
-   ```
-   unzip crosshatch-PQ1A.181205.006-factory-1947dcec.zip
-   cd crosshatch-PQ1A.181205.006
-   ```
-
- 2. [Connect](#Connect)
- 3. Go to "Settings > System > Advanced > Developer options"
- 4. Enable "OEM Unlocking"
- 5. Unlock the bootloader via ADB
-
-   ```
-   adb reboot bootloader
-   fastboot flashing unlock
-   ```
-   Note: You must manually accept prompt on device.
-
- 6. Flash new factory images
-
-   ```
-   ./flash-all.sh
-  ```
-
-### Harden
-
- 1. [Connect](#Connect)
- 2. Lock the bootloader
-   ```
-   adb reboot bootloader
-   fastboot flashing lock
-   ```
- 3. Go to "Settings > About Phone"
- 4. Tap "Build number" 7 times.
- 5. Go to "Settings > System > Advanced > Developer options"
- 6. Disable "OEM unlocking"
- 7. Reboot
- 8. Verify boot message: "Your device is loading a different operating system"
- 9. Go to "Settings > System > Advanced > Developer options"
- 10. Verify "OEM unlocking" is still disabled
-
-#### Notes
-
-  * Failure to run these hardening steps means -anyone- can flash your device.
   * Past this point if signing keys are lost, all devices are bricked. Backup!
 
 ### Update ###
@@ -131,6 +71,7 @@ Please join us on IRC: ircs://irc.hashbang.sh/#!os
 #### Local
 
 ##### Requirements
+
  * Docker 10+
  * x86_64 CPU
  * 10GB+ available memory
@@ -250,13 +191,27 @@ make diff > patches/my-feature.patch
 make install
 ```
 
-#### Update ####
+### Release ###
 
-Build latest config from upstream sources:
+1. Update references to latest upstream sources.
 
-```
-make DEVICE=crosshatch manifest
-```
+  ```
+  make config
+  ```
+
+1. Regenerate the git-repo XML manifest files.
+
+  ```
+  make manifest
+  ```
+
+1. Build all targets impacted by given change
+
+  ```
+  make DEVICE=crosshatch release
+  ```
+
+1. Commit changes to a PR
 
 ## Notes ##
 
