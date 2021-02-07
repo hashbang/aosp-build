@@ -15,6 +15,7 @@ IMAGE = hashbang/aosp-build:latest
 IMAGE_OPTIONS =
 RUN_OPTIONS =
 NAME = aosp-build-$(FLAVOR)-$(BACKEND)
+REQUIRED_FREE_SPACE_IN_GIB = 120
 
 -include $(PWD)/config/env/$(BACKEND).env
 
@@ -36,7 +37,7 @@ keys:
 	$(contain-keys) keys
 
 .PHONY: build
-build:
+build: ensure-enough-free-disk-space
 	$(contain) build
 
 .PHONY: release
@@ -311,6 +312,14 @@ ensure-git-status-clean:
 	else \
 		git status; \
 		echo "Working tree is not clean as required. Exiting."; \
+		exit 1; \
+	fi
+
+ensure-enough-free-disk-space:
+	@free_space=$(shell df -k --output=avail "$$PWD" | tail -n1); \
+	needed_free_space=$$(( $(REQUIRED_FREE_SPACE_IN_GIB) * 1024 * 1024 )); \
+	if [[ $$free_space -lt $$needed_free_space ]]; then \
+		echo "Not enought free space. $(REQUIRED_FREE_SPACE_IN_GIB) GiB are required." 1>&2; \
 		exit 1; \
 	fi
 
