@@ -36,11 +36,10 @@ function apply_patches(){
 }
 
 function build_external(){
-	local vendor_dist="${external_dir}/vendor/out/${device}/${build_id,,}/vendor/"
+	local vendor_dist="${external_dir}/vendor/out/${device}/${build_id,,}/vendor"
 	local vendor_dest="${base_dir}/vendor/"
 	[ -d "${vendor_dist}" ] || build-vendor
-	sudo rm -rf "${vendor_dest}"
-	cp -R "${vendor_dist}." "${vendor_dest}"
+	cp -R "${vendor_dist}/." "${vendor_dest}"
 	build-kernel
 }
 
