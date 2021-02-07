@@ -36,6 +36,10 @@ fetch:
 keys:
 	$(contain-keys) keys
 
+.PHONY: review
+review:
+	$(contain) review
+
 .PHONY: build
 build: ensure-enough-free-disk-space
 	$(contain) build

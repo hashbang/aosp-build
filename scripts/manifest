@@ -223,13 +223,13 @@ class AndroidManifest:
                 print("[{}] Reusing Locked Project: \"{}\"{}".format(
                     self.name,
                     project.attrib['name'],
-                    "  (path \"{}\")".format(project.attrib['path']) if 'path' in project.attrib else '',
+                    "  (path \"{}\")".format(project.attrib.get('path', '')),
                 ))
             else:
                 print("[{}] Locking Project: \"{}\"{}".format(
                     self.name,
                     project.attrib['name'],
-                    "  (path \"{}\")".format(project.attrib['path']) if 'path' in project.attrib else '',
+                    "  (path \"{}\")".format(project.attrib.get('path', '')),
                 ))
                 if 'refs' not in revision:
                     revision = "refs/heads/%s" % revision
@@ -250,6 +250,15 @@ class AndroidManifest:
                 print("Caught GitCommandError exception for the {} time. Retrying.".format(x))
                 time.sleep(2**x)
         raise Exception("Repeatedly failed trying git ls-remote.")
+
+    def get_project_list(self):
+        project_paths = []
+        for project in self.manifest.findall(".//project"):
+            project_paths.append(project.attrib.get('path', project.attrib['name']))
+
+        return {
+            'project_paths': sorted(project_paths),
+        }
 
     def pretty_print(self):
         rough_string = ElementTree.tostring(self.manifest, 'utf-8')
@@ -274,12 +283,14 @@ if __name__ == "__main__":
     for device in devices:
         device_manifest_repo = os.path.join(path, device)
         kernel_manifest = AndroidManifest(
-                name="{}-kernel".format(device),
-                ref=config['devices'][device]['kernel_ref'],
-                repo="kernel/manifest",
-                ).pretty_print()
+            # Kernel manifest is currently not signed.
+            # git tags are pushed irregularly.
+            name="{}-kernel".format(device),
+            ref=config['devices'][device]['kernel_ref'],
+            repo="kernel/manifest",
+            )
         with open(os.path.join(device_manifest_repo, 'kernel.xml'),'w') as fh:
-            fh.write(kernel_manifest)
+            fh.write(kernel_manifest.pretty_print())
 
         base_manifest = AndroidManifest(
             manifest_url = config.get('platform',{}).get('manifest_url', None),
@@ -290,9 +301,12 @@ if __name__ == "__main__":
             extra_projects = config.get('platform',{}).get('extra_projects',[]),
             remove_paths = config.get('platform',{}).get('remove_paths',[]),
             remove_groups = config.get('platform',{}).get('remove_groups',[]),
-        ).pretty_print()
+        )
         with open(os.path.join(device_manifest_repo, 'base.xml'),'w') as fh:
-            fh.write(base_manifest)
+            fh.write(base_manifest.pretty_print())
+        with open(os.path.join(device_manifest_repo, 'base.yml'), 'w') as fh:
+            yaml.dump(base_manifest.get_project_list(), fh, default_flow_style=False)
+
 
         repo = Repo.init(device_manifest_repo)
         repo.index.add(['*'])
