@@ -43,6 +43,7 @@ repo sync \
 
 repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'git reset --hard ; git clean --force -dx'
 
+repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'fetch-tag'
 verify
 
 ## TODO: Not needed for GrapheneOS.

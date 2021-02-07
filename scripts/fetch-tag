@@ -1,0 +1,8 @@
+#!/bin/bash
+[ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
+set -o nounset -o pipefail -o errexit
+
+if [[ "$REPO_UPSTREAM" =~ refs/tags/ ]]; then
+    REPO_TAG="${REPO_UPSTREAM#refs/tags/}"
+    git fetch "$REPO_REMOTE" tag "$REPO_TAG" --no-tags
+fi
