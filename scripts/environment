@@ -49,7 +49,7 @@ environment = {
     "KCONFIG_NOTIMESTAMP": 1,
     "RANDFILE": "{}/build/randfile.bin".format(cwd),
     "LC_ALL":"C",
-    "PS4": '+ $(date --rfc-3339=seconds) ',
+    #  "PS4": '+ $(/bin/date --rfc-3339=seconds) ',
 }
 
 environment['BUILD_KERNEL'] = "true"
