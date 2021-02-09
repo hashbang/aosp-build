@@ -2,19 +2,19 @@ version: '11'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1606063413
+datetime: 1612564662
 host: android
 user: build
 build_kernel: true
 platform:
   extra_remotes:
-  - name: GrapheneOS
+  - name: grapheneos
     fetch: https://github.com/GrapheneOS
   extra_projects:
   - name: android-prepare-vendor
     groups: device
     path: vendor/android-prepare-vendor
-    remote: GrapheneOS
+    remote: grapheneos
     revision: refs/heads/11
   remove_paths:
   - device/generic/car
@@ -39,8 +39,12 @@ platform:
   - platform/developers/demos
   - platform/developers/samples/android
   - platform/prebuilts/qemu-kernel
+  - prebuilts/android-emulator
   remove_groups:
+  - beagle_x15
   - darwin
+  - mips
+  - yukawa
 devices:
   bonito:
     kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
