@@ -282,15 +282,17 @@ if __name__ == "__main__":
 
     for device in devices:
         device_manifest_repo = os.path.join(path, device)
-        kernel_manifest = AndroidManifest(
-            # Kernel manifest is currently not signed.
-            # git tags are pushed irregularly.
-            name="{}-kernel".format(device),
-            ref=config['devices'][device]['kernel_ref'],
-            repo="kernel/manifest",
-            )
-        with open(os.path.join(device_manifest_repo, 'kernel.xml'),'w') as fh:
-            fh.write(kernel_manifest.pretty_print())
+
+        if 'kernel_ref' in config['devices'][device]:
+            kernel_manifest = AndroidManifest(
+                # Kernel manifest is currently not signed.
+                # git tags are pushed irregularly.
+                name="{}-kernel".format(device),
+                ref=config['devices'][device]['kernel_ref'],
+                repo="kernel/manifest",
+                )
+            with open(os.path.join(device_manifest_repo, 'kernel.xml'),'w') as fh:
+                fh.write(kernel_manifest.pretty_print())
 
         base_manifest = AndroidManifest(
             manifest_url = config.get('platform',{}).get('manifest_url', None),
