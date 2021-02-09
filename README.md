@@ -213,6 +213,20 @@ make install
 
 1. Commit changes to a PR
 
+## Review ##
+
+Patchsets that base on AOSP will carry their patchset forward using `git
+rebase`. In case you use aosp-build you might be interested in an ongoing
+review of this patchset across rebases. For this, checkout `make review`.
+
+Refer to https://github.com/ypid/android-review for one public instance of such
+a review.
+
+### How it works? ###
+
+We use the hash locked manifest that [aosp-build] produces from AOSP to
+whatever you have checked out.
+
 ## Notes ##
 
 Use at your own risk. You might be eaten by a grue.
