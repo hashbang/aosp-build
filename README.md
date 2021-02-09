@@ -15,7 +15,7 @@ of the Makefile and config.yml from this repo, along with any desired patches.
 
 ## Support ##
 
-Please join us on IRC: ircs://irc.hashbang.sh/#!os
+Please join us on IRC: ircs://irc.hashbang.sh/#!mobile
 
 ## Features ##
 

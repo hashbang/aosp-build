@@ -272,7 +272,7 @@ docker_machine = docker-machine --storage-path "${PWD}/build/machine"
 
 # Can be used mount aosp-build directory to /opt/aosp-build to allow fast
 # development without the need to rebuild the container image all the time.
-# See HashbangOS for example.
+# See HashbangMobile for example.
 contain-base-extend =
 
 contain-base = \
