@@ -1,6 +1,7 @@
 build
 config/env/*
 config/container/Dockerfile-*
+config/manifests/**/*.yml
 release/*
 
 # Old path, please manually move to new path.
