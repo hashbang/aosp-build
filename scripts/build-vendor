@@ -22,7 +22,7 @@ ota_file="${device}-ota-${build_id}-${ota_crc}.zip"
 
 mkdir -p "${download_dir}" "${factory_dir}" "${vendor_out}"
 
-# Fetch/extract proprietary blobs
+# Fetch/extract proprietary blobs.
 if [ ! -f "${factory_dir}/${factory_file}" ]; then
 
 	wget "${factory_url}/${ota_file}" -O "${download_dir}/${ota_file}"
@@ -46,5 +46,5 @@ fi
 	--buildID "${build_id}" \
 	--output "${vendor_out}" \
 	--timestamp "${build_datetime}"  \
-    --imgs "${factory_dir}/${factory_file}" \
-    --ota "${factory_dir}/${ota_file}"
+	--imgs "${factory_dir}/${factory_file}" \
+	--ota "${factory_dir}/${ota_file}"
