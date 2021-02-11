@@ -56,9 +56,6 @@ environment['BUILD_KERNEL'] = "true"
 if config.get('build_kernel') == False:
     environment['BUILD_KERNEL'] = "false"
 
-if 'OTA_CHANNEL' in environ and len(environ['OTA_CHANNEL']) > 0:
-    environment['OTA_CHANNEL']=environ['OTA_CHANNEL']
-
 if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     device=environment['DEVICE']=environ['DEVICE']
     variant=environment['BUILD_VARIANT']
