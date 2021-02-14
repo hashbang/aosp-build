@@ -47,7 +47,7 @@ platform:
   - yukawa
 devices:
   bonito:
-    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    kernel_ref: android-msm-bluecross-4.9-pie-qpr1
     build_id: RQ1A.210205.004
     factory_hash: 980275f444f67c23638304ed72b3c569f3f008302263a26aab1af161a9dbfbe5
     ota_hash: 8ac14105c1a1ef2d7960c27c61417a65b4672dc899a290315b2ab6154202e5c8
@@ -61,7 +61,7 @@ devices:
     platform_ref: android-11.0.0_r29
     platform_pubkey: aosp.asc
   crosshatch:
-    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    kernel_ref: android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
     build_id: RQ1A.210205.004
     factory_hash: c9b061a5491bd26e1d8a96326d97651dbf1ad64e5fc0ec4608b64a84c194d285
@@ -69,7 +69,7 @@ devices:
     platform_ref: android-11.0.0_r29
     platform_pubkey: aosp.asc
   blueline:
-    kernel_ref: origin/android-msm-bluecross-4.9-pie-qpr1
+    kernel_ref: android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
     build_id: RQ1A.210205.004
     factory_hash: 3ab98ba8d8e94c16908255a3ed8d75d784a188c0d6aa49f5198cc9d10b887042
@@ -77,7 +77,7 @@ devices:
     platform_ref: android-11.0.0_r29
     platform_pubkey: aosp.asc
   taimen:
-    kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
+    kernel_ref: android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
     build_id: RP1A.201005.004.A1
     factory_hash: 2f5c4987a8e1c29bb2843d7f7d36721d52f2eb25a0fe4c74b3590e34a06eb44f
@@ -85,7 +85,7 @@ devices:
     platform_ref: android-11.0.0_r25
     platform_pubkey: aosp.asc
   walleye:
-    kernel_ref: origin/android-msm-wahoo-4.4-pie-qpr2
+    kernel_ref: android-msm-wahoo-4.4-pie-qpr2
     avb_mode: vbmeta_simple
     build_id: RP1A.201005.004.A1
     factory_hash: 0c23f6cf9e2194a3e72b1288f65c5a7f2f6c020080af49c8a494ee99ab3eb543
