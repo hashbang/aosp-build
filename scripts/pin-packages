@@ -1,0 +1,5 @@
+#!/bin/bash
+set -o nounset -o pipefail -o errexit
+[ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
+
+dpkg -l | awk '{ if ($1 == "ii") print $2 "=" $3 }'

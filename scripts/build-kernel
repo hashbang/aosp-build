@@ -3,21 +3,35 @@
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
 set -e; eval "$(environment)"
 
+base_dir="${BASE_DIR?}"
 external_dir="${EXTERNAL_DIR?}"
 device="${DEVICE?}"
 kernel_dir="${external_dir}/kernel/${device}"
 cores=$(nproc)
+build_kernel="${BUILD_KERNEL?}"
 
-# This seems like it -should- work but the AOSP kernel build system
-# seems to ignore it and generate new keys anyway
-# It is better for determinism and security to disable loadable module support
-# anyway, which some patchsets choose to do.
-#ln -vs \
-#	"${key_dir}/kernel.pem" \
-#	"${kernel_dir}/private/msm-google/certs/signing_key.pem"
-cd "${kernel_dir}"
-cat <<-EOF | bash
-	export OUT_DIR="${kernel_dir}/out"
-	export DIST_DIR="${kernel_dir}/dist"
-	bash "${kernel_dir}/build/build.sh" -j "${cores}"
-EOF
+if [ "$build_kernel" == "true" ]; then
+	kernel_dir="${external_dir}/kernel/${device}"
+	kernel_dist="${kernel_dir}/dist/"
+	kernel_dest="${base_dir}/device/google/${device}-kernel/"
+	mkdir -p "${kernel_dest}"
+	if [ -d "$kernel_dist" ]; then
+		exit 0
+	fi
+
+	# This seems like it -should- work but the AOSP kernel build system
+	# seems to ignore it and generate new keys anyway
+	# It is better for determinism and security to disable loadable module support
+	# anyway, which some patchsets choose to do.
+	#ln -vs \
+	#	"${key_dir}/kernel.pem" \
+	#	"${kernel_dir}/private/msm-google/certs/signing_key.pem"
+	cd "${kernel_dir}"
+	cat <<-EOF | bash
+		export OUT_DIR="${kernel_dir}/out"
+		export DIST_DIR="${kernel_dir}/dist"
+		bash "${kernel_dir}/build/build.sh" -j "${cores}"
+	EOF
+
+	cp -R "${kernel_dist}." "${kernel_dest}"
+fi

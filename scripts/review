@@ -1,0 +1,37 @@
+#!/bin/bash
+[ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
+set -e; eval "$(environment)"
+
+# See https://github.com/ypid/android-review for details.
+
+base_dir="${BASE_DIR?}"
+cores=$(nproc)
+device="${DEVICE?}"
+review_dir="${CONFIG_DIR?}/review/GrapheneOS"
+device_base_manifest_repo="${MANIFEST_REPO?}/${device}"
+device_base_aosp_manifest_repo="${MANIFEST_REPO?}-aosp/${device}"
+
+rm -rf "$review_dir"
+
+cd "${base_dir}"
+rm .repo/manifests/ .repo/manifests.git/ -rf
+repo init \
+	--no-clone-bundle \
+	--manifest-url "${device_base_aosp_manifest_repo}" \
+	--manifest-name base.xml
+
+repo --no-pager forall --ignore-missing --abort-on-errors -p --verbose --jobs "${cores}" -c 'review-do' "${review_dir}"
+
+rm .repo/manifests/ .repo/manifests.git/ -rf
+repo init \
+	--no-clone-bundle \
+	--manifest-url "${device_base_manifest_repo}" \
+	--manifest-name base.xml
+
+echo "The following repositories are not contained in the AOSP manifest nor in the above git log files. No git rebase is expected there so review by normal means."
+
+(
+while read -r repo_path; do
+	echo "$repo_path $(git -C "$repo_path" rev-parse HEAD)"
+done < <(diff "$device_base_aosp_manifest_repo/base.yml" "$device_base_manifest_repo/base.yml" | sed --quiet 's/^> - //p;')
+) | tee "$review_dir/additional_repo_path.list"

@@ -1,29 +1,24 @@
 #!/bin/bash
 [ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
-set -e; eval "$(environment)"
+eval "$(environment)"
+set -o nounset -o pipefail -o errexit
 
 cores=$(nproc)
 device="${DEVICE?}"
-manifest_dir="${MANIFEST_DIR?}/${device}"
-manifest_repo="${MANIFEST_REPO?}/${device}"
+device_manifest_repo="${MANIFEST_REPO?}/${device}"
 external_dir="${EXTERNAL_DIR?}"
 build_kernel="${BUILD_KERNEL?}"
 kernel_dir="${external_dir}/kernel/${device}"
 base_dir="${BASE_DIR?}"
 
-sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
+# Still needed? Lets try by disabling.
+# sudo chown -R "$(id -u)":"$(id -g)" "$HOME/build"
 
-[[ -f ~/.gitconfig ]] || \
-	printf "[color]\nui=auto\n[user]\nemail=aosp@example.org\nname=AOSP User" \
-		> ~/.gitconfig
+mkdir --parents "${base_dir}" "${device_manifest_repo}"
 
-mkdir --parents "${base_dir}" "${manifest_dir}"
-
-rsync -P --archive --verbose "${manifest_repo}/" "${manifest_dir}/"
-
-export GIT_WORK_TREE="$manifest_dir"
-export GIT_DIR="${manifest_dir}/.git"
-[ -d "${manifest_dir}/.git" ] || git init
+export GIT_WORK_TREE="$device_manifest_repo"
+export GIT_DIR="${device_manifest_repo}/.git"
+[ -d "${device_manifest_repo}/.git" ] || git init
 git add .
 git commit --all --message "automated cache commit" || :
 unset GIT_DIR GIT_WORK_TREE
@@ -32,17 +27,26 @@ echo "Cloning platform..."
 cd "${base_dir}"
 rm .repo/manifests/ .repo/manifests.git/ -rf
 repo init \
-	--no-clone-bundle \
-	--manifest-url "${manifest_dir}" \
+	--manifest-url "${device_manifest_repo}" \
 	--manifest-name base.xml
-retry 3 repo sync \
-	--current-branch \
-	--no-tags \
-	--force-sync \
-	--no-clone-bundle \
-	--jobs "${cores}"
-repo forall -c 'git reset --hard ; git clean --force -dx'
 
+# --fetch-submodules is normally not needed so do not disable it because some
+# repos contain submodules that we don’t need.
+repo sync \
+	--verbose \
+	--current-branch \
+	--force-sync \
+	--no-tags \
+	--optimized-fetch \
+	--jobs "${cores}" \
+	--retry-fetches 3
+
+repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'git reset --hard ; git clean --force -dx'
+
+repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'fetch-tag'
+verify
+
+## TODO: Not needed for GrapheneOS.
 # Kernel
 if [ "${build_kernel}" == "true" ]; then
 	echo "Cloning kernel..."
@@ -51,13 +55,15 @@ if [ "${build_kernel}" == "true" ]; then
 	rm .repo/manifests/ .repo/manifests.git/ -rf
 	repo init \
 		--no-clone-bundle \
-		--manifest-url "${manifest_dir}" \
+		--manifest-url "${device_manifest_repo}" \
 		--manifest-name "kernel.xml"
 	repo sync \
+		--verbose \
 		--current-branch \
-		--no-tags \
 		--force-sync \
-		--no-clone-bundle \
-		--jobs "${cores}"
-	repo forall -c 'git reset --hard ; git clean --force -dx'
+		--no-tags \
+		--optimized-fetch \
+		--jobs "${cores}" \
+		--retry-fetches 3
+	repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'git reset --hard ; git clean --force -dx'
 fi

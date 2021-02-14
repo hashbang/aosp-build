@@ -4,6 +4,7 @@ import re
 import os.path
 import base64
 import time
+import logging
 
 import urllib.request
 
@@ -14,6 +15,7 @@ from collections import OrderedDict, Counter
 import yaml
 from yaml.resolver import BaseResolver
 from git import cmd
+
 
 class AndroidImagesParser(HTMLParser):
 
@@ -75,6 +77,12 @@ yaml.add_constructor(BaseResolver.DEFAULT_MAPPING_TAG, dict_constructor)
 
 if __name__ == "__main__":
 
+    logging.basicConfig(
+        format='{levelname}: {message}',
+        style='{',
+        level=logging.DEBUG,
+    )
+
     config_file=getenv('CONFIG_FILE')
     with open(config_file, encoding='utf-8') as data_file:
         config = yaml.load(data_file.read())
@@ -91,6 +99,7 @@ if __name__ == "__main__":
         if tag_filter in tag:
             all_tags.append(tag.replace("refs/tags/", ""))
     latest_tags = all_tags[-9:]
+    logging.debug("Latest tags: {}".format(latest_tags))
 
     build_id_tags = {}
     build_id_git_url = "https://android.googlesource.com/platform/build/+/refs/tags/{}/core/build_id.mk?format=TEXT"
@@ -103,7 +112,9 @@ if __name__ == "__main__":
             if build_id_filter in line:
                 build_id = re.search(build_id_regex, line)[0]
                 build_id_tags[build_id] = tag
+    logging.debug("BUILD_ID to tag mapping: {}".format(build_id_tags))
 
+    logging.debug("Parsing Pixel images and ota HTML to find their BUILD_IDs.")
     parser = AndroidImagesParser(config)
     parser.images = {}
     image_url = "https://developers.google.com/android/images"
@@ -111,6 +122,7 @@ if __name__ == "__main__":
     parser.feed(str(urllib.request.urlopen(urllib.request.Request(image_url, headers=accept_tos_header)).read()))
     parser.feed(str(urllib.request.urlopen(urllib.request.Request(ota_url, headers=accept_tos_header)).read()))
 
+    logging.debug("Map devices to their git tag.")
     for device in config['devices']:
         for values in parser.images[device].items():
             config['devices'].setdefault(device,{})[values[0]] = values[1]
@@ -119,9 +131,14 @@ if __name__ == "__main__":
                 if factory_build in build_id_tags:
                     config['devices'].setdefault(device, {})['platform_ref'] = build_id_tags[factory_build]
                 else:
-                    print("Unable to find latest build tag for factory build {} for device {}".format(factory_build, device))
+                    logging.warning("Unable to find latest build tag for factory build {} for device {}.".format(factory_build, device))
 
     config['datetime'] = int(time.time())
+
+    if 'remove_paths' in config['platform']:
+        config['platform']['remove_paths'] = sorted(config['platform']['remove_paths'])
+    if 'remove_groups' in config['platform']:
+        config['platform']['remove_groups'] = sorted(config['platform']['remove_groups'])
 
     with open(config_file, 'w') as outfile:
         yaml.dump(config, outfile, default_flow_style=False)

@@ -1,17 +1,22 @@
 #!/usr/bin/python3
 
-from tempfile import mkdtemp
-from git import Git, Repo, cmd
-import git
-from xml.etree import ElementTree
+from tempfile import mkdtemp, TemporaryDirectory
+import defusedxml.ElementTree as ElementTree
 from xml.etree.ElementTree import Element
-from xml.dom import minidom
+from defusedxml import minidom
 from sys import argv, exit
 from os import environ, getcwd, getenv, makedirs
 from os.path import isfile, isdir
+import os
 import re
 import time
+import subprocess
+import sys
+
 import yaml
+from git import Git, Repo, cmd
+import git
+from gnupg import GPG
 
 class AndroidManifest:
 
@@ -20,6 +25,8 @@ class AndroidManifest:
         ref,
         name,
         repo='platform/manifest',
+        manifest_url=None,
+        manifest_pubkey=None,
         extra_remotes=[],
         extra_projects=[],
         remove_paths=[],
@@ -29,10 +36,21 @@ class AndroidManifest:
         self.ref = ref
         self.name = name
         self.repo = repo
+        if manifest_url is None:
+            self.manifest_url = "{}/{}".format(self.default_fetch, self.repo)
+        else:
+            self.manifest_url = manifest_url
+
+        self.resource_paths = [
+            '/home/build',
+            '/opt/aosp-build',
+        ]
+        self.manifest_pubkey = manifest_pubkey
+
         self.extra_remotes = extra_remotes
         self.extra_projects = extra_projects
         self.remove_paths = remove_paths
-        self.remove_groups = remove_groups
+        self.remove_groups = frozenset(remove_groups)
         for project in self.extra_projects:
             self.remove_paths.append(project['path'])
         self._fetch()
@@ -43,16 +61,59 @@ class AndroidManifest:
         self._set_default_remote()
         self._lock()
 
-    def _fetch(self):
-        manifest_url = "%s/%s" % (self.default_fetch, self.repo)
-        print("[{}] Checking out: \"{}\" at \"{}\"".format(
-            self.name,
-            manifest_url,
-            self.ref
+    def _search_file(self, file_sub_path):
+        for resource_path in self.resource_paths:
+            potential_file = os.path.join(
+                resource_path,
+                file_sub_path)
+            if os.path.isfile(potential_file):
+                return potential_file
+        raise IOError("File sub path {} not found.".format(
+            file_sub_path
+            ))
+
+    def _verify_tag(self, manifest_repo):
+        if self.manifest_pubkey is None:
+            print("[{}] No manifest pubkey specified. Skipping verification of git tag signature.".format(
+                self.name,
+            ))
+            return
+
+        pubkey_file = self._search_file(os.path.join(
+            'config/openpgp_keys',
+            self.manifest_pubkey,
         ))
-        manifest_repo = Repo.clone_from(manifest_url, mkdtemp(), branch=self.ref, depth=1)
-        string = manifest_repo.git.show('HEAD:default.xml')
-        self.manifest = ElementTree.fromstring(string)
+
+        with TemporaryDirectory() as temp_gpg_home:
+            gpg = GPG(gnupghome=temp_gpg_home)
+            with open(pubkey_file, 'rb') as pubkey_fh:
+                import_result = gpg.import_keys(pubkey_fh.read())
+            if len(import_result.results) == 0:
+                raise Exception("Did not import any keys.")
+
+            manifest_repo.git.update_environment(GNUPGHOME=temp_gpg_home)
+
+            # Not yet supported upstream and looks non-trivial for me to add it.
+            # https://github.com/gitpython-developers/GitPython/issues/611
+            repo_ext_output = manifest_repo.git.execute(
+                ['git', 'verify-tag',
+                    #  '--raw',
+                    self.ref],
+                with_extended_output=True,
+            )
+            print(repo_ext_output[1] + repo_ext_output[2])
+
+    def _fetch(self):
+        manifest_repo = Repo.clone_from(self.manifest_url, mkdtemp(), branch=self.ref, depth=1)
+        print("[{}] Checked out: \"{}\" at \"{}\" ({})".format(
+            self.name,
+            self.manifest_url,
+            self.ref,
+            manifest_repo.head.commit.hexsha
+        ))
+        self._verify_tag(manifest_repo)
+        manifest_string = manifest_repo.git.show('HEAD:default.xml')
+        self.manifest = ElementTree.fromstring(manifest_string)
 
     def _extend(self):
         for remote in self.extra_remotes:
@@ -85,24 +146,30 @@ class AndroidManifest:
             ))
 
     def _remove(self):
-        projects=self.manifest.findall(".//project")
-        for project in projects:
-            path=project.attrib['path']
+        for project in self.manifest.findall(".//project"):
+            path=project.attrib.get('path', project.attrib['name'])
             if 'groups' in project.attrib:
-                groups = project.attrib['groups'].split(',')
-                if any(i in groups for i in self.remove_groups):
-                    self.manifest.remove(project)
-                    print("[{}] Removing Project: \"{}\"".format(
+                groups_string = project.attrib['groups']
+
+                ## from `repo` program source: manifest_xml.py
+                groups = [x for x in re.split(r'[,\s]+', groups_string) if x]
+
+                group_intersections = self.remove_groups.intersection(groups)
+                if len(group_intersections):
+                    print("[{}] Removing Project: \"{}\" (because of remove_groups {})".format(
                         self.name,
-                        path
+                        path,
+                        list(group_intersections),
                     ))
-            if 'path' in project.attrib:
-                if project.attrib['path'] in self.remove_paths:
                     self.manifest.remove(project)
-                    print("[{}] Removing Project: \"{}\"".format(
-                        self.name,
-                        path
-                    ))
+        for project in self.manifest.findall(".//project"):
+            path=project.attrib.get('path', project.attrib['name'])
+            if path in self.remove_paths:
+                print("[{}] Removing Project: \"{}\"".format(
+                    self.name,
+                    path,
+                ))
+                self.manifest.remove(project)
 
     def _set_remotes(self):
         self.remotes={}
@@ -147,27 +214,31 @@ class AndroidManifest:
     def _lock(self):
         projects=self.manifest.findall(".//project")
         for project in projects:
-            print("[{}] Locking Project: \"{}\" (path \"{}\")".format(
-                self.name,
-                project.attrib['name'],
-                project.attrib['path'],
-            ))
-            if 'remote' in project.attrib:
-                remote = self.remotes[project.attrib['remote']]
+            remote = self.remotes[project.attrib.get('remote', self.default_remote)]
+            revision = project.attrib.get('revision', remote['revision'])
+
+            # TODO: Analyse if this can be attacked by naming a branch like a
+            # commit hash for example.
+            if re.search(r'^[0-9a-f]{40}$', revision):
+                print("[{}] Reusing Locked Project: \"{}\"{}".format(
+                    self.name,
+                    project.attrib['name'],
+                    "  (path \"{}\")".format(project.attrib.get('path', '')),
+                ))
             else:
-                remote = self.remotes[self.default_remote]
-            if 'revision' in project.attrib:
-                revision = project.attrib['revision']
-            elif 'revision' in remote:
-                revision = remote['revision']
-            if 'refs' not in revision:
-                revision = "refs/heads/%s" % revision
-            project_repo_url="%s/%s.git" % (
-                remote.get('fetch',self.remotes[self.default_remote]['fetch']),
-                project.attrib['name']
-            )
-            project.attrib['upstream'] = revision
-            project.attrib['revision'] = self._lsremote(project_repo_url, revision)
+                print("[{}] Locking Project: \"{}\"{}".format(
+                    self.name,
+                    project.attrib['name'],
+                    "  (path \"{}\")".format(project.attrib.get('path', '')),
+                ))
+                if 'refs' not in revision:
+                    revision = "refs/heads/%s" % revision
+                project_repo_url="%s/%s.git" % (
+                    remote['fetch'],
+                    project.attrib['name']
+                )
+                project.attrib['upstream'] = revision
+                project.attrib['revision'] = self._lsremote(project_repo_url, revision)
 
     def _lsremote(self, url, refs):
         remote_refs = {}
@@ -180,6 +251,15 @@ class AndroidManifest:
                 time.sleep(2**x)
         raise Exception("Repeatedly failed trying git ls-remote.")
 
+    def get_project_list(self):
+        project_paths = []
+        for project in self.manifest.findall(".//project"):
+            project_paths.append(project.attrib.get('path', project.attrib['name']))
+
+        return {
+            'project_paths': sorted(project_paths),
+        }
+
     def pretty_print(self):
         rough_string = ElementTree.tostring(self.manifest, 'utf-8')
         reparsed = minidom.parseString(rough_string)
@@ -189,8 +269,8 @@ if __name__ == "__main__":
 
     config_file=getenv('CONFIG_FILE')
     print("Config file: %s" % config_file)
-    with open(config_file, encoding='utf-8') as data_file:
-        config = yaml.load(data_file.read())
+    with open(config_file, encoding='utf-8') as fh:
+        config = yaml.load(fh.read())
 
     path=getenv('MANIFEST_DIR')
 
@@ -201,25 +281,35 @@ if __name__ == "__main__":
         devices=[environ['DEVICE']]
 
     for device in devices:
-        makedirs('{}/{}'.format(path, device), exist_ok=True)
-        filename = '{}/{}/kernel.xml'.format(path, device)
-        kernel_manifest = AndroidManifest(
-            name="{}-kernel".format(device),
-            ref=config['devices'][device]['kernel_ref'],
-            repo="kernel/manifest"
-        ).pretty_print()
-        open(filename,'w').write(kernel_manifest)
+        device_manifest_repo = os.path.join(path, device)
+
+        if 'kernel_ref' in config['devices'][device]:
+            kernel_manifest = AndroidManifest(
+                # Kernel manifest is currently not signed.
+                # git tags are pushed irregularly.
+                name="{}-kernel".format(device),
+                ref=config['devices'][device]['kernel_ref'],
+                repo="kernel/manifest",
+                )
+            with open(os.path.join(device_manifest_repo, 'kernel.xml'),'w') as fh:
+                fh.write(kernel_manifest.pretty_print())
 
         base_manifest = AndroidManifest(
+            manifest_url = config.get('platform',{}).get('manifest_url', None),
+            manifest_pubkey=config['devices'][device]['platform_pubkey'],
             ref=config['devices'][device]['platform_ref'],
             name="{}-base".format(device),
             extra_remotes = config.get('platform',{}).get('extra_remotes',[]),
             extra_projects = config.get('platform',{}).get('extra_projects',[]),
             remove_paths = config.get('platform',{}).get('remove_paths',[]),
             remove_groups = config.get('platform',{}).get('remove_groups',[]),
-        ).pretty_print()
-        open('{}/{}/base.xml'.format(path,device),'w').write(base_manifest)
+        )
+        with open(os.path.join(device_manifest_repo, 'base.xml'),'w') as fh:
+            fh.write(base_manifest.pretty_print())
+        with open(os.path.join(device_manifest_repo, 'base.yml'), 'w') as fh:
+            yaml.dump(base_manifest.get_project_list(), fh, default_flow_style=False)
 
-    repo = Repo.init(path)
-    repo.index.add(['*'])
-    repo.index.commit("manifest commit")
+
+        repo = Repo.init(device_manifest_repo)
+        repo.index.add(['*'])
+        repo.index.commit("manifest commit")

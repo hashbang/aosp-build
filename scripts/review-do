@@ -1,0 +1,26 @@
+#!/bin/bash
+[ -f /.dockerenv ] || { echo "please run in supplied container"; exit 1; }
+set -o nounset -o pipefail -o errexit
+
+review_project_dir="$1/${REPO_PATH}"
+
+if git diff --quiet "${REPO_LREV}..HEAD"; then
+	# Ensure the output file is absent as there is no diff.
+	rm -f "${review_project_dir:?}/git.log"
+else
+	mkdir --parents "$(dirname "${review_project_dir}")"
+
+	# find "${review_project_dir}" -name '*.patch' -print0 -delete >/dev/null
+	# git format-patch --no-numbered --unified=10 --zero-commit --full-index --compact-summary --quiet --output-directory "${review_project_dir}" "${REPO_RREV}"
+
+	# It seems that git (I tested up until 2.27.0) has no option to omit like --zero-index.
+	# So we set the pre- and post-image blob object names to `-` to avoid
+	# uninteresting diffs where only those hashes change.
+	# This regex depends on --full-index above.
+	# sed --regexp-extended --in-place 's/^index [0-9a-f]{40}\.\.[0-9a-f]{40}/index -..-/;' "${review_project_dir}"/*.patch
+	# Rather than doing that, better configure the editor to ignore uninteresting stuff.
+	# `git diff` now supports `--ignore-matching-lines`.
+
+	git log --patch --unified=10 --reverse --full-index --compact-summary --decorate=short --date=format:'%a %Y-%m-%d %H:%M:%S%z' "${REPO_LREV}..HEAD" > "${review_project_dir}.log"
+	echo "Generated git log --patch file at ${review_project_dir}/git.log"
+fi
