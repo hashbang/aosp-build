@@ -41,6 +41,9 @@ python3-gnupg
 python3-yaml
 python3-defusedxml
 
+# Additional deps for kernel build, otherwise fails with /home/build/build/external/kernel/crosshatch/private/msm-google/scripts/sign-file.c:25:10: fatal error: 'openssl/opensslv.h' file not found
+libssl-dev
+
 # https://grapheneos.org/build#building-grapheneos
 # Additional Android Open Source Project build dependencies not provided by the source tree:
 diffutils
