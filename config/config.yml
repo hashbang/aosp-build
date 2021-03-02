@@ -2,7 +2,7 @@ version: '11'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1612902156
+datetime: 1614712499
 host: android
 user: build
 build_kernel: true
@@ -48,33 +48,33 @@ platform:
 devices:
   bonito:
     kernel_ref: android-msm-bluecross-4.9-pie-qpr1
-    build_id: RQ1A.210205.004
-    factory_hash: 980275f444f67c23638304ed72b3c569f3f008302263a26aab1af161a9dbfbe5
-    ota_hash: 8ac14105c1a1ef2d7960c27c61417a65b4672dc899a290315b2ab6154202e5c8
-    platform_ref: android-11.0.0_r29
+    build_id: RQ2A.210305.006
+    factory_hash: ad2aeddc927eec804fd9e93638199a96c6accd7922688e172011861b939e9479
+    ota_hash: 3a8feca9608ced4ab4d860bdd8f3a9f99d1e74c27b597166170649624514abb9
+    platform_ref: android-11.0.0_r32
     platform_pubkey: aosp.asc
   sargo:
     kernel_ref: android-msm-bonito-4.9-android11
-    build_id: RQ1A.210205.004
-    factory_hash: cfe24f6ea039d362991a2d3de8e85f37914004b7bf1df446b25de1214fb92cfe
-    ota_hash: d7345ef80dea3f397a5624a5080c2916190f04ce79169547a08eb0982012c06d
-    platform_ref: android-11.0.0_r29
+    build_id: RQ2A.210305.006
+    factory_hash: c553e4a1e53da7e4c5edf0c5c6aa0669d42ad97b3ea103a97cb9e322b25dbbcd
+    ota_hash: 39e6ff3dec4800d84ccb2500a339ceb8076922dc0c28d26d89f2f8131a6c932b
+    platform_ref: android-11.0.0_r32
     platform_pubkey: aosp.asc
   crosshatch:
     kernel_ref: android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
-    build_id: RQ1A.210205.004
-    factory_hash: c9b061a5491bd26e1d8a96326d97651dbf1ad64e5fc0ec4608b64a84c194d285
-    ota_hash: 8b7aecf5636758290b42ad577128ce83e106ccfc7053346ca370d6de9a3e12ae
-    platform_ref: android-11.0.0_r29
+    build_id: RQ2A.210305.006
+    factory_hash: 92a7de4f4c47b01477b275fe96630e90e9aea765db1dd8a05f98e88c6ec8983c
+    ota_hash: c6f501ceb5d2468d1326d190d0085c08fd47ce12b51f93ab5f30d74cd76cad87
+    platform_ref: android-11.0.0_r32
     platform_pubkey: aosp.asc
   blueline:
     kernel_ref: android-msm-bluecross-4.9-pie-qpr1
     avb_mode: vbmeta_chained
-    build_id: RQ1A.210205.004
-    factory_hash: 3ab98ba8d8e94c16908255a3ed8d75d784a188c0d6aa49f5198cc9d10b887042
-    ota_hash: 6715408e433b0040020b38110a7cfbc741efa1c71023880dee6d3e82b94e838a
-    platform_ref: android-11.0.0_r29
+    build_id: RQ2A.210305.006
+    factory_hash: b4a2f36e9e9df4f711c325c1d03d3841f974174dc2796a7f2e44e9b24fa89c8b
+    ota_hash: b94faf09eec09855242c5ebf08ec2668caeebfd3a1052758e0f0da3bfe8582c7
+    platform_ref: android-11.0.0_r32
     platform_pubkey: aosp.asc
   taimen:
     kernel_ref: android-msm-wahoo-4.4-pie-qpr2
