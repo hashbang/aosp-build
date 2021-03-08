@@ -66,6 +66,21 @@ Refer to [GrapheneOS CLI install].
 
 ## Build ##
 
+Most of the dependencies are "contained". Only minimal software requirements
+exist for the controlling host that cannot be contained easily because of the
+bootstrapping problem:
+
+* GNU core utilities
+* GNU Make
+* Python 3 dependencies: jinja2
+
+They should be packaged by your distribution under the following names (adjust
+slight distro differences yourself):
+
+```
+coreutils make python3 python3-jinja2
+```
+
 ### Backends ###
 
 #### Local
