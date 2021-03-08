@@ -65,8 +65,10 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
         environment[key.upper()]=value.lower()
     if variant == "user" or variant == "userdebug":
         key_dir = "{}/keys/{}".format(cwd, device)
+        environment["PUBLIC_KEY_DIR"] = '{}/config/public_keys/{}'.format(cwd, device)
     else:
         key_dir = "{}/build/target/product/security/".format(base_dir)
+        environment["PUBLIC_KEY_DIR"] = key_dir
     environment["KEY_DIR"] = key_dir
     environment["RELEASE_DIR"] = "{}/release/".format(cwd)
 else:

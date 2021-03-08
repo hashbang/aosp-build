@@ -3,6 +3,7 @@
 set -e; eval "$(environment)"
 
 readonly key_dir="${KEY_DIR?}"
+readonly public_key_dir="${PUBLIC_KEY_DIR?}"
 readonly os_name="${OS_NAME?}"
 readonly rand_file="${RANDFILE?}"
 
@@ -24,7 +25,7 @@ declare -a keys=(
 	com.android.tzdata
 )
 
-mkdir -p "${key_dir}"
+mkdir -p "${key_dir}" "$public_key_dir"
 
 if [ -f "${rand_file}" ]; then
 	echo "Keeping seed: ${rand_file}"
@@ -58,6 +59,7 @@ for key in "${keys[@]}"; do
 			generate_verity_key -convert "${x509_file}" "${verity_file}"
 			[ -f "${verity_file}.pub" ] || \
 				{ echo "Generation failed for ${key}"; exit 1 ;};
+			cp "${x509_file}" "$public_key_dir"
 		;;
 		avb)
 			avb_file="${key_dir}/avb_pkmd.bin"
