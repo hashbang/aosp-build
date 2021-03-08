@@ -89,7 +89,7 @@ image-%: config/container/Dockerfile-%
 		$(IMAGE_OPTIONS) \
 		$(PWD)
 
-## Note that the default `image` target should be used for pinning.
+## Note that the `image-latest` target should be used for pinning.
 .PHONY: config/container/packages-pinned.list
 config/container/packages-pinned.list:
 	$(contain-no-tty) pin-packages > "$@"

@@ -4,7 +4,7 @@
 {% if "golang" in tags %}
 ARG GOLANG_IMAGE_REF=@sha256:84349ee862d8bafff35e0d2bfd539da565b536b4dfce654773fc21a1db2da6d7
 {% endif %}
-ARG DEBIAN_IMAGE_REF=@sha256:8414aa82208bc4c2761dc149df67e25c6b8a9380e5d8c4e7b5c84ca2d04bb244
+ARG DEBIAN_IMAGE_REF=@sha256:102ab2db1ad671545c0ace25463c4e3c45f9b15e319d3a00a1b2b085293c27fb
 
 {% if "golang" in tags %}
 FROM golang${GOLANG_IMAGE_REF} as golang
@@ -41,7 +41,7 @@ RUN go build -o /usr/local/bin/fixuid github.com/boxboat/fixuid
 {% endif %}
 
 
-FROM debian:buster${DEBIAN_IMAGE_REF}
+FROM debian:buster-20210208${DEBIAN_IMAGE_REF}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -63,7 +63,8 @@ ADD config/container/packages.list /etc/apt/packages.list
 ADD config/container/packages-pinned.list /etc/apt/packages.list
 {% endif %}
 
-RUN apt-get update \
+RUN echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/00debuerreotype_snapshot \
+    && apt-get update \
     && apt-get install -y $(grep -v '^#' /etc/apt/packages.list) \
     && sed --in-place '/en_US.UTF-8/s/^#\s*//;' /etc/locale.gen \
     && dpkg-reconfigure locales \
