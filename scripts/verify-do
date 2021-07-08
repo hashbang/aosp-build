@@ -3,7 +3,7 @@
 set -o nounset -o pipefail -o errexit
 
 case $REPO_REMOTE in
-	grapheneos) GNUPGHOME="$BASE_GNUPGHOME/daniel.micay" ;;
+	grapheneos*) GNUPGHOME="$BASE_GNUPGHOME/daniel.micay" ;;
 	seedvault-app) echo "WARNING: Cannot verify repo path $REPO_PATH because of https://github.com/seedvault-app/seedvault/issues/188" 1>&2
 		exit 0 ;;
 	*) GNUPGHOME="$BASE_GNUPGHOME/$REPO_REMOTE" ;;
