@@ -2,7 +2,7 @@
     <remote fetch="https://android.googlesource.com" name="aosp" review="https://android-review.googlesource.com/"/>  
     <default remote="aosp" revision="android-msm-bonito-4.9-android11" sync-j="4"/>  
 
-    <project name="kernel/build" path="build" revision="fcd2cb7180fe6ac34e1cfab551f959d994e33ced" upstream="refs/heads/master"/>  
+    <project name="kernel/build" path="build" revision="fac49ce02378332569757893d0c3f0e08919165a" upstream="refs/heads/master"/>  
     <project name="kernel/msm" path="private/msm-google" revision="90fdcf28fd1c480650bd5ba5aa03f062ba789397" upstream="refs/heads/android-msm-bonito-4.9-android11">    
         <linkfile dest="build.config" src="build.config.bonito_no-cfi"/>    
     </project>  

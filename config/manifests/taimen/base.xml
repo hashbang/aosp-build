@@ -13,7 +13,7 @@
         <linkfile dest="build/target" src="target"/>    
         <linkfile dest="build/tools" src="tools"/>    
     </project>  
-    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="d6f5326a4d132e474c9c1deb9d3a0178b954fe71" upstream="refs/heads/11">
+    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="68560412ee4613c0aa497087d80a1fe728466bbe" upstream="refs/heads/11">
 </project>  
   <project groups="pdk,tradefed" name="platform/build/blueprint" path="build/blueprint" revision="4e94b53754bb2915f680a1ab30401387c018846a" upstream="refs/tags/android-11.0.0_r25"/>  
     <project groups="pdk,tradefed" name="platform/build/soong" path="build/soong" revision="69f0ee5cf467aff2f2f143bd4f59293f4190b5a1" upstream="refs/tags/android-11.0.0_r25">    
