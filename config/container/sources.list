@@ -1,10 +1,4 @@
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic main restricted
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic-updates main restricted
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic universe
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic-updates universe
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic multiverse
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic-updates multiverse
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic-backports main restricted universe multiverse
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic-security main restricted
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic-security universe
-deb http://old-releases.ubuntu.com/ubuntu/ cosmic-security multiverse
+deb http://snapshot.debian.org/archive/debian/20210206T101028Z buster main contrib
+deb http://snapshot.debian.org/archive/debian-security/20210206T101028Z buster/updates main contrib
+deb http://snapshot.debian.org/archive/debian/20210206T101028Z buster-updates main contrib
+deb http://snapshot.debian.org/archive/debian/20210206T101028Z buster-backports main contrib

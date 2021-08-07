@@ -1,17 +1,21 @@
+SHELL = /bin/bash -o nounset -o pipefail -o errexit
+MAKEFLAGS += --no-builtin-rules
+.SUFFIXES:
+
 ## Argument Variables ##
 
-CPUS := $(shell nproc)
-MEMORY := 10000
-DISK := 300000
-DEVICE :=
-BACKEND := local
-CHANNEL := beta
-BUILD := user
-FLAVOR := aosp
-IMAGE := hashbang/aosp-build:latest
-IMAGE_OPTIONS :=
-NAME := aosp-build-$(FLAVOR)-$(BACKEND)
-SHELL := /bin/bash
+CPUS = $(shell nproc)
+MEMORY = 10000
+DISK = 300000
+DEVICE =
+BACKEND = local
+CHANNEL = beta
+FLAVOR = aosp
+IMAGE = hashbang/aosp-build:latest
+IMAGE_OPTIONS =
+RUN_OPTIONS =
+NAME = aosp-build-$(FLAVOR)-$(BACKEND)
+REQUIRED_FREE_SPACE_IN_GIB = 120
 
 -include $(PWD)/config/env/$(BACKEND).env
 
@@ -25,20 +29,24 @@ default: machine image fetch tools keys build release
 ## Primary Targets ##
 
 .PHONY: fetch
-fetch: submodule-update machine image
+fetch:
 	$(contain) fetch
 
 .PHONY: keys
 keys:
-	$(contain) keys
+	$(contain-keys) keys
+
+.PHONY: review
+review:
+	$(contain) review
 
 .PHONY: build
-build:
+build: ensure-enough-free-disk-space
 	$(contain) build
 
 .PHONY: release
 release:
-	$(contain) release
+	$(contain-keys) release
 
 .PHONY: publish
 publish:
@@ -52,27 +60,40 @@ clean:
 mrproper: storage-delete machine-delete
 	rm -rf build
 
-
 ## Secondary Targets ##
 
+config/container/Dockerfile: config/container/Dockerfile.j2 config/container/render_template
+	./config/container/render_template "$<" "{\"tags\":[]}" > "$@"
+
+## Support for different Docker image variants.
+config/container/Dockerfile-golang:
+config/container/Dockerfile-latest:
+config/container/Dockerfile-%: config/container/Dockerfile.j2 config/container/render_template
+	./config/container/render_template "$<" "{\"tags\":[\"$*\"]}" > "$@"
+
 .PHONY: image
-image:
-	$(docker) build \
-		--tag $(IMAGE) \
-		--file $(PWD)/config/container/Dockerfile \
-		$(IMAGE_OPTIONS) \
-		$(PWD)
-
-config/container/Dockerfile.minimal: config/container/Dockerfile config/container/render_template
-	./config/container/render_template "$<" | grep -v '^#\s*$$' > "$@"
-
-.PHONY: image-minimal
-image-minimal: config/container/Dockerfile.minimal
+image: config/container/Dockerfile
 	$(docker) build \
 		--tag $(IMAGE) \
 		--file "$(PWD)/$<" \
 		$(IMAGE_OPTIONS) \
 		$(PWD)
+
+.PHONY: image-%
+image-golang:
+image-latest:
+image-%: config/container/Dockerfile-%
+	$(docker) build \
+		--tag $(IMAGE) \
+		--file "$(PWD)/$<" \
+		$(IMAGE_OPTIONS) \
+		$(PWD)
+
+## Note that the `image-latest` target should be used for pinning.
+.PHONY: config/container/packages-pinned.list
+config/container/packages-pinned.list:
+	$(contain-no-tty) pin-packages > "$@"
+
 
 .PHONY: tools
 tools:
@@ -97,13 +118,13 @@ kernel:
 .PHONY: latest
 latest: config submodule-latest fetch
 
-.PHONY: manifest
-manifest: config
-	$(contain) bash -c "source <(environment) && manifest"
-
 .PHONY: config
 config:
 	$(contain) bash -c "source <(environment) && config"
+
+.PHONY: manifest
+manifest:
+	$(contain) bash -c "source <(environment) && manifest"
 
 .PHONY: test-repro
 test-repro:
@@ -114,18 +135,16 @@ test: test-repro
 
 .PHONY: patches
 patches:
-	@$(contain) bash -c "cd base; repo diff --absolute"
+	@$(contain) bash -c "cd build/base && repo diff --absolute"
 
 .PHONY: shell
 shell:
-	$(docker) inspect "$(NAME)" \
-	&& $(docker) exec --interactive --tty "$(NAME)" shell \
-	|| $(contain) shell
+	$(docker) exec --interactive --tty "$(NAME)" shell \
+		|| $(contain) shell
 
 .PHONY: monitor
 monitor:
-	$(docker) inspect "$(NAME)" \
-	&& $(docker) exec --interactive --tty "$(NAME)" htop
+	$(docker) exec --interactive --tty "$(NAME)" htop
 
 .PHONY: install
 install: tools
@@ -250,22 +269,63 @@ endif
 userid = $(shell id -u)
 groupid = $(shell id -g)
 docker_machine = docker-machine --storage-path "${PWD}/build/machine"
-contain := \
+
+# Can be used mount aosp-build directory to /opt/aosp-build to allow fast
+# development without the need to rebuild the container image all the time.
+# See HashbangMobile for example.
+contain-base-extend =
+
+contain-base = \
 	$(docker) run \
 		--rm \
-		--tty \
 		--interactive \
 		--name "$(NAME)" \
 		--hostname "$(NAME)" \
 		--user $(userid):$(groupid) \
 		--env DEVICE=$(DEVICE) \
+		--privileged \
 		--security-opt seccomp=unconfined \
 		--volume $(PWD)/config:/home/build/config \
 		--volume $(PWD)/release:/home/build/release \
 		--volume $(PWD)/scripts:/home/build/scripts \
-		$(storage_flags) \
+		$(contain-base-extend) \
+		$(RUN_OPTIONS) \
+		--shm-size="1g" \
+		$(storage_flags)
+
+contain-no-tty = \
+	$(contain-base) \
 		$(IMAGE)
 
+contain-keys = \
+	$(contain-base) \
+		--tty \
+		--volume $(PWD)/keys:/home/build/keys \
+		$(IMAGE)
+
+contain = \
+	$(contain-base) \
+		--tty \
+		$(IMAGE)
+
+## Helpers ##
+
+ensure-git-status-clean:
+	@if [ -z "$(shell git status --porcelain=v2)" ]; then \
+		echo "git status has no output. Working tree is clean."; \
+	else \
+		git status; \
+		echo "Working tree is not clean as required. Exiting."; \
+		exit 1; \
+	fi
+
+ensure-enough-free-disk-space:
+	@free_space=$(shell df -k --output=avail "$$PWD" | tail -n1); \
+	needed_free_space=$$(( $(REQUIRED_FREE_SPACE_IN_GIB) * 1024 * 1024 )); \
+	if [[ $$free_space -lt $$needed_free_space ]]; then \
+		echo "Not enought free space. $(REQUIRED_FREE_SPACE_IN_GIB) GiB are required." 1>&2; \
+		exit 1; \
+	fi
 
 ## Required Binary Check ##
 

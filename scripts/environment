@@ -49,15 +49,12 @@ environment = {
     "KCONFIG_NOTIMESTAMP": 1,
     "RANDFILE": "{}/build/randfile.bin".format(cwd),
     "LC_ALL":"C",
-    "PS4": '+ $(date --rfc-3339=seconds) ',
+    #  "PS4": '+ $(/bin/date --rfc-3339=seconds) ',
 }
 
 environment['BUILD_KERNEL'] = "true"
 if config.get('build_kernel') == False:
     environment['BUILD_KERNEL'] = "false"
-
-if 'OTA_CHANNEL' in environ and len(environ['OTA_CHANNEL']) > 0:
-    environment['OTA_CHANNEL']=environ['OTA_CHANNEL']
 
 if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     device=environment['DEVICE']=environ['DEVICE']
@@ -67,12 +64,16 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     for key, value in device_config.items():
         environment[key.upper()]=value.lower()
     if variant == "user" or variant == "userdebug":
-        key_dir = "{}/config/keys/{}".format(cwd, device)
+        key_dir = "{}/keys/{}".format(cwd, device)
+        environment["PUBLIC_KEY_DIR"] = '{}/config/public_keys/{}'.format(cwd, device)
     else:
         key_dir = "{}/build/target/product/security/".format(base_dir)
+        environment["PUBLIC_KEY_DIR"] = key_dir
     environment["KEY_DIR"] = key_dir
     environment["RELEASE_DIR"] = "{}/release/".format(cwd)
-    environment['BUILD_ID'] = device_config['build_id']
+else:
+    # Otherwise DEVICE will be '' as set by the Makefile with --env.
+    print("unset DEVICE")
 
 environment['ARCH'] = "arm64"
 environment['LANG'] = "C"
@@ -84,7 +85,7 @@ environment['CROSS_COMPILE_ARM32'] = \
 
 paths = [
     '.repo/repo',
-    'prebuilts/jdk/jdk8/linux-x86/bin',
+    'prebuilts/jdk/jdk11/linux-x86/bin',
     'build/tools/releasetools',
     'development/tools',
     'external/avb',

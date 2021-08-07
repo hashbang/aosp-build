@@ -51,9 +51,7 @@ ota_from_target_files \
 	"${release_dir}/${device}-ota_update-${build_number}.zip"
 
 echo 'Generating OTA metadata'
-ota_channel=${OTA_CHANNEL:-beta}
 generate-metadata \
-  --channel "${ota_channel}" \
   "${release_dir}/${device}-ota_update-${build_number}.zip"
 
 echo "Running img_from_target_files"
