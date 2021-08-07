@@ -40,8 +40,8 @@ RUN echo ' \
 RUN go build -o /usr/local/bin/fixuid github.com/boxboat/fixuid
 {% endif %}
 
-
-FROM debian:buster-20210208${DEBIAN_IMAGE_REF}
+# TODO: Install repo from backports.
+FROM debian:buster-20210621${DEBIAN_IMAGE_REF}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
