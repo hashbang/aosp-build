@@ -1,13 +1,13 @@
-build
-config/env/*
-config/container/Dockerfile-*
-config/manifests/**/*.yml
-release/*
+/build
+/config/env/*
+/config/container/Dockerfile-*
+/config/manifests/**/*.yml
+/release/*
 
 # Old path, please manually move to new path.
-config/keys
+/config/keys
 
 # New keys path.
-keys
+/keys
 
 .*
