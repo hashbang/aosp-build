@@ -33,5 +33,5 @@ echo "The following repositories are not contained in the AOSP manifest nor in t
 (
 while read -r repo_path; do
 	echo "$repo_path $(git -C "$repo_path" rev-parse HEAD)"
-done < <(diff "$device_base_aosp_manifest_repo/base.yml" "$device_base_manifest_repo/base.yml" | sed --quiet 's/^> - //p;')
+done < <(diff "$device_base_aosp_manifest_repo/base.yml" "$device_base_manifest_repo/base.yml" | sed --quiet 's/^> - //p;'; echo "vendor/android-prepare-vendor")
 ) | tee "$review_dir/additional_repo_path.list"
