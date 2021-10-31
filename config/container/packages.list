@@ -53,6 +53,7 @@ openssl
 # https://grapheneos.org/build#building-grapheneos
 # Additional android-prepare-vendor (for Pixel phones) dependencies:
 openjdk-11-jdk-headless
+e2fsprogs
 python
 python-protobuf
 python3-protobuf
