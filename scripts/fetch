@@ -30,15 +30,15 @@ repo init \
 	--manifest-url "${device_manifest_repo}" \
 	--manifest-name base.xml
 
-# --fetch-submodules is normally not needed so do not disable it because some
-# repos contain submodules that we don’t need.
+# --fetch-submodules is normally not needed so do not enable because some repos
+# contain submodules that we don’t need.
 repo sync \
+	--jobs "${cores}" \
+	--force-sync \
 	--verbose \
 	--current-branch \
-	--force-sync \
 	--no-tags \
 	--optimized-fetch \
-	--jobs "${cores}" \
 	--retry-fetches 3
 
 repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'git reset --hard ; git clean --force -dx'
