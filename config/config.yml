@@ -47,21 +47,21 @@ platform:
   - yukawa
 devices:
   bonito:
-    kernel_ref: android-msm-bluecross-4.9-pie-qpr1
+    kernel_ref: android-msm-bonito-4.9-android12
     build_id: SP1A.211105.002
     factory_hash: 246867a1f6f9e020038d34460bee499e94e74d9d4ffa5b7cd31743faeafb7fe0
     ota_hash: 69fc7ce6b1e0f8dc217142cb2caab801b843f6955f297fcea3bcc236e8749225
     platform_ref: android-12.0.0_r9
     platform_pubkey: aosp.asc
   sargo:
-    kernel_ref: android-msm-bonito-4.9-android11
+    kernel_ref: android-msm-bonito-4.9-android12
     build_id: SP1A.211105.002
     factory_hash: 973270419450f44b881eaa9ca236057801df7fb9775fb6aabd4f7dfe876b6948
     ota_hash: 8abcf6075847c28b1c9775e67b90d43051dbe13dc29f0eaaccd37750193ce755
     platform_ref: android-12.0.0_r9
     platform_pubkey: aosp.asc
   crosshatch:
-    kernel_ref: android-msm-bluecross-4.9-pie-qpr1
+    kernel_ref: android-msm-crosshatch-4.9-android12
     avb_mode: vbmeta_chained
     build_id: SP1A.210812.015
     factory_hash: 6dae03f8e91644f6ee0b9e872faaee2b43312c490f05934940c68074dced303a
@@ -69,7 +69,7 @@ devices:
     platform_ref: android-12.0.0_r1
     platform_pubkey: aosp.asc
   blueline:
-    kernel_ref: android-msm-bluecross-4.9-pie-qpr1
+    kernel_ref: android-msm-crosshatch-4.9-android12
     avb_mode: vbmeta_chained
     build_id: SP1A.210812.015
     factory_hash: c5f3469cfd9ac914377eac1d05eb60bde3b88d109c9e618eecf82a938bad5625
