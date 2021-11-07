@@ -2,7 +2,7 @@ version: '12'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1635719294
+datetime: 1635977837
 host: android
 user: build
 build_kernel: true
@@ -48,17 +48,17 @@ platform:
 devices:
   bonito:
     kernel_ref: android-msm-bluecross-4.9-pie-qpr1
-    build_id: SP1A.210812.015
-    factory_hash: 872afcc782ef8c8834ad51bee9d507ccbb6f587ebe142e94aa38e31c3bae9465
-    ota_hash: 2f2baeec3181d26a44f943a50949316cd3441a416a9834371f1199457f6863ef
-    platform_ref: android-12.0.0_r1
+    build_id: SP1A.211105.002
+    factory_hash: 246867a1f6f9e020038d34460bee499e94e74d9d4ffa5b7cd31743faeafb7fe0
+    ota_hash: 69fc7ce6b1e0f8dc217142cb2caab801b843f6955f297fcea3bcc236e8749225
+    platform_ref: android-12.0.0_r9
     platform_pubkey: aosp.asc
   sargo:
     kernel_ref: android-msm-bonito-4.9-android11
-    build_id: SP1A.210812.015
-    factory_hash: 2814957a2be903a57d4ea60518721a0681f2c8ed073bae6b9d6762e6b6aadb10
-    ota_hash: d42476db6e166a912e4eaa9eab6b62a0883fb959d02a63c880f4d71c993daf2e
-    platform_ref: android-12.0.0_r1
+    build_id: SP1A.211105.002
+    factory_hash: 973270419450f44b881eaa9ca236057801df7fb9775fb6aabd4f7dfe876b6948
+    ota_hash: 8abcf6075847c28b1c9775e67b90d43051dbe13dc29f0eaaccd37750193ce755
+    platform_ref: android-12.0.0_r9
     platform_pubkey: aosp.asc
   crosshatch:
     kernel_ref: android-msm-bluecross-4.9-pie-qpr1
