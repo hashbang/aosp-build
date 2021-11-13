@@ -15,7 +15,7 @@ platform:
     groups: device
     path: vendor/android-prepare-vendor
     remote: grapheneos
-    revision: refs/heads/12
+    revision: refs/tags/0.2.12
   remove_paths:
   - device/generic/car
   - device/generic/mini-emulator-arm64
@@ -28,14 +28,6 @@ platform:
   - device/google/crosshatch-kernel
   - device/google/muskie
   - device/google/wahoo-kernel
-  - device/lenaro/bootloader/arm-trusted-firmware
-  - device/linaro/bootloader/OpenPlatformPkg
-  - device/linaro/bootloader/arm-trusted-firmware
-  - device/linaro/bootloader/edk2
-  - device/linaro/dragonboard
-  - device/linaro/dragonboard-kernel
-  - device/linaro/poplar
-  - device/linaro/poplar-kernel
   - platform/developers/demos
   - platform/developers/samples/android
   - platform/prebuilts/qemu-kernel
@@ -45,6 +37,9 @@ platform:
   - darwin
   - mips
   - yukawa
+  - hikey
+  - poplar
+  - dragonboard
 devices:
   bonito:
     kernel_ref: android-msm-bonito-4.9-android12
