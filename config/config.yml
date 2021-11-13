@@ -2,7 +2,7 @@ version: '12'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1635977837
+datetime: 1636831755
 host: android
 user: build
 build_kernel: true
@@ -35,11 +35,11 @@ platform:
   remove_groups:
   - beagle_x15
   - darwin
-  - mips
-  - yukawa
-  - hikey
-  - poplar
   - dragonboard
+  - hikey
+  - mips
+  - poplar
+  - yukawa
 devices:
   bonito:
     kernel_ref: android-msm-bonito-4.9-android12

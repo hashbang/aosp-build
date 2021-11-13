@@ -5,7 +5,7 @@
   <default remote="aosp" revision="refs/tags/android-12.0.0_r1" sync-j="4"/>  
 
     <superproject name="platform/superproject" remote="aosp"/>  
-    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="99f8d65fef051defacab9cdac6546df0ace82e4a" upstream="refs/heads/12">
+    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="" upstream="refs/heads/">
 </project>  
   <contactinfo bugurl="go/repo-bug"/>  
 
@@ -80,8 +80,6 @@
     <project groups="device,trout,gull,pdk" name="device/google/trout" path="device/google/trout" revision="6229d5487f6a99e3ca7c54f1d02ddb394baf5751" upstream="refs/tags/android-12.0.0_r1"/>  
     <project groups="pdk" name="device/google/vrservices" path="device/google/vrservices" revision="bcf043a1f4deb5be3867e3878f15d8e6539bb90b" upstream="refs/tags/android-12.0.0_r1"/>  
     <project groups="pdk" name="device/google_car" path="device/google_car" revision="cfd7500ccdfe16076afd6903fc7f04d7d14654ee" upstream="refs/tags/android-12.0.0_r1"/>  
-    <project groups="device,hikey,pdk" name="device/linaro/hikey" path="device/linaro/hikey" revision="476c14d9d3993c82d0fdf2d9e82a2e545850bef7" upstream="refs/tags/android-12.0.0_r1"/>  
-    <project clone-depth="1" groups="device,hikey,pdk" name="device/linaro/hikey-kernel" path="device/linaro/hikey-kernel" revision="7bd30199c93cabdc9f44b0f86a65e289d65e4ff2" upstream="refs/tags/android-12.0.0_r1"/>  
     <project groups="device" name="device/mediatek/wembley-sepolicy" path="device/mediatek/wembley-sepolicy" revision="f2b009528138ffea692eae0bdc74294b85a6a5bf" upstream="refs/tags/android-12.0.0_r1"/>  
     <project groups="pdk" name="device/sample" path="device/sample" revision="bb5be3c29fd2cdb1eeede5237d4b164ab6fa9d91" upstream="refs/tags/android-12.0.0_r1"/>  
     <project groups="pdk" name="platform/external/aac" path="external/aac" revision="4f805840434f710e5d0b91534b2feaf35c04a8c6" upstream="refs/tags/android-12.0.0_r1"/>  

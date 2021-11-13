@@ -5,7 +5,7 @@
   <default remote="aosp" revision="refs/tags/android-12.0.0_r9" sync-j="4"/>  
 
     <superproject name="platform/superproject" remote="aosp" revision="android-12.0.0_r9"/>  
-    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="2e6334888b55b0e73165098998f94a03727f5f90" upstream="refs/heads/12">
+    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="" upstream="refs/heads/">
 </project>  
   <contactinfo bugurl="go/repo-bug"/>  
 
@@ -80,8 +80,6 @@
     <project groups="device,trout,gull,pdk" name="device/google/trout" path="device/google/trout" revision="c6efac0e673ec980f54218b6677c4a4d2ba4c7b1" upstream="refs/tags/android-12.0.0_r9"/>  
     <project groups="pdk" name="device/google/vrservices" path="device/google/vrservices" revision="856ba187e5b7a61d111072c7f1c4edab4f8f55f1" upstream="refs/tags/android-12.0.0_r9"/>  
     <project groups="pdk" name="device/google_car" path="device/google_car" revision="b2233dab455d995e727a3834924b02b4fb21daa3" upstream="refs/tags/android-12.0.0_r9"/>  
-    <project groups="device,hikey,pdk" name="device/linaro/hikey" path="device/linaro/hikey" revision="02f6b596c80b563ef48eb42e32b85ac5513c0f10" upstream="refs/tags/android-12.0.0_r9"/>  
-    <project clone-depth="1" groups="device,hikey,pdk" name="device/linaro/hikey-kernel" path="device/linaro/hikey-kernel" revision="1688b3243be0ebd1f3f38eee421f35fbff4263ac" upstream="refs/tags/android-12.0.0_r9"/>  
     <project groups="device" name="device/mediatek/wembley-sepolicy" path="device/mediatek/wembley-sepolicy" revision="a136c8ece79edfb66003eac4db31c34c5c502a4b" upstream="refs/tags/android-12.0.0_r9"/>  
     <project groups="pdk" name="device/sample" path="device/sample" revision="64d735e8273344ada31a13e66989ef4e7f28c4fa" upstream="refs/tags/android-12.0.0_r9"/>  
     <project groups="pdk" name="platform/external/aac" path="external/aac" revision="babffe00224bb3694be549bb51b6d4f6030c769a" upstream="refs/tags/android-12.0.0_r9"/>  
