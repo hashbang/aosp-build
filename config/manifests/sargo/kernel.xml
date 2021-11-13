@@ -1,17 +1,20 @@
 <?xml version="1.0" ?><manifest>  
     <remote fetch="https://android.googlesource.com" name="aosp" review="https://android-review.googlesource.com/"/>  
-    <default remote="aosp" revision="android-msm-bonito-4.9-android11" sync-j="4"/>  
+    <default remote="aosp" revision="android-msm-bonito-4.9-android12" sync-j="4"/>  
 
-    <project name="kernel/build" path="build" revision="0865c67a5170ceead9b4312cb8f74e95b5186a12" upstream="refs/heads/master"/>  
-    <project name="kernel/msm" path="private/msm-google" revision="90fdcf28fd1c480650bd5ba5aa03f062ba789397" upstream="refs/heads/android-msm-bonito-4.9-android11">    
-        <linkfile dest="build.config" src="build.config.bonito_no-cfi"/>    
+    <project name="kernel/msm" path="private/msm-google" revision="d728658b095fec2084cd4fadeff2b6eab24a1b09" upstream="refs/heads/android-msm-bonito-4.9-android12">    
+        <linkfile dest="build.config" src="build.config.bonito"/>    
+        <linkfile dest="build_bluecross.sh" src="build_bluecross.sh"/>    
+        <linkfile dest="build_bonito.sh" src="build_bonito.sh"/>    
     </project>  
-    <project name="kernel/msm-extra" path="private/msm-google/techpack/audio" revision="f49c717db2d431ea5878f72f5f696f4b803ea3c2" upstream="refs/heads/android-msm-bonito-4.9-android11"/>  
-    <project name="kernel/msm-modules/qca-wfi-host-cmn" path="private/msm-google-modules/wlan/qca-wifi-host-cmn" revision="51363f51d4b485b6e70987a426dc6eb791bb99dd" upstream="refs/heads/android-msm-bonito-4.9-android11"/>  
-    <project name="kernel/msm-modules/qcacld" path="private/msm-google-modules/wlan/qcacld-3.0" revision="e6b769be80938e5a974a2ac96d2cb70ae5ed3ef9" upstream="refs/heads/android-msm-bonito-4.9-android11"/>  
-    <project name="kernel/msm-modules/wlan-fw-api" path="private/msm-google-modules/wlan/fw-api" revision="f0fd7e2fcfa46be30b793032c7d421f6adcebb05" upstream="refs/heads/android-msm-bonito-4.9-android11"/>  
+    <project name="kernel/msm-extra" path="private/msm-google/techpack/audio" revision="11cdada77cf35718aa752130d25ba039ce38ca28" upstream="refs/heads/android-msm-bonito-4.9-android12"/>  
+    <project name="kernel/msm-modules/qca-wfi-host-cmn" path="private/msm-google-modules/wlan/qca-wifi-host-cmn" revision="8bdd717f707f263881a2af0abf854ecfce3b1e4c" upstream="refs/heads/android-msm-bonito-4.9-android12"/>  
+    <project name="kernel/msm-modules/qcacld" path="private/msm-google-modules/wlan/qcacld-3.0" revision="93bd2df200cde2c6c9494d6f5c0bac3822fb6401" upstream="refs/heads/android-msm-bonito-4.9-android12"/>  
+    <project name="kernel/msm-modules/wlan-fw-api" path="private/msm-google-modules/wlan/fw-api" revision="f0fd7e2fcfa46be30b793032c7d421f6adcebb05" upstream="refs/heads/android-msm-bonito-4.9-android12"/>  
+
+    <project name="kernel/build" path="build" revision="f4f2d2f0665c6031f67d8c84ff98b7d22d5abac1"/>  
     <project clone-depth="1" name="platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9" path="prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9" revision="606f80986096476912e04e5c2913685a8f2c3b65" upstream="refs/heads/android11-release"/>  
     <project clone-depth="1" name="platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9" path="prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9" revision="b0c6a654327ca8796bed1e61dffcf523d04dceaa" upstream="refs/heads/android11-release"/>  
-    <project clone-depth="1" groups="partner" name="platform/prebuilts/clang/host/linux-x86" path="prebuilts-master/clang/host/linux-x86" revision="f71cc7fa68ac644595257d6fdebc2e543cb7041c"/>  
+    <project clone-depth="1" groups="partner" name="platform/prebuilts/clang/host/linux-x86" path="prebuilts-master/clang/host/linux-x86" revision="537e01a6ff78760ee5b69597efdbc47bc721058d"/>  
     <project clone-depth="1" name="platform/prebuilts/misc" path="prebuilts-master/misc" revision="f11ff29241658fc703bf36fcbc3c48af12535dc9" upstream="refs/heads/android11-release"/>  
 </manifest>

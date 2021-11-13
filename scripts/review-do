@@ -4,23 +4,51 @@ set -o nounset -o pipefail -o errexit
 
 review_project_dir="$1/${REPO_PATH}"
 
-if git diff --quiet "${REPO_LREV}..HEAD"; then
-	# Ensure the output file is absent as there is no diff.
-	rm -f "${review_project_dir:?}/git.log"
+if [[ $REPO_PATH =~ ^(.*prebuilt.*|device/.*-kernel)$ ]]; then
+	# No history needed.
+
+	if [[ "$REPO_REMOTE" == "aosp" ]]; then
+		# Ensure the output file is absent as there is no diff.
+		rm -f "${review_project_dir:?}/git.log"
+	else
+		mkdir --parents "$(dirname "${review_project_dir}")"
+		git log --patch --unified=10 --reverse --full-index --compact-summary --decorate=short --date=format:'%a %Y-%m-%d %H:%M:%S%z' "HEAD" > "${review_project_dir}.log"
+		echo "Generated git log --patch file at ${review_project_dir}/git.log"
+	fi
 else
-	mkdir --parents "$(dirname "${review_project_dir}")"
+	# git-repo sometimes removes the git history (force repo sync) when having to clone a fork.
+	# If that happened the original is not local anymore and we have to redownload it into the fork.
+	if ! git rev-list -1 --missing=allow-any "${REPO_LREV}^0" -- &>/dev/null; then
+		case $REPO_REMOTE in
+			aosp) git remote add "$REPO_REMOTE" "https://android.googlesource.com/${REPO_PROJECT}.git" || : ;;
+			*) ;;
+		esac
+		repo_upstream_tag="${REPO_UPSTREAM##refs/tags/}"
+		git fetch --unshallow "$REPO_REMOTE" --no-tags tag "$repo_upstream_tag" "${REPO_LREV}" "$REPO_UPSTREAM" || :
+	fi
 
-	# find "${review_project_dir}" -name '*.patch' -print0 -delete >/dev/null
-	# git format-patch --no-numbered --unified=10 --zero-commit --full-index --compact-summary --quiet --output-directory "${review_project_dir}" "${REPO_RREV}"
+	if git diff --quiet "${REPO_LREV}..HEAD"; then
+		# Ensure the output file is absent as there is no diff.
+		rm -f "${review_project_dir:?}/git.log"
+	else
+		mkdir --parents "$(dirname "${review_project_dir}")"
 
-	# It seems that git (I tested up until 2.27.0) has no option to omit like --zero-index.
-	# So we set the pre- and post-image blob object names to `-` to avoid
-	# uninteresting diffs where only those hashes change.
-	# This regex depends on --full-index above.
-	# sed --regexp-extended --in-place 's/^index [0-9a-f]{40}\.\.[0-9a-f]{40}/index -..-/;' "${review_project_dir}"/*.patch
-	# Rather than doing that, better configure the editor to ignore uninteresting stuff.
-	# `git diff` now supports `--ignore-matching-lines`.
+		# Get all history so that git has the merge base of the fork and the
+		# original project.
+		git fetch --unshallow --no-tags "$(git remote | grep --invert-match "^${REPO_REMOTE}$")" || :
 
-	git log --patch --unified=10 --reverse --full-index --compact-summary --decorate=short --date=format:'%a %Y-%m-%d %H:%M:%S%z' "${REPO_LREV}..HEAD" > "${review_project_dir}.log"
-	echo "Generated git log --patch file at ${review_project_dir}/git.log"
+		# find "${review_project_dir}" -name '*.patch' -print0 -delete >/dev/null
+		# git format-patch --no-numbered --unified=10 --zero-commit --full-index --compact-summary --quiet --output-directory "${review_project_dir}" "${REPO_RREV}"
+
+		# It seems that git (I tested up until 2.27.0) has no option to omit like --zero-index.
+		# So we set the pre- and post-image blob object names to `-` to avoid
+		# uninteresting diffs where only those hashes change.
+		# This regex depends on --full-index above.
+		# sed --regexp-extended --in-place 's/^index [0-9a-f]{40}\.\.[0-9a-f]{40}/index -..-/;' "${review_project_dir}"/*.patch
+		# Rather than doing that, better configure the editor to ignore uninteresting stuff.
+		# `git diff` now supports `--ignore-matching-lines`.
+
+		git log --patch --unified=10 --reverse --full-index --compact-summary --decorate=short --date=format:'%a %Y-%m-%d %H:%M:%S%z' "${REPO_LREV}..HEAD" > "${review_project_dir}.log"
+		echo "Generated git log --patch file at ${review_project_dir}/git.log"
+	fi
 fi

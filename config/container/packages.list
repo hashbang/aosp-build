@@ -24,6 +24,9 @@ fontconfig
 python
 
 # https://source.android.com/setup/develop
+# Only needed for bootstrapping. `repo` will upgrade itself and aosp-build will
+# prefer the updated version.
+# TODO: Consider to hash lock the `repo` version.
 repo/buster-backports
 
 # Needed for aosp-build.
@@ -53,6 +56,7 @@ openssl
 # https://grapheneos.org/build#building-grapheneos
 # Additional android-prepare-vendor (for Pixel phones) dependencies:
 openjdk-11-jdk-headless
+e2fsprogs
 python
 python-protobuf
 python3-protobuf

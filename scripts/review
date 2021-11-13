@@ -19,14 +19,16 @@ repo init \
 	--no-clone-bundle \
 	--manifest-url "${device_base_aosp_manifest_repo}" \
 	--manifest-name base.xml
+function restore_previous_manifest {
+	rm .repo/manifests/ .repo/manifests.git/ -rf
+	repo init \
+		--no-clone-bundle \
+		--manifest-url "${device_base_manifest_repo}" \
+		--manifest-name base.xml
+}
+trap restore_previous_manifest EXIT
 
 repo --no-pager forall --ignore-missing --abort-on-errors -p --verbose --jobs "${cores}" -c 'review-do' "${review_dir}"
-
-rm .repo/manifests/ .repo/manifests.git/ -rf
-repo init \
-	--no-clone-bundle \
-	--manifest-url "${device_base_manifest_repo}" \
-	--manifest-name base.xml
 
 echo "The following repositories are not contained in the AOSP manifest nor in the above git log files. No git rebase is expected there so review by normal means."
 
