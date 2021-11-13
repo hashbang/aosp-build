@@ -14,7 +14,8 @@ export GNUPGHOME
 if [[ $REPO_UPSTREAM =~ refs/tags/.* ]]; then
 	git_tag="${REPO_UPSTREAM#refs/tags/}"
 
-	git verify-tag "$git_tag"
+	# Rater only show errors and warnings instead of spamming the terminal history.
+	git verify-tag "$git_tag" 2>&1 | (grep -E --ignore-case --invert-match '^gpg: (Signature made|\s*using \w+ key|Good signature from|\s*aka|\s*issuer)' || :) 1>&2
 else
 	echo "WARNING: Cannot verify repo path $REPO_PATH because the manifest specifies no git tag." 1>&2
 fi
