@@ -27,19 +27,20 @@ echo "Cloning platform..."
 cd "${base_dir}"
 rm .repo/manifests/ .repo/manifests.git/ -rf
 repo init \
+	--depth=1 \
 	--manifest-url "${device_manifest_repo}" \
 	--manifest-name base.xml
 
 # --fetch-submodules is normally not needed so do not enable because some repos
 # contain submodules that we don’t need.
+# Sometimes repo sync hangs until the user presses return. Seems to be Docker specific. Lets see if `yes` fixes it. -> Did not help.
 repo sync \
 	--jobs "${cores}" \
 	--force-sync \
+	--no-manifest-update \
 	--verbose \
 	--current-branch \
-	--no-tags \
-	--optimized-fetch \
-	--retry-fetches 3
+	--optimized-fetch
 
 repo --no-pager forall --abort-on-errors -p --verbose --jobs "${cores}" -c 'git reset --hard ; git clean --force -dx'
 
