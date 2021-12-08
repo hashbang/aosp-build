@@ -15,7 +15,7 @@ platform:
     groups: device
     path: vendor/android-prepare-vendor
     remote: grapheneos
-    revision: refs/tags/0.2.12
+    revision: 12
   remove_paths:
   - device/generic/car
   - device/generic/mini-emulator-arm64
