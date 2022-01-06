@@ -4,17 +4,18 @@ import yaml
 from os import environ, getenv, getcwd
 from os.path import isfile
 from time import strftime, gmtime
+from pathlib import Path
 
-cwd = getcwd()
+home_dir = str(Path.home())
 cross64 = "prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin"
 cross32 = "prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin"
 libfaketime = "/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1"
 if 'BASE_DIR' in environ:
     base_dir = environ['BASE_DIR']
 else:
-    base_dir = "{}/build/base".format(cwd)
+    base_dir = "{}/build/base".format(home_dir)
 
-config_file='{}/config/config.yml'.format(cwd)
+config_file='{}/config/config.yml'.format(home_dir)
 with open(config_file, encoding='utf-8') as data_file:
     config = yaml.load(data_file.read())
 
@@ -23,14 +24,14 @@ patches = ", ".join(config.get('platform',{}).get('patches',[]))
 environment = {
     "OS_NAME": config['name'],
     "CONFIG_FILE": config_file,
-    "CONFIG_DIR": '{}/config'.format(cwd),
+    "CONFIG_DIR": '{}/config'.format(home_dir),
     "BASE_DIR": base_dir,
     "ANDROID_HOME": "{}/sdk".format(base_dir),
-    "MANIFEST_REPO": "{}/config/manifests".format(cwd),
-    "MANIFEST_DIR": "{}/config/manifests".format(cwd),
-    "OVERLAY_DIR": "{}/config/overlay".format(cwd),
-    "PATCH_DIR": "{}/config/patches".format(cwd),
-    "EXTERNAL_DIR": "{}/build/external".format(cwd),
+    "MANIFEST_REPO": "{}/config/manifests".format(home_dir),
+    "MANIFEST_DIR": "{}/config/manifests".format(home_dir),
+    "OVERLAY_DIR": "{}/config/overlay".format(home_dir),
+    "PATCH_DIR": "{}/config/patches".format(home_dir),
+    "EXTERNAL_DIR": "{}/build/external".format(home_dir),
     "DEVICES": ",".join(config['devices'].keys()),
     "PLATFORM_PATCHES": patches,
     "BUILD_HOST": config['host'],
@@ -47,7 +48,7 @@ environment = {
     "KBUILD_BUILD_VERSION": \
         strftime('%m%d%H%M', gmtime(config['datetime'])),
     "KCONFIG_NOTIMESTAMP": 1,
-    "RANDFILE": "{}/build/randfile.bin".format(cwd),
+    "RANDFILE": "{}/build/randfile.bin".format(home_dir),
     "LC_ALL":"C",
     #  "PS4": '+ $(/bin/date --rfc-3339=seconds) ',
 }
@@ -64,13 +65,13 @@ if 'DEVICE' in environ and len(environ['DEVICE']) > 0:
     for key, value in device_config.items():
         environment[key.upper()]=value.lower()
     if variant == "user" or variant == "userdebug":
-        key_dir = "{}/keys/{}".format(cwd, device)
-        environment["PUBLIC_KEY_DIR"] = '{}/config/public_keys/{}'.format(cwd, device)
+        key_dir = "{}/keys/{}".format(home_dir, device)
+        environment["PUBLIC_KEY_DIR"] = '{}/config/public_keys/{}'.format(home_dir, device)
     else:
         key_dir = "{}/build/target/product/security/".format(base_dir)
         environment["PUBLIC_KEY_DIR"] = key_dir
     environment["KEY_DIR"] = key_dir
-    environment["RELEASE_DIR"] = "{}/release/".format(cwd)
+    environment["RELEASE_DIR"] = "{}/release/".format(home_dir)
 else:
     # Otherwise DEVICE will be '' as set by the Makefile with --env.
     print("unset DEVICE")
