@@ -2,7 +2,7 @@ version: '12'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1641505032
+datetime: 1644353059
 host: android
 user: build
 build_kernel: true
@@ -43,31 +43,31 @@ platform:
 devices:
   bonito:
     kernel_ref: android-msm-bonito-4.9-android12
-    build_id: SQ1A.220105.002
-    factory_hash: 4f5ed95d5ad5e02180e05b5965ef827fa59d6cedef40355a5bad3ce4ba353cba
-    ota_hash: 79fd83830df6340f3185c54adb74341add89580f0bba60127ee98067082aecc8
-    platform_ref: android-12.0.0_r26
+    build_id: SQ1A.220205.002
+    factory_hash: 3f67ac2fa5076d65b8c50eb0d1687d5aeda40492fa89471c94dfc6bc3fac2a00
+    ota_hash: 254447a0725762ba0d75d062fec47bd68e3d04277ee8429d48ca09507e3cdf43
+    platform_ref: android-12.0.0_r28
     platform_pubkey: aosp.asc
   sargo:
     kernel_ref: android-msm-bonito-4.9-android12
-    build_id: SQ1A.220105.002
-    factory_hash: 500674e470a607a5d41f1809779521c032ed4b19322eec294774771400f42188
-    ota_hash: 6c59f2a91af78fa5b4f56b6928eb6f190e6363de585a411d400cc00c38e554e7
-    platform_ref: android-12.0.0_r26
+    build_id: SQ1A.220205.002
+    factory_hash: 6e9afc3aa858326ea2717c4f3c70f45def214dd0efc75e08694624e9833d1ea0
+    ota_hash: e3707c916e76b40d79eca057a8aaf0ed2a99a25d08c8df7424448d0fcaa1db8e
+    platform_ref: android-12.0.0_r28
     platform_pubkey: aosp.asc
   crosshatch:
     kernel_ref: android-msm-crosshatch-4.9-android12
     avb_mode: vbmeta_chained
-    build_id: SP1A.210812.016.A2
-    factory_hash: 0de199e10b56e3673a75384e41b570080f2d94b0e7b5e7d4b7cec31461f7a0c4
-    ota_hash: a843fa3fb88fc0b17413d488b9fefb296e362c6e4c286560685cda7d604e9e98
-    platform_ref: android-12.0.0_r25
+    build_id: SP1A.210812.016.C1
+    factory_hash: 67ea87fcce2c2ea5da0d0a12b476a4bb1844040bd7c20f17f105d13b253e2a62
+    ota_hash: d3a532dd7e61bd1c038ccbf3de1a3063b210b7677c4814e63e5b2070688799a5
+    platform_ref: android-12.0.0_r31
     platform_pubkey: aosp.asc
   blueline:
     kernel_ref: android-msm-crosshatch-4.9-android12
     avb_mode: vbmeta_chained
-    build_id: SP1A.210812.016.A2
-    factory_hash: 0e1330dfe4606b92fb441592f1f9e1d8a0a3bd99ade19df6e21cbb003a9593d8
-    ota_hash: 4c10edc002c2485f47d418669fafe3a293d87915c9a7cae04f18214e409a9fda
-    platform_ref: android-12.0.0_r25
+    build_id: SP1A.210812.016.C1
+    factory_hash: b41403db20d13a6f74f8a626ee9ee591adb435768d9f8cf40fefc8c294e2a4e1
+    ota_hash: e72a1a2be3a2fbe211a430776c66810fc48ab222e9441bb48d27d6a8f3cf07c2
+    platform_ref: android-12.0.0_r31
     platform_pubkey: aosp.asc
