@@ -2,7 +2,7 @@ version: '12'
 name: Android Open Source Project
 type: release
 variant: user
-datetime: 1644353059
+datetime: 1647093399
 host: android
 user: build
 build_kernel: true
@@ -15,7 +15,7 @@ platform:
     groups: device
     path: vendor/android-prepare-vendor
     remote: grapheneos
-    revision: refs/heads/12
+    revision: refs/heads/12.1
   remove_paths:
   - device/generic/car
   - device/generic/mini-emulator-arm64
@@ -43,17 +43,17 @@ platform:
 devices:
   bonito:
     kernel_ref: android-msm-bonito-4.9-android12
-    build_id: SQ1A.220205.002
-    factory_hash: 3f67ac2fa5076d65b8c50eb0d1687d5aeda40492fa89471c94dfc6bc3fac2a00
-    ota_hash: 254447a0725762ba0d75d062fec47bd68e3d04277ee8429d48ca09507e3cdf43
-    platform_ref: android-12.0.0_r28
+    build_id: SP2A.220305.012
+    factory_hash: 0a1c00a1a0d3609155130c837c4d61d440f4f24207edaeb56522af4c030e4859
+    ota_hash: 847cc743636d824f58827d13349ff2c040f87eed1fe7ba3e46a7f9e7e96953f3
+    platform_ref: android-12.1.0_r1
     platform_pubkey: aosp.asc
   sargo:
     kernel_ref: android-msm-bonito-4.9-android12
-    build_id: SQ1A.220205.002
-    factory_hash: 6e9afc3aa858326ea2717c4f3c70f45def214dd0efc75e08694624e9833d1ea0
-    ota_hash: e3707c916e76b40d79eca057a8aaf0ed2a99a25d08c8df7424448d0fcaa1db8e
-    platform_ref: android-12.0.0_r28
+    build_id: SP2A.220305.012
+    factory_hash: 6a43e8336e38043a0659d92e2e0f28add66dc82d56a4298f901bd2cd2191c940
+    ota_hash: 662109017074fd71c3f8603375680ebc8fcc0745bcfe92a4094356203cff817b
+    platform_ref: android-12.1.0_r1
     platform_pubkey: aosp.asc
   crosshatch:
     kernel_ref: android-msm-crosshatch-4.9-android12

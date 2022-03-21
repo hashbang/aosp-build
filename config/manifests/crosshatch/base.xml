@@ -5,7 +5,7 @@
   <default remote="aosp" revision="refs/tags/android-12.0.0_r31" sync-j="4"/>  
 
     <superproject name="platform/superproject" remote="aosp" revision="android-12.0.0_r31"/>  
-    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="44e64aa9fdb372b1ee44cc50ee1230a635b84f12" upstream="refs/heads/12">
+    <project groups="device" name="android-prepare-vendor" path="vendor/android-prepare-vendor" remote="grapheneos" revision="bd34f41a8aa15366226c921be3e71a773b5e7501" upstream="refs/heads/12">
 </project>  
   <contactinfo bugurl="go/repo-bug"/>  
 
