@@ -1,5 +1,9 @@
 #!/bin/bash
-## Credits go to Samuel `sj26` Cochran, ref: https://gist.github.com/sj26/88e1c6584397bb7c13bd11108a579746
+# SPDX-FileCopyrightText: 2022 Samuel Cochran <sj26@sj26.com>
+#
+# SPDX-License-Identifier: MIT
+#
+# https://gist.github.com/sj26/88e1c6584397bb7c13bd11108a579746
 
 set -o nounset -o pipefail -o errexit
 
